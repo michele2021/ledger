@@ -1,0 +1,7 @@
+[
+  {
+    "Id": "76ec3393-4e2a-410e-3483-2ed39518fbb2",
+    "MessageGroupId": "Group_id",
+    "MessageBody": "{\"uuid\":\"fe592da6-9dff-4a8b-a090-db09c9db8362\",\"type\":\"TOKEN_CREATE_ACTIVE\",\"amount\":{\"quantity\":\"50\",\"currencyCode\":\"EUR\"},\"timestamp\":1653492561345,\"accountCode\":\"EPAY_IT\",\"source\":\"CLEVERCARDS_API\",\"txReference\":null,\"additionalData\":{\"issuer\":\"PERFECT_CARD\",\"expiryDate\":\"2022-11-30\",\"publishableId\":\"58166330482282\",\"activatingLocationRef\":\"testRef\",\"activationTimezone\":\"Europe/Warsaw\",\"activationTimestamp\":\"2022-05-25T17:29:20Z\"}}"
+  }
+]

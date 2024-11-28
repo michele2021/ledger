@@ -1,0 +1,93 @@
+package com.accounting.core.processing;
+
+import com.accounting.commons.Constants;
+import com.accounting.commons.Message;
+import com.accounting.commons.entities.Account;
+import com.accounting.commons.entities.Amount;
+import com.accounting.commons.entities.JournalType;
+import com.accounting.commons.entities.TxType;
+import com.accounting.commons.queue.QueueMessage;
+import com.accounting.core.entities.JournalTemplate;
+import com.accounting.core.services.RepositoryHelper;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.accounting.commons.Constants.AccountType.*;
+import static com.accounting.commons.Message.EventType.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class TemplateCacheTest {
+
+    JsonSchemaFactory jsonSchemaFactory;
+
+    @Test
+    void shouldLoadTemplatesFromResources() throws Exception {
+        //given
+
+
+        //when
+        TemplateCache subject = new TemplateCache();
+        subject.load();
+
+        //then
+        @SuppressWarnings("unchecked")
+        Map<Message.EventType, JournalTemplate> templates = (Map<Message.EventType, JournalTemplate>) FieldUtils.readField(subject, "templates", true);
+        assertNotNull(templates);
+        assertEquals(17, templates.size());
+
+        jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+
+        assertTemplate(templates.get(TOKEN_ACTIVATE), "TokenActivate", "TokenActivate.json", Constants.TxType.Token, TOKEN_ACTIVATE, List.of(Distributor, Client), Constants.JournalType.Activated, true);
+        assertTemplate(templates.get(TOKEN_CANCEL), "TokenCancel", "TokenCancel.json", Constants.TxType.Token, TOKEN_CANCEL, List.of(Distributor, Client), Constants.JournalType.Cancelled, false);
+        assertTemplate(templates.get(TOKEN_DEACTIVATE), "TokenDeactivate", "TokenDeactivate.json", Constants.TxType.Token, TOKEN_DEACTIVATE, List.of(Distributor, Client), Constants.JournalType.Deactivated, false);
+        assertTemplate(templates.get(TOKEN_EXPIRY), "TokenExpiry", "TokenExpiry.json", Constants.TxType.Token, TOKEN_EXPIRY, List.of(Distributor, Client), Constants.JournalType.Expired, false);
+        assertTemplate(templates.get(TOKEN_CREATE), "TokenCreate", "TokenCreate.json", Constants.TxType.Token, TOKEN_CREATE, List.of(Distributor, Client), Constants.JournalType.Created, true);
+        assertTemplate(templates.get(TOKEN_CREATE_ACTIVE), "TokenCreateActive", "TokenCreateActive.json", Constants.TxType.Token, TOKEN_CREATE_ACTIVE, List.of(Distributor, Client), Constants.JournalType.Activated, true);
+        assertTemplate(templates.get(TOKEN_CONVERSION), "TokenConvert", "TokenConversion.json", Constants.TxType.Token, TOKEN_CONVERSION, List.of(Distributor, Client), Constants.JournalType.Converted, true);
+        assertTemplate(templates.get(PAYMENT_RECEIVED), "AccountAddFunds", "PaymentReceived.json", Constants.TxType.Payment, PAYMENT_RECEIVED, List.of(Distributor, Client), Constants.JournalType.FundsReceived, true);
+        assertTemplate(templates.get(PAYMENT_RECEIVED_CORRECTION), "AccountAddFundsCorrection", "PaymentReceivedCorrection.json", Constants.TxType.Payment, PAYMENT_RECEIVED_CORRECTION, List.of(Distributor, Client), Constants.JournalType.FundsReceivedCorrection, true);
+        assertTemplate(templates.get(CLIENT_BALANCE_FEE_ADJUSTMENT), "AccountFeeAdjustment", "ClientBalanceFeeAdjustment.json", Constants.TxType.Adjustment, CLIENT_BALANCE_FEE_ADJUSTMENT, List.of(Distributor, Client), Constants.JournalType.FeeAdjustment, true);
+        assertTemplate(templates.get(CLIENT_FEE_PAYOUT), "ClientFeePayout", "ClientFeePayout.json", Constants.TxType.Payout, CLIENT_FEE_PAYOUT, List.of(Distributor, Client), Constants.JournalType.FeePaid, false);
+        assertTemplate(templates.get(BANK_PAYMENT), "BankPayment", "BankPayment.json", Constants.TxType.Payment, BANK_PAYMENT, List.of(Distributor, Client, BusinessEntity), Constants.JournalType.PaymentReceived, true);
+        assertTemplate(templates.get(TOKEN_CARD_CANCEL), "TokenCardCancel", "TokenCardCancel.json", Constants.TxType.Token, TOKEN_CARD_CANCEL, List.of(Distributor, Client), Constants.JournalType.CardCancelled, true);
+        assertTemplate(templates.get(CARD_RELOAD), "CardAccountReload", "CardAccountReload.json", Constants.TxType.Card, CARD_RELOAD, List.of(Distributor, Client), Constants.JournalType.Reloaded, true);
+    }
+
+    private void assertTemplate(JournalTemplate journalTemplate,
+                                String clazz,
+                                String fileName,
+                                Constants.TxType txType,
+                                Message.EventType eventType,
+                                List<Constants.AccountType> accountTypes,
+                                Constants.JournalType journalType,
+                                boolean haveAdditionalDataSchema) throws Exception {
+        assertEquals(clazz, journalTemplate.getClazz());
+        assertEquals(fileName, journalTemplate.getFileName());
+        assertEquals(txType, journalTemplate.getTxType());
+        assertEquals(eventType, journalTemplate.getEventType());
+        assertEquals(accountTypes, journalTemplate.getAccountTypes());
+        assertEquals(journalType, journalTemplate.getJournalType());
+
+        //make sure class exists and have proper ctor
+        //noinspection ResultOfMethodCallIgnored
+        Class.forName("com.accounting.core.processing.templates." + journalTemplate.getClazz())
+                .getConstructor(JournalMaker.class, Account.class, Amount.class, JournalType.class, TxType.class, QueueMessage.class, RepositoryHelper.class);
+
+        if (haveAdditionalDataSchema) {
+            assertNotNull(journalTemplate.getAdditionalDataSchema());
+            Optional.of(journalTemplate.getAdditionalDataSchema())
+                    .map(jsonSchemaFactory::getSchema)
+                    .ifPresent(Assertions::assertNotNull);
+        } else {
+            assertNull(journalTemplate.getAdditionalDataSchema());
+        }
+
+    }
+}

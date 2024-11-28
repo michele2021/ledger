@@ -1,0 +1,146 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.0.0' // necessary to build the shadowJar (fatJar)
+}
+
+apply plugin: 'maven-publish'
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+group 'com.accounting.core'
+
+application {
+    mainClass = 'com.accounting.core.AccountingCoreApp'
+}
+
+def getMavenSettingsCredentials = {
+    String userHome = System.getProperty('user.home')
+    File mavenSettings = new File(userHome, '.m2/settings.xml')
+    def xmlSlurper = new groovy.xml.XmlSlurper()
+    def output = xmlSlurper.parse(mavenSettings)
+    return output.'servers'.'server'
+}
+
+def getS3Credentials = { credentials ->
+    def entries = getMavenSettingsCredentials()
+    for (entry in entries) {
+        if (entry.'id'.text() == 'maven.cleverbug.com') {
+            credentials.setAccessKey(entry.username.text())
+            credentials.setSecretKey(entry.password.text())
+            return
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url s3_release_repository
+        credentials(AwsCredentials, getS3Credentials)
+    }
+    maven {
+        url s3_snapshot_repository
+        credentials(AwsCredentials, getS3Credentials)
+    }
+}
+
+project.ext {
+    accounting_commons_version = '5.96-SNAPSHOT'
+    // monavate_iban_version = '1.22.2'
+
+    dropwizard_version = "2.0.20"
+    lombok_version = '1.18.22'
+    jdbi3_sqlobject_version = '3.28.0'
+    awssdk_version = '2.17.216'
+
+    junit_jupiter_version = '5.8.1'
+    mockito_version = '4.3.1'
+}
+
+dependencies {
+    implementation 'in.vectorpro.dropwizard:dropwizard-swagger:2.0.28-1'
+    implementation "com.accounting.commons:accounting-commons:${accounting_commons_version}"
+
+    implementation "io.dropwizard:dropwizard-core:${dropwizard_version}"
+    implementation "io.dropwizard:dropwizard-auth:${dropwizard_version}"
+    implementation "io.dropwizard:dropwizard-jdbi3:${dropwizard_version}"
+    testImplementation "io.dropwizard:dropwizard-testing:${dropwizard_version}"
+
+    implementation platform("software.amazon.awssdk:bom:${awssdk_version}")
+    implementation "software.amazon.awssdk:sqs:${awssdk_version}"
+    implementation "software.amazon.awssdk:sns:${awssdk_version}"
+
+    implementation 'org.postgresql:postgresql:42.2.23'
+    implementation "org.jdbi:jdbi3-sqlobject:${jdbi3_sqlobject_version}"
+    implementation group: 'org.jdbi', name: 'jdbi3-gson2', version: '3.36.0'
+    implementation 'org.jdbi:jdbi3-postgres:3.36.0'
+
+    implementation 'com.google.inject:guice:5.0.1'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.networknt:json-schema-validator:1.0.68'
+
+    // implementation "com.accounting:monavate-iban-java-client:${monavate_iban_version}"
+
+    compileOnly "org.projectlombok:lombok:${lombok_version}"
+    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
+
+    testCompileOnly "org.projectlombok:lombok:${lombok_version}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_jupiter_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junit_jupiter_version}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junit_jupiter_version}"
+
+    testImplementation "org.mockito:mockito-core:${mockito_version}"
+    testImplementation "org.mockito:mockito-inline:${mockito_version}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockito_version}"
+
+    testImplementation "org.assertj:assertj-core:3.22.0"
+    testImplementation "org.jdbi:jdbi3-testing:${jdbi3_sqlobject_version}"
+    testImplementation 'org.liquibase.ext:liquibase-postgresql:4.8.0'
+}
+
+run {
+    args 'server', 'server.yaml'
+}
+
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = 'com.accounting.core'
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url project.s3_snapshot_repository
+            } else {
+                url project.s3_release_repository
+            }
+            credentials(AwsCredentials, getS3Credentials)
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    filter {
+        excludeTestsMatching "com.accounting.core.testUtils.*"
+    }
+}
+

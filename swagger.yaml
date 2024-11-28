@@ -1,0 +1,364 @@
+openapi: 3.0.1
+info:
+  title: Accounting core
+  version: 1.0.0
+paths:
+  /accounting/amqueue/{messageId}/skip:
+    post:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Check whether the message is in the list of items to skip and mark as skipped if it is (Active MQ).
+      description: Check whether the message is in the list of items to skip and mark as skipped if it is.
+      operationId: skipAMQMessage
+      tags:
+        - accounting
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: result of skip action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkipResult'
+        '401':
+          description: Missing or invalid API Key
+        '500':
+          description: Internal server error while processing the request
+  /accounting/account/program/{accountCode}/balance:
+    get:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Returns the balances of the given Program account for the given register type (can be more than one in case of multiple currencies)
+      operationId: getProgramAccountBalances
+      tags:
+        - balance APIs
+      parameters:
+        - in: path
+          name: accountCode
+          required: true
+          schema:
+            type: integer
+          description: the program account code
+        - in: query
+          name: registerTypeCode
+          required: true
+          schema:
+            type: string
+          description: the register type (ledger name)
+        - in: query
+          name: currencyCode
+          required: false
+          schema:
+            type: string
+          description: the currency code
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TxFullView"
+        401:
+          description: Missing or invalid API key
+        400:
+          description: Parameters validation failed
+        404:
+          description: Account not found
+        500:
+          description: Unhandled error
+  /accounting/account/client/{accountCode}/balance:
+    get:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Returns the balances of the given Client account for the given register type (can be more than one in case of multiple currencies)
+      operationId: getClientAccountBalances
+      tags:
+        - balance APIs
+      parameters:
+        - in: path
+          name: accountCode
+          required: true
+          schema:
+            type: integer
+          description: the client account code
+        - in: query
+          name: registerTypeCode
+          required: true
+          schema:
+            type: string
+          description: the register type (ledger name)
+        - in: query
+          name: currencyCode
+          required: false
+          schema:
+            type: string
+          description: the currency code
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TxFullView"
+        401:
+          description: Missing or invalid API key
+        400:
+          description: Parameters validation failed
+        404:
+          description: Account not found
+        500:
+          description: Unhandled error
+  /accounting/tx/{id}:
+    get:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Returns the detail of a tx
+      operationId: getTxById
+      tags:
+        - reporting APIs
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: the identifier of the tx
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TxFullView"
+        401:
+          description: Missing or invalid API key
+        404:
+          description: Tx not found
+        500:
+          description: Unhandled error
+  /accounting/journal/{id}:
+    get:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Returns the detail of a journal
+      operationId: getJournalById
+      tags:
+        - reporting APIs
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: the identifier of the journal
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalFullView"
+        401:
+          description: Missing or invalid API key
+        404:
+          description: Tx not found
+        500:
+          description: Unhandled error
+  /accounting/batch/{id}:
+    get:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Returns the detail of a batch
+      operationId: getBatchById
+      tags:
+        - reporting APIs
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: the identifier of the batch
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchView"
+        401:
+          description: Missing or invalid API key
+        404:
+          description: Tx not found
+        500:
+          description: Unhandled error
+  /accounting/tokens:
+    get:
+      security:
+        - ApiKeyAuth: [ ]
+      summary: Returns all tokens with the current status
+      operationId: getTokens
+      tags:
+        - reporting APIs
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenFullView"
+        401:
+          description: Missing or invalid API key
+        404:
+          description: Tokens not found
+        500:
+          description: Unhandled error
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+  schemas:
+    SkipResult:
+      type: object
+      properties:
+        result:
+          type: boolean
+    TxFullView:
+      allOf:
+        - $ref: '#/components/schemas/TxView'
+        - type: object
+          properties:
+            journals:
+              type: array
+              items:
+                $ref: '#/components/schemas/JournalView'
+    TokenFullView:
+      allOf:
+        - $ref: '#/components/schemas/TokenView'
+        - type: object
+          properties:
+            quantity:
+              type: integer
+            currencyId:
+              type: integer
+            accountId:
+              type: integer
+            accountCode:
+              type: string
+            creationDate:
+              type: string
+              format: date-time
+            currencyCode:
+              type: string
+            txReference:
+              type: string
+            status:
+              type: string
+    JournalFullView:
+      allOf:
+        - $ref: '#/components/schemas/JournalView'
+        - type: object
+          properties:
+            journalLines:
+              type: array
+              items:
+                $ref: '#/components/schemas/JournalLineView'
+            txs:
+              type: array
+              items:
+                $ref: '#/components/schemas/TxView'
+    TxView:
+      type: object
+      properties:
+        txId:
+          type: integer
+        accountCode:
+          type: string
+        txTypeCode:
+          type: string
+        quantity:
+          type: integer
+        currencyCode:
+          type: string
+        parentTxId:
+          type: integer
+        creationDate:
+          type: string
+          format: date-time
+    TokenView:
+      type: object
+      properties:
+        txId:
+          type: integer
+        publishableId:
+          type: integer
+        expiryDate:
+          type: string
+        locationRef:
+          type: string
+        activatingLocationRef:
+          type: string
+    JournalView:
+      type: object
+      properties:
+        journalId:
+          type: integer
+        journalTypeCode:
+          type: string
+        bookingDate:
+          type: string
+          format: date-time
+    JournalLineView:
+      type: object
+      properties:
+        journalId:
+          type: integer
+        journalLineId:
+          type: integer
+        batchId:
+          type: integer
+        accountCode:
+          type: string
+        registerTypeCode:
+          type: string
+        journalTypeCode:
+          type: string
+        quantity:
+          type: integer
+        currencyCode:
+          type: string
+        currencyId:
+          type: integer
+        bookingDate:
+          type: string
+          format: date-time
+    BatchView:
+      type: object
+      properties:
+        batchId:
+          type: integer
+        accountCode:
+          type: string
+        registerTypeCode:
+          type: string
+        batchNumber:
+          type: integer
+        currencyCode:
+          type: string
+        periodBeginDate:
+          type: string
+          format: date
+        periodEndDate:
+          type: string
+          format: date
+        journalLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/JournalLineView'

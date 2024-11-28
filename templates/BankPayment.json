@@ -1,0 +1,34 @@
+{
+  "class": "BankPayment",
+  "eventType": "BANK_PAYMENT",
+  "accountTypes": ["Distributor","Client","BusinessEntity"],
+  "journalType": "PaymentReceived",
+  "txType": "Payment",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "accountIdFrom": {
+        "description": "The sender account",
+        "type": "integer"
+      },
+      "accountIdTo": {
+        "description": "The beneficiary account",
+        "type": "integer"
+      },
+      "description": {
+        "description" : "Description of the payment",
+        "type": "string"
+      },
+      "date": {
+        "description" : "Payment execution date YYYY-MM-DD",
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "required": [
+      "accountIdTo",
+      "accountIdFrom"
+    ]
+  }
+}

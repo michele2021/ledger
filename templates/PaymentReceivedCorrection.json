@@ -1,0 +1,20 @@
+{
+  "class": "AccountAddFundsCorrection",
+  "eventType": "PAYMENT_RECEIVED_CORRECTION",
+  "accountTypes": ["Distributor","Client"],
+  "journalType": "FundsReceivedCorrection",
+  "txType": "Payment",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "bankAccountCode": {
+        "description" : "The code uniquely identifying the bank account",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bankAccountCode"
+    ]
+  }
+}

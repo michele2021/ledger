@@ -1,0 +1,7 @@
+{
+  "class": "TokenDeactivate",
+  "eventType": "TOKEN_DEACTIVATE",
+  "accountTypes": ["Distributor","Client"],
+  "journalType": "Deactivated",
+  "txType": "Token"
+}

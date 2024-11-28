@@ -1,0 +1,48 @@
+{
+  "class": "TokenActivate",
+  "eventType": "TOKEN_ACTIVATE",
+  "accountTypes": ["Distributor","Client"],
+  "journalType": "Activated",
+  "txType": "Token",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "activatingLocationRef": {
+        "description" : "A value uniquely identifying the source of this token request, e.g. a physical POS in a store, a website, etc.",
+        "type": "string"
+      },
+      "issuer": {
+        "description" : "The issuer of the (master)card",
+        "type": "string"
+      },
+      "expiryDate": {
+        "description" : "The date the token will expire. ISO 8601 date format without timezone: YYYY-MM-DD",
+        "type": "string",
+        "format": "date"
+      },
+      "bookingDate": {
+        "description" : "Timestamp to be used to book the event in the ledger in ISO 8601 GMT date time format: YYYY-MM-DD\"T\"hh:mm:ss\"Z\"",
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}(.\\d{1,9})?Z$"
+      },
+      "activationTimestamp": {
+        "description" : "Card token activation timestamp in ISO 8601 GMT date time format: YYYY-MM-DD\"T\"hh:mm:ss\"Z\", with optional 9 decimals of seconds",
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}(.\\d{1,9})?Z$"
+      },
+      "activationTimezone": {
+        "description" : "TimeZone name, see IANA time zone database",
+        "type": "string"
+      },
+      "test": {
+        "description" : "If it is TRUE then “_TEST” suffix will be added to the account Code",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "issuer",
+      "expiryDate"
+    ]
+  }
+}

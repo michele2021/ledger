@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+rm -rf ./scripts/sdk/generated/monavate
+
+openapi-generator generate -i ./scripts/sdk/iban-monavate.json -g java -o ./scripts/sdk/generated/monavate \
+  --group-id com.accounting.core \
+  --api-package com.accounting.core.sdk.monavate.iban.api \
+  --artifact-id monavate-iban-java-client \
+  --additional-properties=dateLibrary=java8,library=okhttp-gson
+
+cp ./scripts/sdk/monavate.build.gradle ./scripts/sdk/generated/monavate/build.gradle
+cd ./scripts/sdk/generated/monavate || exit
+sudo chmod +x ./gradlew && ./gradlew build
+./gradlew publish

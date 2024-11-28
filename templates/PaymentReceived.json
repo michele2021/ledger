@@ -1,0 +1,20 @@
+{
+  "class": "AccountAddFunds",
+  "eventType": "PAYMENT_RECEIVED",
+  "accountTypes": ["Distributor","Client"],
+  "journalType": "FundsReceived",
+  "txType": "Payment",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "bankAccountCode": {
+        "description" : "The code uniquely identifying the bank account",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bankAccountCode"
+    ]
+  }
+}

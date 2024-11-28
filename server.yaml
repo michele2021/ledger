@@ -1,0 +1,118 @@
+database:
+  # the name of your JDBC driver
+  driverClass: org.postgresql.Driver
+
+  # the username
+  user: ${ACC_DB_USERNAME:-}
+
+  # the password
+  password: ${ACC_DB_PASSWORD:-}
+
+  # the JDBC URL
+  url: jdbc:postgresql://${PG_HOST:-localhost}:${PG_PORT:-5432}/accounting
+  # any properties specific to your JDBC driver:
+  properties:
+    charSet: UTF-8
+
+  # the maximum amount of time to wait on an empty pool before throwing an exception
+  maxWaitForConnection: 1s
+
+  # the SQL query to run when validating a connection's liveness
+  validationQuery: "/* MyService Health Check */ SELECT 1"
+
+  # the timeout before a connection validation queries fail
+  validationQueryTimeout: 3s
+
+  # the minimum number of connections to keep open
+  minSize: 8
+
+  # the maximum number of connections to keep open
+  maxSize: 32
+
+  # whether or not idle connections should be validated
+  checkConnectionWhileIdle: false
+
+  # the amount of time to sleep between runs of the idle connection validation, abandoned cleaner and idle pool resizing
+  evictionInterval: 10s
+
+  # the minimum amount of time an connection must sit idle in the pool before it is eligible for eviction
+  minIdleTime: 1 minute
+
+aws:
+  queueEnabled: true
+  region: ${AWS_REGION:-}
+
+  # Optional - localstack integration - if set overrides the default AWS communication endpoint.
+  endpoint: ${AWS_ENDPOINT:-}
+
+  # Long polling helps reduce the cost of using Amazon SQS (by reducing empty responses)
+  # waitTimeSeconds is the max time in seconds of a single pull from queue - valid range 0-20s
+  # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/working-with-messages.html#setting-up-long-polling
+  waitTimeSeconds: ${AWS_SQS_WAIT_TIME_SEC:-20}
+  maxNumberOfMessages: ${AWS_SQS_MESSAGES_BATCH_SIZE:-10}
+  queueAccountingName: ${AWS_SQS_ACCOUNTING_QUEUE:-accounting-${ENVIRONMENT:-development}.fifo}
+  queueAccountingBalanceName: ${AWS_SQS_ACCOUNTING_BALANCE_QUEUE:-accountingbalance-${ENVIRONMENT:-development}.fifo}
+
+  # DynamoDB table name for event messages
+  dynamodbMessagesTableName: ${AWS_DYNAMO_DB_MESSAGES_TABLE_NAME:-ledger-messages-${ENVIRONMENT:-development}}
+
+  # Number of days after which item in "messagesTableName" will become eligible for removal
+  # TTL => (creationDate + dynamodbTTLDays)
+  dynamodbTTLDays: ${AWS_DYNAMODB_TTL_DAYS:-180}
+  dynamodbMessagesRecordingEnabled: false
+
+  # DynamoDB table for API audit trail
+  dynamodbApiAuditTableName: ${AWS_DYNAMO_DB_API_AUDIT_TABLE_NAME:-ledger-auditing-${ENVIRONMENT:-development}}
+  dynamodbApiAuditEnabled: true
+
+  # s3 bucket name for daily sales reports
+  dataBucket: ${AWS_LEDGER_DATA_BUCKET:-clevercards-${ENVIRONMENT:-development}-ledger-data}
+  epayIncomingDailySalesReportsDirectory: ${AWS_DSR_DIRECTORY:-in/epay_it/dsr/}
+
+  systemNotificationsArn: ${AWS_SNS_SYSTEM_NOTIFICATIONS_ARN:-arn:aws:sns:${AWS_REGION:-eu-west-1}:099720403855:ledger-system-notifications-${ENVIRONMENT:-development}}
+  financialNotificationsArn: ${AWS_SNS_FINANCIAL_NOTIFICATIONS_ARN:-arn:aws:sns:${AWS_REGION:-eu-west-1}:099720403855:ledger-financial-notifications-${ENVIRONMENT:-development}}
+
+debugTools:
+  autoSkipMessage: ${LEDGER_AUTO_SKIP_MESSAGE:-false}
+  dsrSnsNotificationEnabled: ${DSR_SNS_NOTIFICATIONS_ENABLED:-false}
+
+repository:
+  cache: true
+
+server:
+  applicationConnectors:
+    - type: http
+      port: ${ACCOUNTING_HTTP_APP:-8080}
+  adminConnectors:
+    - type: http
+      port: ${ACCOUNTING_HTTP_ADMIN:-8081}
+
+cors:
+  allowedOriginsApp: ${ALLOWED_ORIGINS_APP:-"*"}
+  allowedHeadersApp: ${ALLOWED_HEADERS_APP:-Authorization,X-Requested-With,Content-Type,Accept,Origin,X-API-KEY}
+  allowedMethodsApp: ${ALLOWED_METHODS_APP:-OPTIONS,GET,PUT,POST,DELETE,HEAD}
+  allowedOriginsAdmin: ${ALLOWED_ORIGINS_ADMIN:-"*"}
+  allowedHeadersAdmin: ${ALLOWED_HEADERS_ADMIN:-Authorization,X-Requested-With,Content-Type,Accept,Origin,X-API-KEY}
+  allowedMethodsAdmin: ${ALLOWED_METHODS_ADMIN:-OPTIONS,GET,PUT,POST,DELETE,HEAD}
+
+logging:
+  appenders:
+    - type: file
+      # The file to which current statements will be logged.
+      currentLogFilename: ./logs/accounting_core_app.log
+
+      # When the log file rotates, the archived log will be renamed to this and gzipped. The
+      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+      archivedLogFilenamePattern: ./logs/accounting_core_app-%d.log.gz
+
+      # The number of archived files to keep.
+      archivedFileCount: 5
+
+      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
+    - type: console
+      timeZone: UTC
+      target: stdout
+
+# TODO to monitor the status of dependencies is possible to use: https://www.dropwizard.io/en/latest/manual/core.html#health

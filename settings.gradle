@@ -1,0 +1,9 @@
+rootProject.name = 'accounting-core'
+
+def includedBuilds = [ '../accounting-commons' ]
+
+includedBuilds.each { buildFolder ->
+    if (file(buildFolder).exists()) {
+        includeBuild buildFolder
+    }
+}

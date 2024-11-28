@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+
+  postgresql_db:
+    image: postgres:13.5-alpine
+    container_name: postgresql_db
+    restart: on-failure
+    networks:
+      - epay_ledger_bridge
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: "./db_init"
+        target: "/docker-entrypoint-initdb.d"
+      - type: volume
+        source: "postgres-data"
+        target: "/var/lib/postgresql/data"
+
+  localstack:
+    image: localstack/localstack:0.14.0
+    container_name: localstack
+    networks:
+      - epay_ledger_bridge
+    ports:
+      - ${AWS_PORT}:${AWS_PORT}
+    env_file:
+      - .env
+    volumes:
+      - "../localstack_tmp:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+volumes:
+  postgres-data:
+    name: postgres-data
+
+networks:
+  epay_ledger_bridge:
+    name: epay_ledger_bridge
+    driver: bridge

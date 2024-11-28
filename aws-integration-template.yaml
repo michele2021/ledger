@@ -1,0 +1,388 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: EB Stack
+        Parameters:
+          - EnvironmentName
+          - Stage
+          - ApplicationName
+          - SecurityGroups
+          - BuildZip
+      - Label:
+          default: Instance(s)
+        Parameters:
+          - WebInstanceType
+          - InstanceProfileArn
+          - EBServiceRole
+          - EC2KeyName
+          - AMIID
+          - InstanceSubnets
+      - Label:
+          default: Load Balancers
+        Parameters:
+          - SGPublic
+          - ELBSubnets
+      - Label:
+          default: VPC
+        Parameters:
+          - VPC
+      - Label:
+          default: Environment Variables
+        Parameters:
+          - AWSREGION
+          - AWSACCESSKEYID
+          - AWSSECRETACCESSKEY
+          - APIKEY
+          - ENVIRONMENT
+          - PGHOST
+          - PGPORT
+          - ACCDBUSERNAME
+          - ACCDBPASSWORD
+    ParameterLabels:
+      BuildZip:
+        Default: Build location under integration-builds
+      EnvironmentName:
+        Default: Name of the EB Stack
+      Stage:
+        Default: Stage (integration, etc.)
+      WebInstanceType:
+        Default: Instance Type
+      ApplicationName:
+        Default: Application name to be used
+      InstanceProfileArn:
+        Default: IAM role for instances
+      EBServiceRole:
+        Default: IAM service role
+      EC2KeyName:
+        Default: EC2 Key pair name for SSH
+      AMIID:
+        Default: Instance AMI
+      VPC:
+        Default: VPC
+      InstanceSubnets:
+        Default: CSV value of subnets for the lambda Functions
+      SGPublic:
+        Default: Security group for the load balancer
+      ELBSubnets:
+        Default: CSV value of subnets for the ELB
+      SecurityGroups:
+        Default: CSV value of subnets for the EB stack
+      AWSREGION:
+        Default: AWSREGION
+      AWSACCESSKEYID:
+        Default: AWSACCESSKEYID
+      AWSSECRETACCESSKEY:
+        Default: AWSSECRETACCESSKEY
+      APIKEY:
+        Default: APIKEY
+      ENVIRONMENT:
+        Default: ENVIRONMENT
+      PGHOST:
+        Default: PGHOST
+      PGPORT:
+        Default: PGPORT
+      ACCDBUSERNAME:
+        Default: ACCDBUSERNAME
+      ACCDBPASSWORD:
+        Default: ACCDBPASSWORD
+Parameters:
+  BuildZip:
+    Type: String
+    Default: build/location/.zip
+  EnvironmentName:
+    Type: String
+    Default: CleverGift-Account-Balance-Integration
+  Stage:
+    Description: Stage of the stack, i.e. integration, staging, production
+    Type: String
+    Default: integration
+  WebInstanceType:
+    AllowedValues:
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - t2.xlarge
+      - t2.2xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m4.16xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.12xlarge
+      - m5.24xlarge
+      - c3.large
+      - c3.xlarge
+      - c3.2xlarge
+      - c3.4xlarge
+      - c3.8xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.18xlarge
+      - r3.large
+      - r3.xlarge
+      - r3.2xlarge
+      - r3.4xlarge
+      - r3.8xlarge
+      - r4.large
+      - r4.xlarge
+      - r4.2xlarge
+      - r4.4xlarge
+      - r4.8xlarge
+      - r4.16xlarge
+    ConstraintDescription: Must be a valid Amazon EC2 instance type.
+    Default: m4.large
+    Description: The Amazon EC2 instance type for your web instances.
+    Type: String
+  ApplicationName:
+    Description: Application name to be used
+    Type: String
+    Default: clevergift-account-balance
+  InstanceProfileArn:
+    Type: String
+    Default: arn:aws:iam::099720403855:instance-profile/aws-elasticbeanstalk-ec2-role
+  EBServiceRole:
+    Type: String
+    Default: aws-elasticbeanstalk-service-role
+  EC2KeyName:
+    Type: String
+    Default: mpts-server-key
+  AMIID:
+    Type: String
+    Default: "ami-01a5f20d186d45371"
+  VPC:
+    Type: String
+    Default: vpc-097f65d73de0bc507
+  InstanceSubnets:
+    Description: CSV value of subnets for the EC2 instances
+    Type: String
+    Default: subnet-0f8f3a814e814ffc5,subnet-086107e33b4412fe3
+  SGPublic:
+    Type: String
+    Default: sg-0a931496b9553237e
+  ELBSubnets:
+    Description: CSV value of subnets for the Load Balancers
+    Type: String
+    Default: subnet-0c194028030d848ac,subnet-086107e33b4412fe3
+  SecurityGroups:
+    Description: CSV value of Security groups
+    Type: String
+    Default: sg-0a931496b9553237e
+  AWSREGION:
+    Type: String
+    Default: eu-west-1
+  AWSACCESSKEYID:
+    Type: String
+    Default: AWSACCESSKEYID
+  AWSSECRETACCESSKEY:
+    Type: String
+    Default: AWSSECRETACCESSKEY
+  APIKEY:
+    Type: String
+    Default: APIKEY
+  ENVIRONMENT:
+    Type: String
+    Default: integration
+  PGHOST:
+    Type: String
+    Default: PGHOST
+  PGPORT:
+    Type: String
+    Default: PGPORT
+  ACCDBUSERNAME:
+    Type: String
+    Default: ACCDBUSERNAME
+  ACCDBPASSWORD:
+    Type: String
+    Default: ACCDBPASSWORD
+Resources:
+  EBApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: !Ref ApplicationName
+      Description: "AWS Elastic Beanstalk Account Balance application"
+  AppVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    DependsOn:
+      - EBApplication
+    Properties:
+      ApplicationName:
+        Ref: ApplicationName
+      Description: "Initial version for account balance app"
+      SourceBundle:
+        S3Bucket: "integration-builds"
+        S3Key: !Ref BuildZip
+  ConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    DependsOn:
+      - EBApplication
+      - AppVersion
+    Properties:
+      ApplicationName:
+        Ref: ApplicationName
+      Description: AWS ElasticBeanstalk Clevercards API Configuration Template
+      SolutionStackName: "64bit Amazon Linux 2 v3.4.3 running Docker"
+      OptionSettings:
+        - Namespace: "aws:elasticbeanstalk:application"
+          OptionName: "Application Healthcheck URL"
+          Value: "/health"
+        - Namespace: aws:autoscaling:asg
+          OptionName: MinSize
+          Value: '1'
+        - Namespace: aws:autoscaling:asg
+          OptionName: MaxSize
+          Value: '1'
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:ec2:vpc
+          OptionName: VPCId
+          Value: !Ref VPC
+        - Namespace: aws:ec2:vpc
+          OptionName: Subnets
+          Value: !Ref InstanceSubnets
+        - Namespace: aws:ec2:vpc
+          OptionName: ELBSubnets
+          Value: !Ref ELBSubnets
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: !Ref InstanceProfileArn
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: LoadBalanced
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value: !Ref SecurityGroups
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: !Ref EC2KeyName
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_REGION
+          Value: !Ref AWSREGION
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_ACCESS_KEY_ID
+          Value: !Ref AWSACCESSKEYID
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: AWS_SECRET_ACCESS_KEY
+          Value: !Ref AWSSECRETACCESSKEY
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_KEY
+          Value: !Ref APIKEY
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ENVIRONMENT
+          Value: !Ref ENVIRONMENT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: PG_HOST
+          Value: !Ref PGHOST
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: PG_PORT
+          Value: !Ref PGPORT
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ACC_DB_USERNAME
+          Value: !Ref ACCDBUSERNAME
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ACC_DB_PASSWORD
+          Value: !Ref ACCDBPASSWORD
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: !Ref WebInstanceType
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: LoadBalancerType
+          Value: application
+        - Namespace: aws:elasticbeanstalk:healthreporting:system
+          OptionName: SystemType
+          Value: enhanced
+        - Namespace: aws:elbv2:loadbalancer
+          OptionName: SecurityGroups
+          Value: !Ref SGPublic
+        - Namespace: aws:elbv2:loadbalancer
+          OptionName: ManagedSecurityGroup
+          Value: !Ref SGPublic
+        - Namespace: aws:elbv2:listener:default
+          OptionName: ListenerEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: HealthCheckPath
+          Value: "/"
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Port
+          Value: "80"
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: Protocol
+          Value: HTTP
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: MatcherHTTPCode
+          Value: 404
+        - Namespace: aws:elasticbeanstalk:environment:process:default
+          OptionName: StickinessEnabled
+          Value: false
+        - Namespace: aws:elbv2:listener:81
+          OptionName: DefaultProcess
+          Value: admin
+        - Namespace: aws:elbv2:listener:81
+          OptionName: ListenerEnabled
+          Value: true
+        - Namespace: aws:elasticbeanstalk:environment:process:admin
+          OptionName: HealthCheckPath
+          Value: "/healthcheck"
+        - Namespace: aws:elasticbeanstalk:environment:process:admin
+          OptionName: Port
+          Value: "81"
+        - Namespace: aws:elasticbeanstalk:environment:process:admin
+          OptionName: Protocol
+          Value: HTTP
+        - Namespace: aws:elasticbeanstalk:environment:process:admin
+          OptionName: MatcherHTTPCode
+          Value: 200
+        - Namespace: aws:elasticbeanstalk:environment:process:admin
+          OptionName: StickinessEnabled
+          Value: false
+        - Namespace: aws:ec2:vpc
+          OptionName: AssociatePublicIpAddress
+          Value: 'true'
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: ServiceRole
+          Value: !Ref EBServiceRole
+        - Namespace: aws:elasticbeanstalk:cloudwatch:logs
+          OptionName: StreamLogs
+          Value: 'true'
+        - Namespace: aws:elasticbeanstalk:cloudwatch:logs
+          OptionName: RetentionInDays
+          Value: 30
+        - Namespace: aws:elasticbeanstalk:environment:proxy
+          OptionName: ProxyServer
+          Value: nginx
+  sampleEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      EnvironmentName: !Ref EnvironmentName
+      ApplicationName:
+        Ref: ApplicationName
+      Description: AWS ElasticBeanstalk Sample Environment
+      TemplateName:
+        Ref: ConfigurationTemplate
+      VersionLabel:
+        Ref: AppVersion
+      Tags:
+        - Value: integration
+          Key: 'clevergift-stack'

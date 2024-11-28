@@ -1,0 +1,3942 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "IBAN is a payments service which is provided through one of Monavate’s banking partners. A Company Account will be allocated under which Virtual Accounts can be opened on behalf of Customers. Information must be provided on Customers to enable the bank to undertake background checks.<br><br>The IBAN API services allows the creation and management of Virtual Accounts, and to retrieve statements, balances and information about Company and Virtual Accounts.<br><br>The Payments services enables the movement of funds. This can be an internal transfer between Virtual Accounts, or a payment to an external bank account.<br><br>The Transaction service is used to retrieve details about transfers and payments.",
+    "title": "IBAN Service",
+    "version": "1.21.1"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:9040/"
+    }
+  ],
+  "tags": [
+    {
+      "description": "IBAN services include handling requests for IBAN creation, modifying, and closing as well as retrieving data on a specific IBAN.",
+      "name": "IBAN"
+    },
+    {
+      "description": "IBAN reporting services include handling requests for returning an IBAN Statement or an IBAN Balance for a customer`s IBAN.",
+      "name": "IBAN Reports"
+    },
+    {
+      "description": "Payments services include handling customers` requests for payment execution and sending notifications on all debit and credit transactions.",
+      "name": "Payments"
+    },
+    {
+      "description": "The Transactions service is used to return details of all transactions by Program or by specified IBAN.",
+      "name": "Transactions"
+    }
+  ],
+  "security": [{ "apiKey" : [] }],
+  "paths": {
+    "/programs/{program-name}/iban/open": {
+      "post": {
+        "description": "Creates a new Virtual Account for a Customer, either a Person or a Company. For this service a background check of the Customer must be completed by the bank before the account is opened.<br><br>A requestId is returned in the response which can be used to query the IBAN.",
+        "operationId": "createIban",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "clientReference": 75154522345678,
+                "user": {
+                  "person": {
+                    "name": "Donald Duck",
+                    "birthDate": "1908-11-29",
+                    "birthCountry": "DEU",
+                    "residency": "DEU",
+                    "documentNumber": "A942819"
+                  },
+                  "address": {
+                    "country": "GBR",
+                    "streetNo": "Waterloo Bridge 13",
+                    "cityCounty": "London, Cold"
+                  }
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/IbanOpenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/requestId"
+                }
+              }
+            },
+            "description": "ACCEPTED"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": {
+                    "error": [
+                      {
+                        "field": "MasterAccount",
+                        "description": "Unauthorized master account",
+                        "errorCode": "FORBIDDEN"
+                      },
+                      {
+                        "field": "SomeField",
+                        "description": "Issue with SomeField",
+                        "errorCode": "FORBIDDEN"
+                      }
+                    ]
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error response, which will be sent to webhook"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "ibanOpenResponse": {
+                    "program": "program_name",
+                    "iban": "GB70LHVB04032900069096",
+                    "clientReference": 75154522345678,
+                    "user": {
+                      "company": {
+                        "name": "UK Ltd Version 2.0",
+                        "countryOfOrigin": "GBR",
+                        "taxResidency": "GBR",
+                        "registrationNumber": 1849203,
+                        "representative": {
+                          "name": "Harry Potter",
+                          "birthDate": "2001-01-01",
+                          "residency": "GBR"
+                        }
+                      },
+                      "address": {
+                        "country": "GBR",
+                        "streetNo": "Waterloo Bridge 13",
+                        "cityCounty": "London, Cold"
+                      }
+                    },
+                    "status": "ACTIVE"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/IbanOpenResponse"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Create IBAN",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/modify": {
+      "post": {
+        "description": "Modifies existing data for one Virtual Account. For this service a background check of the Customer must be completed by the bank.<br><br>This service should not be used to allocate the IBAN to a different entity. Name changes are only allowed in case of legal change such as marriage, or corporate name change. Documentary evidence may be requested by the bank to support the changes. <br><br>A requestId is returned in the response which can be used to query the IBAN.",
+        "operationId": "modifyIban",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "clientReference": 75154522345678,
+                "iban": "GB70LHVB04032900069096",
+                "user": {
+                  "person": {
+                    "name": "Donald Duck",
+                    "birthDate": "1908-11-29",
+                    "birthCountry": "DEU",
+                    "residency": "DEU",
+                    "documentNumber": "A942819"
+                  },
+                  "address": {
+                    "country": "GBR",
+                    "streetNo": "Waterloo Bridge 13",
+                    "cityCounty": "London, Cold"
+                  }
+                },
+                "modifyReason": "New company representative"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/IbanModifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/requestId"
+                }
+              }
+            },
+            "description": "ACCEPTED"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "ibanModifyResponse": {
+                    "clientReference": 75154522345678,
+                    "iban": "GB70LHVB04032900069096",
+                    "user": {
+                      "company": {
+                        "name": "UK Ltd Version 2.0",
+                        "countryOfOrigin": "GBR",
+                        "taxResidency": "GBR",
+                        "registrationNumber": 1849203,
+                        "representative": {
+                          "name": "Harry Potter",
+                          "birthDate": "2001-01-01",
+                          "residency": "GBR"
+                        }
+                      },
+                      "address": {
+                        "country": "GBR",
+                        "streetNo": "Waterloo Bridge 13",
+                        "cityCounty": "London, Cold"
+                      }
+                    },
+                    "status": "ACTIVE"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/IbanModifyResponse"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Modify IBAN",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/close": {
+      "post": {
+        "description": "Closes an existing Virtual Account.The balance on the Account must be zero. <br><br>A requestId is returned in the response which can be used to query the IBAN.<br><br>A closed IBAN cannot be reactivated.",
+        "operationId": "closeIban",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "iban": "GB70LHVB04032900069096"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/IbanCloseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/requestId"
+                }
+              }
+            },
+            "description": "ACCEPTED"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "ibanCloseResponse": {
+                    "iban": "GB70LHVB04032900069096",
+                    "status": "CLOSED",
+                    "dateClosed": "2018-05-22+03:00"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/IbanCloseResponse"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Close IBAN",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/status": {
+      "post": {
+        "description": "Sends IBAN modify status notification using a webhook.",
+        "operationId": "statusIban",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "ibanStatusNotification": {
+                    "program": "program_name",
+                    "clientReference": 75154522345678,
+                    "iban": "GB70LHVB04032900069096",
+                    "user": {
+                      "company": {
+                        "name": "UK Ltd Version 2.0",
+                        "countryOfOrigin": "GBR",
+                        "taxResidency": "GBR",
+                        "registrationNumber": 1849203,
+                        "representative": {
+                          "name": "Harry Potter",
+                          "birthDate": "2001-01-01",
+                          "residency": "GBR"
+                        }
+                      },
+                      "address": {
+                        "country": "GBR",
+                        "streetNo": "Waterloo Bridge 13",
+                        "cityCounty": "London, Cold"
+                      }
+                    },
+                    "status": "ACTIVE",
+                    "dateActivated": "2018-01-01+03:00",
+                    "dateClosed": "2018-05-22+03:00"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/IbanStatusNotification"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Modify IBAN Status",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/payment": {
+      "post": {
+        "description": "This request message is used to initiate an internal payment between IBANs or a payment to an external bank account. <br><br>Supported payment types:<br><br>- <code>SEPA:</code> SEPA payments are supported for EUR-EUR transfers within the Eurozone area. Transfers initiated before 16.30 (EET) typically credit the beneficiary the same day. Transfers initiated after this time credit the next working day. <code>NOTE:</code> SEPA Payments are only supported on ‘EE’ issued IBANS. <br><br>- <code>SEPA INSTANT:</code> SEPA INSTANT payments are supported for EUR-EUR transfers within the Eurozone area. Subject to sending and receiving banks checks, transfers are credited in seconds. <code>NOTE:</code> SEPA INSTANT Payments are only supported on ‘EE’ issued IBANS. <br><br>- <code>Faster Payments:</code> The Faster Payment method can be used for GBP – GBP transfers between UK bank, transfers typically credit the beneficiary within 2 hours of initiation. <code>NOTE:</code> Faster Payments are only supported on ‘GB’ issued IBANS. <br><br>- <code>SWIFT:</code> SWIFT payments (often referred to as International Payments) can be used for any transfers falling outside of the above-mentioned payment types. Transfers typically credit the beneficiary within 2-3 business days of sending. <code>NOTE:</code> SWIFT Payments are only supported on ‘EE’ issued IBANS.",
+        "operationId": "ibanPayment",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "requestedExecutionDate": "2021-04-21T09:16:43Z",
+                "debtor": {
+                  "name": "Jon Snow",
+                  "iban": "EE337700771001260958"
+                },
+                "creditTransfer": {
+                  "currency": "EUR",
+                  "instructedAmount": 15,
+                  "description": "Donation for House of Stark",
+                  "creditorReference": "RF18000000000539007547034"
+                },
+                "creditor": {
+                  "name": "Eddard Stark",
+                  "address": {
+                    "country": "GBR",
+                    "addressLine1": "Address"
+                  },
+                  "bankName": "Bank",
+                  "bankBIC": "LHVBEE22XXX",
+                  "iban": "EE337700771001260958",
+                  "accountNumber": 12345678
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/requestId"
+                }
+              }
+            },
+            "description": "ACCEPTED"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "masterAccount": "GB03LHVB04032800001125"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentExtendedResponse"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Initiate Payment",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/payment/adjustment": {
+      "post": {
+        "description": "The request message format covers the various payment schemes and types available at the bank.<br><br>Payment Status Report is returned with information on the status of imported payments. More than one status may be returned for one payment.",
+        "operationId": "ibanPaymentAdjustment",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "$ref": "#/components/schemas/PaymentAdjustmentRequest/example"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/PaymentAdjustmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/requestId"
+                }
+              }
+            },
+            "description": "ACCEPTED"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "masterAccount": "GB03LHVB04032800001125"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentExtendedResponse"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Initiate Adjustment",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/creditDebit": {
+      "post": {
+        "description": "Sends a debit or credit notification using a webhook. The message does not include balance information.",
+        "operationId": "debitCreditIban",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "creditDebitNotification": {
+                    "currency": "EUR",
+                    "transactions": [
+                      {
+                        "amount": 7.5,
+                        "currency": "EUR",
+                        "debitCreditCode": "DBIT",
+                        "date": "2021-02-22",
+                        "transactionCode": "PMNT",
+                        "requestId": "ENDTOENDIDLHVTEST01A",
+                        "instructedCurrency": "EUR",
+                        "instructedAmount": 7.5,
+                        "debitorName": "MONAVATE LTD",
+                        "debitorIBAN": "EE617700771001319236",
+                        "debtorAccountNumber": "78889961,",
+                        "debtorSortCode": "345667,",
+                        "debtorBankBic": "LHVBEE20",
+                        "creditorName": "MONAVATE LTD",
+                        "creditorIBAN": "EE247700771001319223",
+                        "creditorBankBic": "LHVBEE20",
+                        "creditorAccountNumber": 86788653,
+                        "creditorSortCode": 456778,
+                        "description": "Payment Description LHVTEST01A",
+                        "clientReference": 700170939,
+                        "paymentId": "e3b51844c6be6c40",
+                        "familyCode": "CCRD",
+                        "subfamilyCode": "FEES"
+                      }
+                    ]
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/DebitCreditNotification"
+                }
+              }
+            },
+            "description": "Webhook response"
+          }
+        },
+        "summary": "Debit/Credit Notification Webhook",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/programs/{program-name}/ibans": {
+      "get": {
+        "description": "Retrieves details of all IBANs for the specific Program.",
+        "operationId": "getIbansByFilters",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Start of creation date range for IBANs.",
+            "explode": true,
+            "in": "query",
+            "name": "createdFrom",
+            "required": false,
+            "schema": {
+              "example": "2021-10-15",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "End of creation date range for IBANs.",
+            "explode": true,
+            "in": "query",
+            "name": "createdTo",
+            "required": false,
+            "schema": {
+              "example": "2021-10-16",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Start of last usage date range for IBANs.",
+            "explode": true,
+            "in": "query",
+            "name": "lastUsedFrom",
+            "required": false,
+            "schema": {
+              "example": "2021-10-15",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "End of last usage date range for IBANs.",
+            "explode": true,
+            "in": "query",
+            "name": "lastUsedTo",
+            "required": false,
+            "schema": {
+              "example": "2021-10-16",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Owner name for IBAN. Can be company or person.",
+            "explode": true,
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "example": "Monavate",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "If set to true, closed IBANs will also be included in the response.",
+            "explode": true,
+            "in": "query",
+            "name": "showClosed",
+            "required": false,
+            "schema": {
+              "default": false,
+              "example": true,
+              "type": "boolean"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Type of IBAN owner.",
+            "explode": true,
+            "in": "query",
+            "name": "ownerType",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/OwnerType"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Type of account.",
+            "explode": true,
+            "in": "query",
+            "name": "accountType",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/AccountType"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Status of the account. Possible values are: <br> -<code>OPENING</code> - transition status displayed upon user opening an account which updates to <code>ACTIVE</code> once the account is opened; <br> -<code>CLOSING</code> - transition status displayed upon user closing an account which updates to <code>CLOSED</code> - once the account is closed; <br> -<code>MODIFYING</code> - transition status displayed upon user modifying an account which updates to either <code>ERROR</code>, if modifications were not processed correctly, or <code>ACTIVE</code> once the account is active after modifications; <br> -<code>PENDING</code> - used temporarily for nameless virtual IBANs until personal details of the IBAN owner are added via Modify IBAN service; payments cannot be made from the account while in that status; <br> -<code>ON_HOLD</code> - used while background check is done by the bank for the IBAN owner until a decision is made; this status updates to <code>ACTIVE</code> or <code>REJECTED</code> if the request to create IBAN is denied; <br> -<code>BLOCKED</code> - set for blocked IBANs;",
+            "explode": true,
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/Status"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "IBAN or account number",
+            "explode": true,
+            "in": "query",
+            "name": "iban",
+            "required": false,
+            "schema": {
+              "pattern": "([A-Z]{2}(\\d{18}|\\d{2}[A-Z]{4}\\d{14}|[A-Z]{2}[A-Z\\d]{24}))|(\\d{8})",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Minimum, maximum amount for balance and currency, split by '#' delimiter. Example '100.5#500.9#USD'",
+            "explode": true,
+            "in": "query",
+            "name": "balance",
+            "required": false,
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Sorting attribute set for the list of IBANs.",
+            "explode": true,
+            "in": "query",
+            "name": "orderAttr",
+            "required": false,
+            "schema": {
+              "default": "createdAt",
+              "enum": [
+                "owner",
+                "account",
+                "status",
+                "currency",
+                "createdAt",
+                "lastUsedAt"
+              ],
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Determines the sorting order as either <code>ascending</code> or <code>descending</code>.",
+            "explode": true,
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Page number for pagination.",
+            "explode": true,
+            "in": "query",
+            "name": "pageNumber",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Page size for pagination.",
+            "explode": true,
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IbanListResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve IBANs",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/ibans/{iban}": {
+      "get": {
+        "description": "Retrieves details for a specific IBAN.",
+        "operationId": "getIbanByNumber",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The specific IBAN.",
+            "explode": false,
+            "in": "path",
+            "name": "iban",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IbanRequest"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "summary": "Retrieve IBAN details",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/ibans/{iban}/balances": {
+      "get": {
+        "description": "Retrieves the balances for a specific IBAN.",
+        "operationId": "getIbanBalancesByNumber",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The specific IBAN.",
+            "explode": false,
+            "in": "path",
+            "name": "iban",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AccountBalanceInfo"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve IBAN balances",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/ibans/byRequestId/{request-id}": {
+      "get": {
+        "description": "Retrieves details for a specific IBAN using the requestID returned in response to a create or update request.",
+        "operationId": "getIbanByRequestId",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The request ID.",
+            "explode": false,
+            "in": "path",
+            "name": "request-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IbanRequest"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve IBAN details by request ID",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/ibans/byRequestId/{request-id}/balances": {
+      "get": {
+        "description": "Retrieves the balances for a specific IBAN using the requestID returned in response to a create or update request.",
+        "operationId": "getIbanBalancesByRequestId",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The request ID.",
+            "explode": false,
+            "in": "path",
+            "name": "request-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AccountBalanceInfo"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve IBAN balances by request ID",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/ibans/{iban}/requests": {
+      "get": {
+        "description": "Retrieves the change history details for a specific IBAN.",
+        "operationId": "getIbansByNumber",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The specific IBAN.",
+            "explode": false,
+            "in": "path",
+            "name": "iban",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IbanRequest"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve IBAN Change History",
+        "tags": [
+          "IBAN"
+        ]
+      }
+    },
+    "/programs/{program-name}/transactions": {
+      "get": {
+        "description": "Retrieves a list of transactions for the specified Program.",
+        "operationId": "getProgramTransactionsByFilters",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Request ID in the Monavate database.",
+            "explode": true,
+            "in": "query",
+            "name": "requestId",
+            "required": false,
+            "schema": {
+              "example": "5a1fc3afb68861c7",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Start of the creation date and time range for the listed transactions.",
+            "explode": true,
+            "in": "query",
+            "name": "createdAtFrom",
+            "required": false,
+            "schema": {
+              "example": "2022-02-20",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "End of the creation date and time range for the listed transactions.",
+            "explode": true,
+            "in": "query",
+            "name": "createdAtTo",
+            "required": false,
+            "schema": {
+              "example": "2022-02-25",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Minimum to maximum amounts for balance and currency of the listed transactions; split by <code>#</code> delimiter.",
+            "explode": true,
+            "in": "query",
+            "name": "amount",
+            "required": false,
+            "schema": {
+              "items": {
+                "example": "100.5#500.9#USD",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The creditor’s name or IBAN, or account number.",
+            "explode": true,
+            "in": "query",
+            "name": "creditor",
+            "required": false,
+            "schema": {
+              "example": "John Smith or EE957777000011337517",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The debitor’s name or IBAN, or account number.",
+            "explode": true,
+            "in": "query",
+            "name": "debitor",
+            "required": false,
+            "schema": {
+              "example": "John Smith or EE957777000011337517",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Customer reference defined by the Tenant.",
+            "explode": true,
+            "in": "query",
+            "name": "clientReference",
+            "required": false,
+            "schema": {
+              "example": "Ref1",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Payment scheme for the transaction [<code>CODE</code>\t- DESCRIPTION]: <br>- <code>INST</code> - SEPA Instant payment, <br>- <code>SEPA</code> - SEPA payment, <br>- <code>SWIFT</code> - SWIFT payment, <br>- <code>TARGET2</code>\t- TARGET2 payment, <br>- <code>TIPS</code> - TARGET Instant Payment, <br>- <code>FAST</code> - UK Faster payment, <br>- <code>BACS</code> - BACS payment, <br>- <code>INTERNAL</code> - LHV internal payment, <br>- <code>GROUP</code> - LHV internal payment between branches (EE, UK), <br>- <code>TRADER</code> - Trader payment, <br>- <code>INTRA</code> - Monavate internal, <br>- <code>ADJUSTMENT</code> - Monavate adjustment balance.",
+            "explode": true,
+            "in": "query",
+            "name": "paymentScheme",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/PaymentScheme"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Transaction status. Possible values are: <br> - <code>ACTIVE</code> - active, <br> - <code>PENDING</code> - pending, <br> - <code>ERROR</code> - error.",
+            "explode": true,
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/Status_1"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Page number for pagination.",
+            "explode": true,
+            "in": "query",
+            "name": "pageNumber",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Page size for pagination.",
+            "explode": true,
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Sorting criteria; multiple sorting criteria are supported.",
+            "explode": true,
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "example": "createdAt,asc&sort=debitorName,desc",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionForProgramResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve Program Transactions",
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
+    "/programs/{program-name}/iban/{iban}/transactions": {
+      "get": {
+        "description": "Retrieves a list of transactions for the specified IBAN.",
+        "operationId": "getIbanTransactionsByFilters",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The specific IBAN.",
+            "explode": false,
+            "in": "path",
+            "name": "iban",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Request ID in the Monavate database.",
+            "explode": true,
+            "in": "query",
+            "name": "requestId",
+            "required": false,
+            "schema": {
+              "example": "5a1fc3afb68861c7",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "The debitor’s or creditor’s name or IBAN.",
+            "explode": true,
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "example": "John Smith or EE957777000011337517",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Start of the creation date and time range for the listed transactions.",
+            "explode": true,
+            "in": "query",
+            "name": "createdAtFrom",
+            "required": false,
+            "schema": {
+              "example": "2022-02-20",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "End of the creation date and time range for the listed  transactions.",
+            "explode": true,
+            "in": "query",
+            "name": "createdAtTo",
+            "required": false,
+            "schema": {
+              "example": "2022-02-25",
+              "format": "date",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Minimum to maximum amounts for balance and currency of the listed transactions; split by <code>#</code> delimiter.",
+            "explode": true,
+            "in": "query",
+            "name": "amount",
+            "required": false,
+            "schema": {
+              "items": {
+                "example": "100.5#500.9#USD",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Customer reference defined by the Tenant.",
+            "explode": true,
+            "in": "query",
+            "name": "clientReference",
+            "required": false,
+            "schema": {
+              "example": "Ref1",
+              "type": "string"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Payment scheme for the transaction [<code>CODE</code>\t- DESCRIPTION]: <br>- <code>INST</code> - SEPA Instant payment, <br>- <code>SEPA</code> - SEPA payment, <br>- <code>SWIFT</code> - SWIFT payment, <br>- <code>TARGET2</code>\t- TARGET2 payment, <br>- <code>TIPS</code> - TARGET Instant Payment, <br>- <code>FAST</code> - UK Faster payment, <br>- <code>BACS</code> - BACS payment, <br>- <code>INTERNAL</code> - LHV internal payment, <br>- <code>GROUP</code> - LHV internal payment between branches (EE, UK), <br>- <code>TRADER</code> - Trader payment, <br>- <code>INTRA</code> - Monavate internal, <br>- <code>ADJUSTMENT</code> - Monavate adjustment balance.",
+            "explode": true,
+            "in": "query",
+            "name": "paymentScheme",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/PaymentScheme"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Transaction status. Possible values are: <br> - <code>ACTIVE</code> - active, <br> - <code>PENDING</code> - pending, <br> - <code>ERROR</code> - error.",
+            "explode": true,
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/Status_1"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Page number for pagination.",
+            "explode": true,
+            "in": "query",
+            "name": "pageNumber",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Page size for pagination.",
+            "explode": true,
+            "in": "query",
+            "name": "pageSize",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "style": "form"
+          },
+          {
+            "description": "Sorting criteria; multiple sorting criteria are supported.",
+            "explode": true,
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "example": "createdAt,desc&sort=amount,asc",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionForIbanResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve IBAN Transactions",
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
+    "/programs/{program-name}/transactions/{request-id}": {
+      "get": {
+        "description": "Retrieves the details for the specified transaction.",
+        "operationId": "getTransactionDetails",
+        "parameters": [
+          {
+            "description": "The operating Program API reference assigned to the Tenant.",
+            "explode": false,
+            "in": "path",
+            "name": "program-name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "The request ID.",
+            "explode": false,
+            "in": "path",
+            "name": "request-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple"
+          },
+          {
+            "description": "Enable or disable IBAN tokenization.",
+            "explode": true,
+            "in": "query",
+            "name": "tokeniseIban",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            },
+            "style": "form"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDetailsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "invalid request error"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            },
+            "description": "not found error"
+          }
+        },
+        "summary": "Retrieve Transaction details",
+        "tags": [
+          "Transactions"
+        ]
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "programApiReference": {
+        "description": "The operating Program API reference assigned to the Tenant.",
+        "explode": false,
+        "in": "path",
+        "name": "program-name",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "style": "simple"
+      },
+      "iban": {
+        "description": "The specific IBAN.",
+        "explode": false,
+        "in": "path",
+        "name": "iban",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "style": "simple"
+      },
+      "requestId": {
+        "description": "The request ID.",
+        "explode": false,
+        "in": "path",
+        "name": "request-id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "style": "simple"
+      },
+      "tokeniseIban": {
+        "description": "Enable or disable IBAN tokenization.",
+        "explode": true,
+        "in": "query",
+        "name": "tokeniseIban",
+        "required": false,
+        "schema": {
+          "default": false,
+          "type": "boolean"
+        },
+        "style": "form"
+      },
+      "paymentScheme": {
+        "description": "Payment scheme for the transaction [<code>CODE</code>\t- DESCRIPTION]: <br>- <code>INST</code> - SEPA Instant payment, <br>- <code>SEPA</code> - SEPA payment, <br>- <code>SWIFT</code> - SWIFT payment, <br>- <code>TARGET2</code>\t- TARGET2 payment, <br>- <code>TIPS</code> - TARGET Instant Payment, <br>- <code>FAST</code> - UK Faster payment, <br>- <code>BACS</code> - BACS payment, <br>- <code>INTERNAL</code> - LHV internal payment, <br>- <code>GROUP</code> - LHV internal payment between branches (EE, UK), <br>- <code>TRADER</code> - Trader payment, <br>- <code>INTRA</code> - Monavate internal, <br>- <code>ADJUSTMENT</code> - Monavate adjustment balance.",
+        "explode": true,
+        "in": "query",
+        "name": "paymentScheme",
+        "required": false,
+        "schema": {
+          "items": {
+            "$ref": "#/components/schemas/PaymentScheme"
+          },
+          "type": "array"
+        },
+        "style": "form"
+      },
+      "status": {
+        "description": "Transaction status. Possible values are: <br> - <code>ACTIVE</code> - active, <br> - <code>PENDING</code> - pending, <br> - <code>ERROR</code> - error.",
+        "explode": true,
+        "in": "query",
+        "name": "status",
+        "required": false,
+        "schema": {
+          "items": {
+            "$ref": "#/components/schemas/Status_1"
+          },
+          "type": "array"
+        },
+        "style": "form"
+      }
+    },
+    "responses": {
+      "notFoundError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/NotFoundError"
+            }
+          }
+        },
+        "description": "not found error"
+      },
+      "validationError": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        },
+        "description": "invalid request error"
+      }
+    },
+    "schemas": {
+      "requestId": {
+        "properties": {
+          "requestId": {
+            "description": "Uniquely identifies the payment information group within the message.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IbanOpenRequest": {
+        "example": {
+          "clientReference": 75154522345678,
+          "user": {
+            "person": {
+              "name": "Donald Duck",
+              "birthDate": "1908-11-29",
+              "birthCountry": "DEU",
+              "residency": "DEU",
+              "documentNumber": "A942819"
+            },
+            "address": {
+              "country": "GBR",
+              "streetNo": "Waterloo Bridge 13",
+              "cityCounty": "London, Cold"
+            }
+          }
+        },
+        "properties": {
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "user"
+        ],
+        "title": "Iban Open Request",
+        "type": "object"
+      },
+      "ValidationError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Error"
+          },
+          {
+            "$ref": "#/components/schemas/ValidationError_allOf"
+          }
+        ],
+        "title": "Request validation error"
+      },
+      "ErrorResponse": {
+        "example": {
+          "errors": {
+            "error": [
+              {
+                "field": "MasterAccount",
+                "description": "Unauthorized master account",
+                "errorCode": "FORBIDDEN"
+              },
+              {
+                "field": "SomeField",
+                "description": "Issue with SomeField",
+                "errorCode": "FORBIDDEN"
+              }
+            ]
+          }
+        },
+        "properties": {
+          "errors": {
+            "$ref": "#/components/schemas/ErrorResponse_errors"
+          }
+        },
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "IbanOpenResponse": {
+        "example": {
+          "ibanOpenResponse": {
+            "program": "program_name",
+            "iban": "GB70LHVB04032900069096",
+            "clientReference": 75154522345678,
+            "user": {
+              "company": {
+                "name": "UK Ltd Version 2.0",
+                "countryOfOrigin": "GBR",
+                "taxResidency": "GBR",
+                "registrationNumber": 1849203,
+                "representative": {
+                  "name": "Harry Potter",
+                  "birthDate": "2001-01-01",
+                  "residency": "GBR"
+                }
+              },
+              "address": {
+                "country": "GBR",
+                "streetNo": "Waterloo Bridge 13",
+                "cityCounty": "London, Cold"
+              }
+            },
+            "status": "ACTIVE"
+          }
+        },
+        "properties": {
+          "ibanOpenResponse": {
+            "$ref": "#/components/schemas/IbanOpenResponseBody"
+          }
+        },
+        "title": "Iban Open Response",
+        "type": "object"
+      },
+      "IbanModifyRequest": {
+        "example": {
+          "clientReference": 75154522345678,
+          "iban": "GB70LHVB04032900069096",
+          "user": {
+            "person": {
+              "name": "Donald Duck",
+              "birthDate": "1908-11-29",
+              "birthCountry": "DEU",
+              "residency": "DEU",
+              "documentNumber": "A942819"
+            },
+            "address": {
+              "country": "GBR",
+              "streetNo": "Waterloo Bridge 13",
+              "cityCounty": "London, Cold"
+            }
+          },
+          "modifyReason": "New company representative"
+        },
+        "properties": {
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "modifyReason": {
+            "description": "Reason for modification.",
+            "maxLength": 4000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "iban",
+          "modifyReason",
+          "user"
+        ],
+        "title": "Iban Modify Request",
+        "type": "object"
+      },
+      "NotFoundError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Error"
+          },
+          {
+            "$ref": "#/components/schemas/NotFoundError_allOf"
+          }
+        ],
+        "title": "Not found error"
+      },
+      "IbanModifyResponse": {
+        "example": {
+          "ibanModifyResponse": {
+            "clientReference": 75154522345678,
+            "iban": "GB70LHVB04032900069096",
+            "user": {
+              "company": {
+                "name": "UK Ltd Version 2.0",
+                "countryOfOrigin": "GBR",
+                "taxResidency": "GBR",
+                "registrationNumber": 1849203,
+                "representative": {
+                  "name": "Harry Potter",
+                  "birthDate": "2001-01-01",
+                  "residency": "GBR"
+                }
+              },
+              "address": {
+                "country": "GBR",
+                "streetNo": "Waterloo Bridge 13",
+                "cityCounty": "London, Cold"
+              }
+            },
+            "status": "ACTIVE"
+          }
+        },
+        "properties": {
+          "ibanModifyResponse": {
+            "$ref": "#/components/schemas/IbanModifyResponseBody"
+          }
+        },
+        "title": "Iban Modify Response",
+        "type": "object"
+      },
+      "IbanCloseRequest": {
+        "example": {
+          "iban": "GB70LHVB04032900069096"
+        },
+        "properties": {
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          }
+        },
+        "required": [
+          "iban"
+        ],
+        "title": "Iban Close Request",
+        "type": "object"
+      },
+      "IbanCloseResponse": {
+        "example": {
+          "ibanCloseResponse": {
+            "iban": "GB70LHVB04032900069096",
+            "status": "CLOSED",
+            "dateClosed": "2018-05-22+03:00"
+          }
+        },
+        "properties": {
+          "ibanCloseResponse": {
+            "$ref": "#/components/schemas/IbanCloseResponseBody"
+          }
+        },
+        "title": "Iban Close Response",
+        "type": "object"
+      },
+      "IbanStatusNotification": {
+        "example": {
+          "ibanStatusNotification": {
+            "program": "program_name",
+            "clientReference": 75154522345678,
+            "iban": "GB70LHVB04032900069096",
+            "user": {
+              "company": {
+                "name": "UK Ltd Version 2.0",
+                "countryOfOrigin": "GBR",
+                "taxResidency": "GBR",
+                "registrationNumber": 1849203,
+                "representative": {
+                  "name": "Harry Potter",
+                  "birthDate": "2001-01-01",
+                  "residency": "GBR"
+                }
+              },
+              "address": {
+                "country": "GBR",
+                "streetNo": "Waterloo Bridge 13",
+                "cityCounty": "London, Cold"
+              }
+            },
+            "status": "ACTIVE",
+            "dateActivated": "2018-01-01+03:00",
+            "dateClosed": "2018-05-22+03:00"
+          }
+        },
+        "properties": {
+          "ibanStatusNotification": {
+            "$ref": "#/components/schemas/IbanStatusNotificationBody"
+          }
+        },
+        "title": "Iban Status Notification",
+        "type": "object"
+      },
+      "PaymentRequest": {
+        "description": "Retrieves the Payment Status Report with information on the status(es) of imported payments.<br><br>The request message format covers the various payment schemes and types available at the bank (SEPA, Swift, SEPA Instant or UK Faster Payments).",
+        "example": {
+          "requestedExecutionDate": "2021-04-21T09:16:43Z",
+          "debtor": {
+            "name": "Jon Snow",
+            "iban": "EE337700771001260958"
+          },
+          "creditTransfer": {
+            "currency": "EUR",
+            "instructedAmount": 15,
+            "description": "Donation for House of Stark",
+            "creditorReference": "RF18000000000539007547034"
+          },
+          "creditor": {
+            "name": "Eddard Stark",
+            "address": {
+              "country": "GBR",
+              "addressLine1": "Address"
+            },
+            "bankName": "Bank",
+            "bankBIC": "LHVBEE22XXX",
+            "iban": "EE337700771001260958",
+            "accountNumber": 12345678
+          }
+        },
+        "properties": {
+          "requestedExecutionDate": {
+            "description": "Date on which the Remitter’s account is debited.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "debtor": {
+            "$ref": "#/components/schemas/PaymentRequest_debtor"
+          },
+          "creditTransfer": {
+            "$ref": "#/components/schemas/PaymentRequest_creditTransfer"
+          },
+          "creditor": {
+            "$ref": "#/components/schemas/PaymentRequest_creditor"
+          }
+        },
+        "required": [
+          "creditTransfer",
+          "creditor",
+          "debtor"
+        ],
+        "title": "IBAN Payment Request",
+        "type": "object"
+      },
+      "PaymentExtendedResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaymentResponse"
+          },
+          {
+            "$ref": "#/components/schemas/PaymentExtendedResponse_allOf"
+          }
+        ],
+        "description": "Retrieves the Payment Status Report with information on the status(es) of payments",
+        "example": {
+          "masterAccount": "GB03LHVB04032800001125"
+        },
+        "title": "IBAN Payment Extended Response",
+        "type": "object"
+      },
+      "PaymentAdjustmentRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaymentAdjustmentDebtorRequest"
+          },
+          {
+            "$ref": "#/components/schemas/PaymentAdjustmentCreditorRequest"
+          }
+        ],
+        "description": "Payment creditor adjustment request",
+        "title": "IBAN Initiate Adjustment",
+        "type": "object"
+      },
+      "DebitCreditNotification": {
+        "example": {
+          "creditDebitNotification": {
+            "currency": "EUR",
+            "transactions": [
+              {
+                "amount": 7.5,
+                "currency": "EUR",
+                "debitCreditCode": "DBIT",
+                "date": "2021-02-22",
+                "transactionCode": "PMNT",
+                "requestId": "ENDTOENDIDLHVTEST01A",
+                "instructedCurrency": "EUR",
+                "instructedAmount": 7.5,
+                "debitorName": "MONAVATE LTD",
+                "debitorIBAN": "EE617700771001319236",
+                "debtorAccountNumber": "78889961,",
+                "debtorSortCode": "345667,",
+                "debtorBankBic": "LHVBEE20",
+                "creditorName": "MONAVATE LTD",
+                "creditorIBAN": "EE247700771001319223",
+                "creditorBankBic": "LHVBEE20",
+                "creditorAccountNumber": 86788653,
+                "creditorSortCode": 456778,
+                "description": "Payment Description LHVTEST01A",
+                "clientReference": 700170939,
+                "paymentId": "e3b51844c6be6c40",
+                "familyCode": "CCRD",
+                "subfamilyCode": "FEES"
+              }
+            ]
+          }
+        },
+        "properties": {
+          "creditDebitNotification": {
+            "$ref": "#/components/schemas/DebitCreditNotification_creditDebitNotification"
+          }
+        },
+        "title": "Debit Credit Notification",
+        "type": "object"
+      },
+      "OwnerType": {
+        "description": "Type of owner of the account. Possible values are:<br> -<code>person</code>;<br> -<code>company</code>.",
+        "enum": [
+          "person",
+          "company"
+        ],
+        "example": "person",
+        "title": "Owner Type",
+        "type": "string"
+      },
+      "AccountType": {
+        "default": "customer",
+        "description": "Type of the account. Possible values are:<br> -<code>customer</code>;<br> -<code>company</code>.",
+        "enum": [
+          "customer",
+          "company"
+        ],
+        "example": "customer",
+        "title": "Account Type",
+        "type": "string"
+      },
+      "Status": {
+        "description": "Status of the account. Possible values are: <br> -<code>OPENING</code> - transition status displayed upon user opening an account which updates to <code>ACTIVE</code> once the account is opened; <br> -<code>CLOSING</code> - transition status displayed upon user closing an account which updates to <code>CLOSED</code> - once the account is closed; <br> -<code>MODIFYING</code> - transition status displayed upon user modifying an account which updates to either <code>ERROR</code>, if modifications were not processed correctly, or <code>ACTIVE</code> once the account is active after modifications; <br> -<code>PENDING</code> - used temporarily for nameless virtual IBANs until personal details of the IBAN owner are added via Modify IBAN service; payments cannot be made from the account while in that status; <br> -<code>ON_HOLD</code> - used while background check is done by the bank for the IBAN owner until a decision is made; this status updates to <code>ACTIVE</code> or <code>REJECTED</code> if the request to create IBAN is denied; <br> -<code>BLOCKED</code> - set for blocked IBANs;",
+        "enum": [
+          "ACTIVE",
+          "ON_HOLD",
+          "PENDING",
+          "REJECTED",
+          "BLOCKED",
+          "CLOSED",
+          "ERROR",
+          "OPENING",
+          "MODIFYING",
+          "CLOSING"
+        ],
+        "example": "ACTIVE",
+        "title": "Status",
+        "type": "string"
+      },
+      "IbanListResponse": {
+        "properties": {
+          "totalCount": {
+            "description": "Total count.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "pageNumber": {
+            "description": "Page number.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "description": "Page size.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "ibans": {
+            "items": {
+              "$ref": "#/components/schemas/IbanInfo"
+            },
+            "type": "array"
+          }
+        },
+        "title": "Ibans list response",
+        "type": "object"
+      },
+      "IbanRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IbanInfo"
+          },
+          {
+            "$ref": "#/components/schemas/User"
+          }
+        ],
+        "example": {
+          "status": "active",
+          "clientReference": 12345678,
+          "iban": "GB70LHVB04032900069096",
+          "modifyReason": "New company representative",
+          "createdAt": "2021-02-22T17:44:37.623+02:00",
+          "updatedAt": "2021-02-22T17:44:37.623+02:00",
+          "closedAt": "2021-02-22",
+          "createdBy": "user",
+          "updatedBy": "user",
+          "user": {
+            "company": {
+              "name": "UK Ltd Version 2.0",
+              "countryOfOrigin": "GBR",
+              "taxResidency": "GBR",
+              "registrationNumber": 1849203,
+              "representative": {
+                "name": "Harry Potter",
+                "birthDate": "2001-01-01",
+                "residency": "GBR"
+              }
+            },
+            "address": {
+              "country": "GBR",
+              "streetNo": "Waterloo Bridge 13",
+              "cityCounty": "London, Cold"
+            }
+          },
+          "requestId": "5a1fc3afb68861c7"
+        },
+        "title": "Account Details",
+        "type": "object"
+      },
+      "AccountBalanceInfo": {
+        "properties": {
+          "balance": {
+            "description": "Balance of the account.",
+            "type": "number"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          }
+        },
+        "title": "AccountBalance",
+        "type": "object"
+      },
+      "PaymentScheme": {
+        "description": "Payment scheme for the transaction [<code>CODE</code>\t- DESCRIPTION]: <br>- <code>INST</code> - SEPA Instant payment, <br>- <code>SEPA</code> - SEPA payment, <br>- <code>SWIFT</code> - SWIFT payment, <br>- <code>TARGET2</code>\t- TARGET2 payment, <br>- <code>TIPS</code> - TARGET Instant Payment, <br>- <code>FAST</code> - UK Faster payment, <br>- <code>BACS</code> - BACS payment, <br>- <code>INTERNAL</code> - LHV internal payment, <br>- <code>GROUP</code> - LHV internal payment between branches (EE, UK), <br>- <code>TRADER</code> - Trader payment, <br>- <code>INTRA</code> - Monavate internal, <br>- <code>ADJUSTMENT</code> - Monavate adjustment balance.",
+        "enum": [
+          "INST",
+          "CODE",
+          "SEPA",
+          "SWIFT",
+          "TARGET2",
+          "TIPS",
+          "FAST",
+          "BACS",
+          "INTERNAL",
+          "GROUP",
+          "TRADER",
+          "INTRA",
+          "ADJUSTMENT"
+        ],
+        "example": "INTERNAL",
+        "title": "Payment scheme",
+        "type": "string"
+      },
+      "Status_1": {
+        "default": "ACTIVE",
+        "description": "Transaction status. Possible values are: <br> - <code>ACTIVE</code> - active, <br> - <code>PENDING</code> - pending, <br> - <code>ERROR</code> - error.",
+        "enum": [
+          "ACTIVE",
+          "PENDING",
+          "ERROR"
+        ],
+        "example": "ACTIVE",
+        "title": "Transaction status",
+        "type": "string"
+      },
+      "TransactionForProgramResponse": {
+        "properties": {
+          "totalCount": {
+            "description": "Total count of transactions.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "pageNumber": {
+            "description": "Page number.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "description": "Page size.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionForProgramInfo"
+            },
+            "type": "array"
+          }
+        },
+        "title": "Transaction response",
+        "type": "object"
+      },
+      "TransactionForIbanResponse": {
+        "properties": {
+          "totalCount": {
+            "description": "Total count of transactions.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "pageNumber": {
+            "description": "Page number.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "description": "Page size.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionForIbanInfo"
+            },
+            "type": "array"
+          }
+        },
+        "title": "Transaction response",
+        "type": "object"
+      },
+      "TransactionDetailsResponse": {
+        "properties": {
+          "transactionInfo": {
+            "$ref": "#/components/schemas/TransactionDetailsInfo"
+          },
+          "debitor": {
+            "$ref": "#/components/schemas/TransactionDetailsDebitor"
+          },
+          "creditor": {
+            "$ref": "#/components/schemas/TransactionDetailsCreditor"
+          }
+        },
+        "title": "Transaction details response",
+        "type": "object"
+      },
+      "ClientReference": {
+        "description": "Customer reference defined by the Tenant.",
+        "example": "75154522345678",
+        "maxLength": 255,
+        "minLength": 1,
+        "title": "ClientReference",
+        "type": "string"
+      },
+      "User": {
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/Person"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "title": "User",
+        "type": "object"
+      },
+      "Error": {
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "title": "Request error",
+        "type": "object"
+      },
+      "ValidationErrorMessage": {
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "rejectedValue": {
+            "type": "object"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "IbanOpenResponseBody": {
+        "example": {
+          "program": "program_name",
+          "iban": "GB70LHVB04032900069096",
+          "clientReference": 75154522345678,
+          "user": {
+            "company": {
+              "name": "UK Ltd Version 2.0",
+              "countryOfOrigin": "GBR",
+              "taxResidency": "GBR",
+              "registrationNumber": 1849203,
+              "representative": {
+                "name": "Harry Potter",
+                "birthDate": "2001-01-01",
+                "residency": "GBR"
+              }
+            },
+            "address": {
+              "country": "GBR",
+              "streetNo": "Waterloo Bridge 13",
+              "cityCounty": "London, Cold"
+            }
+          },
+          "status": "ACTIVE"
+        },
+        "properties": {
+          "program": {
+            "type": "string"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "$ref": "#/components/schemas/State"
+          }
+        },
+        "title": "Iban Open Response Body",
+        "type": "object"
+      },
+      "Iban": {
+        "description": "IBAN to which the sent information refers.",
+        "example": "EE427700771001260990",
+        "pattern": "[A-Z]{2}(\\d{18}|\\d{2}[A-Z]{4}\\d{14}|[A-Z]{2}[A-Z\\d]{24})",
+        "title": "IBAN",
+        "type": "string"
+      },
+      "IbanModifyResponseBody": {
+        "example": {
+          "clientReference": 75154522345678,
+          "iban": "GB70LHVB04032900069096",
+          "user": {
+            "company": {
+              "name": "UK Ltd Version 2.0",
+              "countryOfOrigin": "GBR",
+              "taxResidency": "GBR",
+              "registrationNumber": 1849203,
+              "representative": {
+                "name": "Harry Potter",
+                "birthDate": "2001-01-01",
+                "residency": "GBR"
+              }
+            },
+            "address": {
+              "country": "GBR",
+              "streetNo": "Waterloo Bridge 13",
+              "cityCounty": "London, Cold"
+            }
+          },
+          "status": "ACTIVE"
+        },
+        "properties": {
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "$ref": "#/components/schemas/State"
+          },
+          "modifyReason": {
+            "type": "string"
+          }
+        },
+        "title": "Iban Modify Response Body",
+        "type": "object"
+      },
+      "IbanCloseResponseBody": {
+        "example": {
+          "iban": "GB70LHVB04032900069096",
+          "status": "CLOSED",
+          "dateClosed": "2018-05-22+03:00"
+        },
+        "properties": {
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "status": {
+            "$ref": "#/components/schemas/State"
+          },
+          "dateClosed": {
+            "description": "Optional. Added if IBAN has already been closed.",
+            "format": "date",
+            "type": "string"
+          }
+        },
+        "title": "Iban Close Response Body",
+        "type": "object"
+      },
+      "IbanStatusNotificationBody": {
+        "example": {
+          "program": "program_name",
+          "clientReference": 75154522345678,
+          "iban": "GB70LHVB04032900069096",
+          "user": {
+            "company": {
+              "name": "UK Ltd Version 2.0",
+              "countryOfOrigin": "GBR",
+              "taxResidency": "GBR",
+              "registrationNumber": 1849203,
+              "representative": {
+                "name": "Harry Potter",
+                "birthDate": "2001-01-01",
+                "residency": "GBR"
+              }
+            },
+            "address": {
+              "country": "GBR",
+              "streetNo": "Waterloo Bridge 13",
+              "cityCounty": "London, Cold"
+            }
+          },
+          "status": "ACTIVE",
+          "dateActivated": "2018-01-01",
+          "dateClosed": "2018-05-22"
+        },
+        "properties": {
+          "program": {
+            "type": "string"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "status": {
+            "$ref": "#/components/schemas/State"
+          },
+          "dateActivated": {
+            "description": "Optional. Added if IBAN is active.",
+            "format": "date",
+            "type": "string"
+          },
+          "dateClosed": {
+            "description": "Optional. Added if IBAN is closed.",
+            "format": "date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "iban",
+          "program",
+          "status",
+          "user"
+        ],
+        "title": "Iban Status Notification Body",
+        "type": "object"
+      },
+      "PaymentType": {
+        "description": "Specifies a pre-agreed service or level of service between the parties, as a proprietary code. Allowed values - INST, SEPA, FAST, ALL - equals as uploaded without interface type. Any different value returns a validation error.",
+        "enum": [
+          "INST",
+          "SEPA",
+          "FAST",
+          "ALL"
+        ],
+        "example": "ALL",
+        "title": "Payment type",
+        "type": "string"
+      },
+      "PaymentResponse": {
+        "description": "More than one status may be returned for one payment transaction.",
+        "example": {
+          "paymentResponse": {
+            "requestId": "PMTINFIDLHVTEST01",
+            "status": "ACSC",
+            "statusReason": "Wrong user name",
+            "bankBIC": "LHVBEE22XXX",
+            "sortCode": 758634,
+            "accountNumber": 12345678
+          }
+        },
+        "properties": {
+          "paymentResponse": {
+            "$ref": "#/components/schemas/PaymentResponse_paymentResponse"
+          }
+        },
+        "title": "PaymentResponse",
+        "type": "object"
+      },
+      "PaymentAdjustmentDebtorRequest": {
+        "description": "Request for a debtor’s payment adjustment.",
+        "example": {
+          "debtor": {
+            "name": "Jon Snow",
+            "iban": "EE337700771001260958",
+            "currency": "EUR",
+            "amount": 15,
+            "description": "Donation for House of Stark"
+          }
+        },
+        "properties": {
+          "debtor": {
+            "$ref": "#/components/schemas/PaymentAdjustmentBodyRequest"
+          }
+        },
+        "title": "IBAN Payment Debtor Adjustment Request",
+        "type": "object"
+      },
+      "PaymentAdjustmentCreditorRequest": {
+        "description": "Request for a creditor’s payment adjustment.",
+        "example": {
+          "creditor": {
+            "name": "Eddard Stark",
+            "iban": "EE337700771001260958",
+            "currency": "EUR",
+            "amount": 15,
+            "description": "Donation for House of Stark"
+          }
+        },
+        "properties": {
+          "creditor": {
+            "$ref": "#/components/schemas/PaymentAdjustmentBodyRequest"
+          }
+        },
+        "title": "IBAN Payment Creditor Adjustment Request",
+        "type": "object"
+      },
+      "CurrencyCode": {
+        "description": "A currency code consists of either 3 or 4 characters (letters or numbers) as per ISO 4217.",
+        "example": "USD",
+        "maxLength": 4,
+        "minLength": 3,
+        "type": "string"
+      },
+      "IbanInfo": {
+        "example": {
+          "status": "active",
+          "clientReference": 12345678,
+          "iban": "GB70LHVB04032900069096",
+          "token": "TC5GQGUS2RRH3DWHZRF9VBTKZ8S5",
+          "modifyReason": "New company representative",
+          "accountType": "customer",
+          "ownerType": "person",
+          "ownerName": "John Johnson",
+          "balance": 100000,
+          "currency": "EUR",
+          "createdAt": "2021-02-22T17:44:37.623+02:00",
+          "updatedAt": "2021-02-22T17:44:37.623+02:00",
+          "lastUsedAt": "2021-02-22",
+          "closedAt": "2021-02-22",
+          "createdBy": "user",
+          "updatedBy": "user",
+          "requestId": "5a1fc3afb68861c7"
+        },
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "token": {
+            "description": "IBAN Token",
+            "type": "string"
+          },
+          "ownerType": {
+            "$ref": "#/components/schemas/OwnerType"
+          },
+          "accountType": {
+            "$ref": "#/components/schemas/AccountType"
+          },
+          "ownerName": {
+            "description": "First and last name of private person or company name. Depends on type",
+            "maxLength": 255,
+            "minLength": 1,
+            "pattern": "[^0-9]*",
+            "type": "string"
+          },
+          "bankBIC": {
+            "description": "BIC of the beneficiary’s bank.",
+            "type": "string"
+          },
+          "sortCode": {
+            "description": "Identification of the correspondent bank of the beneficiary’s bank in a clearing system.",
+            "type": "string"
+          },
+          "accountNumber": {
+            "description": "Use BBAN when using concatenated UK domestic account No. (14 characters), omit when using UK account No. and UK sort code separately.",
+            "type": "string"
+          },
+          "balances": {
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceInfo"
+            },
+            "type": "array"
+          },
+          "modifyReason": {
+            "description": "Reason for modification.",
+            "maxLength": 4000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "error": {
+            "description": "Error message.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date and time of creation.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Name of the creator.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "Date and time of updating.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "description": "Name of the update author.",
+            "type": "string"
+          },
+          "closedAt": {
+            "description": "Date of closing.",
+            "format": "date",
+            "type": "string"
+          },
+          "lastUsedAt": {
+            "description": "Date when the account was last used.",
+            "format": "date",
+            "type": "string"
+          },
+          "requestId": {
+            "description": "Request ID which is also an identifier in the Monavate database.",
+            "type": "string"
+          }
+        },
+        "title": "Account",
+        "type": "object"
+      },
+      "TransactionForProgramInfo": {
+        "example": {
+          "creditorName": "Miracle Aminoff",
+          "creditorIban": "EE427700771001260990",
+          "isCreditorIbanInternal": false,
+          "creditorCountry": "USA",
+          "debitorName": "Jacob Herwitz",
+          "debitorIban": "EE427700771001260991",
+          "isDebitorIbanInternal": false,
+          "paymentScheme": "SWIFT",
+          "amount": 100,
+          "currency": "EUR",
+          "clientReference": "INV-20220215",
+          "creditorAccountNumber": 78889961,
+          "debitorAccountNumber": 78889962,
+          "debitorBicCode": "LHVBEE22",
+          "debitorSortCode": 345668,
+          "creditorBicCode": "LHVBEE20",
+          "creditorSortCode": 345667,
+          "status": "ACTIVE",
+          "transactionStatus": "PDNG",
+          "error": "error",
+          "createdAt": "2022-02-15T10:44:37.623+03:00",
+          "updatedAt": "2021-02-15T11:45:38.725+03:00",
+          "createdBy": "user1",
+          "updatedBy": "user2",
+          "requestId": "5a1fc3afb68861c7",
+          "subfamily": "FEES"
+        },
+        "properties": {
+          "creditorName": {
+            "description": "The creditor’s name.",
+            "type": "string"
+          },
+          "creditorIban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "isCreditorIbanInternal": {
+            "description": "True, if the creditor’s IBAN is internal, otherwise false.",
+            "type": "boolean"
+          },
+          "creditorCountry": {
+            "description": "The creditor’s country.",
+            "type": "string"
+          },
+          "debitorName": {
+            "description": "The debitor’s name.",
+            "type": "string"
+          },
+          "debitorIban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "isDebitorIbanInternal": {
+            "description": "True, if debitor’s IBAN is internal, otherwise false.",
+            "type": "boolean"
+          },
+          "paymentScheme": {
+            "$ref": "#/components/schemas/PaymentScheme"
+          },
+          "amount": {
+            "description": "The transaction amount.",
+            "type": "number"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "creditorAccountNumber": {
+            "description": "The creditor’s account number.",
+            "type": "string"
+          },
+          "debitorAccountNumber": {
+            "description": "The debitor’s account number.",
+            "type": "string"
+          },
+          "debitorBicCode": {
+            "description": "The debitor’ BIC.",
+            "type": "string"
+          },
+          "debitorSortCode": {
+            "description": "The debitor’ sort code.",
+            "type": "string"
+          },
+          "creditorBicCode": {
+            "description": "The creditor’ BIC.",
+            "type": "string"
+          },
+          "creditorSortCode": {
+            "description": "The creditor’ sort code.",
+            "type": "string"
+          },
+          "transactionCode": {
+            "description": "Transaction code.",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status_1"
+          },
+          "transactionStatus": {
+            "$ref": "#/components/schemas/TransactionStatus"
+          },
+          "error": {
+            "description": "Error information.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "The date and time when the transaction was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "The name of the creating person.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "The date and time when the transaction was updated.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "description": "The name of the updating person.",
+            "type": "string"
+          },
+          "requestId": {
+            "description": "Request ID in Monavate database.",
+            "type": "string"
+          },
+          "subfamily": {
+            "description": "Bank transaction code",
+            "type": "string"
+          }
+        },
+        "title": "Transaction",
+        "type": "object"
+      },
+      "TransactionForIbanInfo": {
+        "example": {
+          "requestId": "5a1fc3afb68861c7",
+          "iban": "EE427700771001260991",
+          "isIbanInternal": false,
+          "name": "Miracle Aminoff",
+          "accountNumber": 78889961,
+          "creditAmount": 100,
+          "creditCurrency": "EUR",
+          "debitAmount": 100,
+          "debitCurrency": "EUR",
+          "paymentScheme": "SWIFT",
+          "clientReference": "INV-20220215",
+          "subfamily": "FEES",
+          "createdAt": "2022-02-15T10:44:37.623+03:00",
+          "updatedAt": "2021-02-15T11:45:38.725+03:00",
+          "createdBy": "user1",
+          "updatedBy": "user2"
+        },
+        "properties": {
+          "requestId": {
+            "description": "Request ID in Monavate database.",
+            "type": "string"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "balance": {
+            "description": "Transaction balance",
+            "type": "number"
+          },
+          "isIbanInternal": {
+            "description": "True, if IBAN is internal, otherwise false.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The creditor’s/debitor’s name.",
+            "type": "string"
+          },
+          "accountNumber": {
+            "description": "The creditor’s/debitor’s account number.",
+            "type": "string"
+          },
+          "sortCode": {
+            "description": "Creditor/debitor sort code.",
+            "type": "string"
+          },
+          "creditAmount": {
+            "description": "The credit amount.",
+            "type": "number"
+          },
+          "creditCurrency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "debitAmount": {
+            "description": "The debit amount.",
+            "type": "number"
+          },
+          "debitCurrency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "paymentScheme": {
+            "$ref": "#/components/schemas/PaymentScheme"
+          },
+          "transactionCode": {
+            "description": "Transaction code.",
+            "type": "string"
+          },
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status_1"
+          },
+          "subfamily": {
+            "description": "Bank transaction code",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "The date and time when the transaction was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "The name of the creating person.",
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "The date and time when the transaction was updated.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedBy": {
+            "description": "The name of the updating person.",
+            "type": "string"
+          }
+        },
+        "title": "Transaction",
+        "type": "object"
+      },
+      "TransactionDetailsInfo": {
+        "properties": {
+          "transactionCurrency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "balance": {
+            "description": "The transaction balance.",
+            "type": "number"
+          },
+          "transactionAmount": {
+            "description": "The transaction amount.",
+            "type": "number"
+          },
+          "instructedCurrency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "instructedAmount": {
+            "description": "The instructed amount.",
+            "type": "number"
+          },
+          "createdAt": {
+            "description": "The date and time of the transaction.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "transactionCode": {
+            "description": "The transaction code.",
+            "type": "string"
+          },
+          "paymentScheme": {
+            "$ref": "#/components/schemas/PaymentScheme"
+          },
+          "clientReference": {
+            "$ref": "#/components/schemas/ClientReference"
+          },
+          "requestId": {
+            "description": "Request ID in Monavate database.",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status_1"
+          },
+          "statusReason": {
+            "description": "Status reason.",
+            "type": "string"
+          },
+          "reversal": {
+            "description": "True (1) if credit transaction is return of payment",
+            "type": "boolean"
+          },
+          "description": {
+            "description": "A short description of the transaction.",
+            "type": "string"
+          },
+          "subfamily": {
+            "description": "Bank transaction code",
+            "type": "string"
+          }
+        },
+        "title": "Transaction details info",
+        "type": "object"
+      },
+      "TransactionDetailsDebitor": {
+        "properties": {
+          "name": {
+            "description": "The debitor’s name.",
+            "type": "string"
+          },
+          "accountNumber": {
+            "description": "The account number.",
+            "type": "string"
+          },
+          "iban": {
+            "description": "IBAN.",
+            "type": "string"
+          },
+          "bicCode": {
+            "description": "BIC.",
+            "type": "string"
+          },
+          "sortCode": {
+            "description": "The sort code.",
+            "type": "string"
+          }
+        },
+        "title": "Transaction debitor info",
+        "type": "object"
+      },
+      "TransactionDetailsCreditor": {
+        "properties": {
+          "name": {
+            "description": "The creditor’s name.",
+            "type": "string"
+          },
+          "accountNumber": {
+            "description": "The account number.",
+            "type": "string"
+          },
+          "iban": {
+            "description": "IBAN.",
+            "type": "string"
+          },
+          "bicCode": {
+            "description": "BIC.",
+            "type": "string"
+          },
+          "sortCode": {
+            "description": "The sort code.",
+            "type": "string"
+          }
+        },
+        "title": "Transaction creditor info",
+        "type": "object"
+      },
+      "Person": {
+        "description": "Applicable to a private person that owns the IBAN.",
+        "example": {
+          "name": "Donald Duck",
+          "birthDate": "1908-11-29",
+          "birthCountry": "DEU",
+          "residency": "DEU",
+          "documentNumber": "A942819"
+        },
+        "properties": {
+          "name": {
+            "description": "First and last name of the private person.",
+            "maxLength": 255,
+            "minLength": 2,
+            "pattern": "[^0-9\\s][^0-9]*[^0-9\\s]",
+            "type": "string"
+          },
+          "birthDate": {
+            "description": "Birth date of the private person (YYYY-MM-DD).",
+            "format": "date",
+            "type": "string"
+          },
+          "birthCountry": {
+            "description": "Country of birth of the private person (ISO 3166-1 alpha-3).",
+            "pattern": "[A-Z]{3}",
+            "type": "string"
+          },
+          "residency": {
+            "description": "Country of residence of the private person (ISO 3166-1 alpha-3).",
+            "pattern": "[A-Z]{3}",
+            "type": "string"
+          },
+          "documentNumber": {
+            "description": "ID document number of the private person.",
+            "maxLength": 20,
+            "minLength": 5,
+            "pattern": "['0-9a-zA-ZĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖŲŁŚŪÜŻŽąįāćäåęēčéźėģķīļšńņóōõöųłśūüżž ]+",
+            "type": "string"
+          }
+        },
+        "required": [
+          "birthDate",
+          "name",
+          "residency"
+        ],
+        "title": "Person",
+        "type": "object"
+      },
+      "Company": {
+        "description": "Applicable to a legal entity that owns the IBAN.",
+        "example": {
+          "name": "UK Ltd Version 2.0",
+          "countryOfOrigin": "GBR",
+          "taxResidency": "GBR",
+          "registrationNumber": 1849203,
+          "representative": {
+            "name": "Harry Potter",
+            "birthDate": "2001-01-01",
+            "residency": "GBR"
+          }
+        },
+        "properties": {
+          "name": {
+            "description": "Legal entity full name.",
+            "maxLength": 255,
+            "minLength": 1,
+            "pattern": "\\S.*\\S",
+            "type": "string"
+          },
+          "countryOfOrigin": {
+            "description": "Country of origin of the legal entity (ISO 3166-1 alpha-3).",
+            "pattern": "[A-Z]{3}",
+            "type": "string"
+          },
+          "taxResidency": {
+            "description": "Tax residence of the legal entity (ISO 3166-1 alpha-3).",
+            "pattern": "[A-Z]{3}",
+            "type": "string"
+          },
+          "registrationNumber": {
+            "description": "Registration No. of legal entity.",
+            "maxLength": 20,
+            "minLength": 5,
+            "pattern": "['0-9a-zA-ZĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻŠŃŅÓŌÕÖŲŁŚŪÜŻŽąįāćäåęēčéźėģķīļšńņóōõöųłśūüżž ]+",
+            "type": "string"
+          },
+          "representative": {
+            "$ref": "#/components/schemas/Company_representative"
+          }
+        },
+        "required": [
+          "countryOfOrigin",
+          "name",
+          "registrationNumber",
+          "representative",
+          "taxResidency"
+        ],
+        "title": "Company",
+        "type": "object"
+      },
+      "Address": {
+        "example": {
+          "country": "GBR",
+          "streetNo": "Majaka 47-10",
+          "cityCounty": "Xiao, Neverland"
+        },
+        "properties": {
+          "country": {
+            "description": "Three-character country of residence (ISO 3166-1 alpha-3).",
+            "pattern": "[A-Z]{3}",
+            "type": "string"
+          },
+          "streetNo": {
+            "description": "Street No.",
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "cityCounty": {
+            "description": "City or town and county separated by comma.",
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "cityCounty",
+          "country",
+          "streetNo"
+        ],
+        "title": "Address",
+        "type": "object"
+      },
+      "State": {
+        "default": "ACTIVE",
+        "description": "State of the IBAN. Possible values are: <br> -<code>ACTIVE</code>; <br> -<code>ON_HOLD</code>; <br> -<code>PENDING</code> - used when account check fails for technical reasons; <br> -<code>REJECTED</code>; <br> -<code>BLOCKED</code>; <br> -<code>CLOSED</code>.",
+        "enum": [
+          "ACTIVE",
+          "ON_HOLD",
+          "PENDING",
+          "REJECTED",
+          "BLOCKED",
+          "CLOSED"
+        ],
+        "example": "ACTIVE",
+        "title": "State",
+        "type": "string"
+      },
+      "TransactionStatus": {
+        "default": "PDNG",
+        "description": "Payment status. Possible values are :<br> - <code>PDNG</code> - pending, <br> - <code>ACSP</code> - accepted, settlement in process, <br> - <code>ACWC</code> - accepted with change, <br> - <code>ACSC</code> - accepted, settlement completed, payment has been debited from the customer’s account, <br> - <code>RJCT</code> - payment has been rejected.",
+        "enum": [
+          "PDNG",
+          "ACSP",
+          "ACWC",
+          "ACSC",
+          "RJCT"
+        ],
+        "example": "RJCT",
+        "title": "TransactionStatus",
+        "type": "string"
+      },
+      "PaymentAdjustmentBodyRequest": {
+        "example": {
+          "name": "Jon Snow",
+          "iban": "EE337700771001260958",
+          "currency": "EUR",
+          "amount": 15,
+          "description": "Donation for House of Stark"
+        },
+        "properties": {
+          "name": {
+            "description": "The name of the creditor or debtor.",
+            "maxLength": 255,
+            "minLength": 2,
+            "type": "string"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          },
+          "currency": {
+            "description": "The currency of the transaction denoted in 3 characters (letters or numbers) as per ISO 4217.",
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string"
+          },
+          "amount": {
+            "description": "The amount paid.",
+            "type": "number"
+          },
+          "description": {
+            "description": "A short description of the payment.",
+            "maxLength": 255,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "currency",
+          "iban",
+          "name"
+        ],
+        "title": "IBAN Initiate Adjustment Body",
+        "type": "object"
+      },
+      "ValidationError_allOf": {
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationErrorMessage"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object",
+        "example": null
+      },
+      "ErrorResponse_errors_error_inner": {
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "errorCode": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ErrorResponse_errors": {
+        "properties": {
+          "error": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorResponse_errors_error_inner"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "NotFoundError_allOf": {
+        "properties": {
+          "objectId": {
+            "type": "string"
+          },
+          "objectType": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "example": null
+      },
+      "PaymentRequest_debtor": {
+        "description": "The party from whose account the paid amount is debited.",
+        "properties": {
+          "name": {
+            "description": "The Remitter’s name, which is the name of the IBAN`s holder (not the Program owner).",
+            "maxLength": 255,
+            "minLength": 2,
+            "pattern": "\\S.*\\S",
+            "type": "string"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          }
+        },
+        "required": [
+          "iban",
+          "name"
+        ],
+        "type": "object"
+      },
+      "PaymentRequest_creditTransfer": {
+        "description": "The payment transaction.",
+        "properties": {
+          "currency": {
+            "description": "The currency of the transaction denoted in 3 characters (letters or numbers) as per ISO 4217.",
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string"
+          },
+          "instructedAmount": {
+            "description": "The amount paid.",
+            "type": "number"
+          },
+          "paymentType": {
+            "$ref": "#/components/schemas/PaymentType"
+          },
+          "description": {
+            "description": "Short description of the transaction.",
+            "maxLength": 255,
+            "minLength": 2,
+            "pattern": "(\\S.*)?\\S",
+            "type": "string"
+          },
+          "creditorReference": {
+            "description": "The Creditor reference defined by the Tenant.",
+            "pattern": "((\\S.*)?\\S)*",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currency",
+          "description",
+          "instructedAmount"
+        ],
+        "type": "object"
+      },
+      "PaymentRequest_creditor_address": {
+        "description": "The address of the Creditor.",
+        "properties": {
+          "country": {
+            "description": "Three-character country of residence (ISO 3166-1 alpha-3).",
+            "maxLength": 3,
+            "type": "string"
+          },
+          "addressLine1": {
+            "description": "Address details.",
+            "maxLength": 60,
+            "type": "string"
+          },
+          "addressLine2": {
+            "description": "Address details.",
+            "maxLength": 60,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PaymentRequest_creditor": {
+        "description": "Party whose account is credited with the paid amount.",
+        "properties": {
+          "name": {
+            "description": "The Creditor’s name.",
+            "maxLength": 255,
+            "minLength": 2,
+            "pattern": "\\S.*\\S",
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/PaymentRequest_creditor_address"
+          },
+          "bankName": {
+            "description": "The Creditor’s bank name.",
+            "maxLength": 70,
+            "minLength": 2,
+            "type": "string"
+          },
+          "bankBIC": {
+            "description": "The BIC code is easily identifiable as it is made up of 8 or 11 characters broken down as such:<br> • Bank code (A-Z) - 4 letter code,<br> • Country code (A-Z) - 2 letter code,<br> • Location Code (0-9 or A-Z) - 2 digit code – either letters or numbers,<br> • Branch Code (0-9 or A-Z) - optional 3 digit code – either letters or numbers*.",
+            "pattern": "[A-Z]{6,6}[A-Z0-9]{2,5}",
+            "type": "string"
+          },
+          "sortCode": {
+            "description": "Identification of the correspondent bank of the beneficiary’s bank in a clearing system.",
+            "type": "string"
+          },
+          "accountNumber": {
+            "description": "Use BBAN when using concatenated UK domestic account No. (14 characters), omit when using UK account No. and UK sort code separately.",
+            "type": "string"
+          },
+          "iban": {
+            "$ref": "#/components/schemas/Iban"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "PaymentExtendedResponse_allOf": {
+        "properties": {
+          "masterAccount": {
+            "$ref": "#/components/schemas/Iban"
+          }
+        },
+        "type": "object",
+        "example": null
+      },
+      "DebitCreditNotification_creditDebitNotification_transactions_inner_creditorAddress": {
+        "description": "Full address of the creditor.",
+        "properties": {
+          "country": {
+            "description": "Three-character country of residence (ISO 3166-1 alpha-3).",
+            "type": "string"
+          },
+          "addressLine1": {
+            "description": "Address details.",
+            "type": "string"
+          },
+          "addressLine2": {
+            "description": "Address details.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DebitCreditNotification_creditDebitNotification_transactions_inner": {
+        "description": "A list of credit or debit transactions for the customer.",
+        "properties": {
+          "amount": {
+            "description": "The transaction amount (can be zero).",
+            "type": "number"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "debitCreditCode": {
+            "description": "Possible values are:<br> - <code>CRDT</code> - Positive amount or zero;<br> - <code>DBIT</code> - Negative amount.",
+            "type": "string"
+          },
+          "reversal": {
+            "description": "Set to true <code>(1)</code> if the credit transaction is a return of payment.",
+            "type": "string"
+          },
+          "date": {
+            "description": "The date of the transaction.",
+            "format": "date",
+            "type": "string"
+          },
+          "transactionCode": {
+            "description": "The credit or debit transaction code.",
+            "type": "string"
+          },
+          "requestId": {
+            "description": "The unique identifier of the requested credit or debit transaction.",
+            "type": "string"
+          },
+          "instructedCurrency": {
+            "description": "The transaction currency.",
+            "type": "string"
+          },
+          "instructedAmount": {
+            "description": "The transaction amount (can be zero).",
+            "type": "number"
+          },
+          "debitorName": {
+            "description": "The full name of the debtor.",
+            "type": "string"
+          },
+          "debitorIBAN": {
+            "description": "The IBAN of the debtor.",
+            "type": "string"
+          },
+          "debtorAccountNumber": {
+            "description": "The beneficiary’s account number which is not IBAN.",
+            "type": "string"
+          },
+          "debtorSortCode": {
+            "description": "For UK Faster Payments (outgoing) - if the payment request contains additionally the sort code + domestic account No. For Faster Payments (incoming) - UK sort code + account No. (14 characters).",
+            "type": "string"
+          },
+          "debtorBankBic": {
+            "description": "The BIC of the remitter’s bank.",
+            "type": "string"
+          },
+          "creditorAccountNumber": {
+            "description": "The beneficiary’s account number which is not IBAN.",
+            "type": "string"
+          },
+          "creditorSortCode": {
+            "description": "For <code>UK Faster Payments</code> (outgoing) - when the payment request contains additionally sort code + domestic account No. For <code>Faster Payments</code> (incoming) - UK sort code + account No. (14 characters).",
+            "type": "string"
+          },
+          "creditorBankBic": {
+            "description": "The BIC of the beneficiary’s bank.",
+            "type": "string"
+          },
+          "creditorName": {
+            "description": "The full name of the creditor.",
+            "type": "string"
+          },
+          "creditorIBAN": {
+            "description": "The IBAN of the creditor.",
+            "type": "string"
+          },
+          "creditorAddress": {
+            "$ref": "#/components/schemas/DebitCreditNotification_creditDebitNotification_transactions_inner_creditorAddress"
+          },
+          "description": {
+            "description": "A short description of the transaction.",
+            "type": "string"
+          },
+          "clientReference": {
+            "description": "The customer reference defined by the Tenant.",
+            "type": "string"
+          },
+          "statusReason": {
+            "description": "The reason for the assigned transaction status.",
+            "type": "string"
+          },
+          "paymentScheme": {
+            "description": "The payment transaction scheme used.",
+            "type": "string"
+          },
+          "paymentId": {
+            "description": "Unique identification assigned by a sending party. For outgoing payments reference to the original payment",
+            "type": "string"
+          },
+          "familyCode": {
+            "description": "Bank transaction code",
+            "type": "string"
+          },
+          "subfamilyCode": {
+            "description": "Bank transaction code",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DebitCreditNotification_creditDebitNotification": {
+        "properties": {
+          "program": {
+            "description": "The program",
+            "type": "string"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "createdAt": {
+            "description": "The date and time when the notification was generated.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/DebitCreditNotification_creditDebitNotification_transactions_inner"
+            },
+            "type": "array"
+          },
+          "statusReason": {
+            "description": "Used with Reason/Code NARR.<br> For returned payment reference to original payment message PAIN.001.001.03 PmtInfId value.<br> Additional rows with format- <code>CD:NNNNNNNN</code>; refer to payment scheme-specific return codes.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PaymentResponse_paymentResponse": {
+        "properties": {
+          "requestId": {
+            "description": "Uniquely identifies the payment information group within the message.",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TransactionStatus"
+          },
+          "statusReason": {
+            "description": "The reason for assigning a specific transaction status.",
+            "type": "string"
+          },
+          "paymentScheme": {
+            "description": "The payment transaction scheme.",
+            "type": "string"
+          },
+          "bankBIC": {
+            "description": "BIC of the beneficiary’s bank.",
+            "type": "string"
+          },
+          "sortCode": {
+            "description": "Identification of the beneficiary's bank's correspondent bank in a clearing system",
+            "type": "string"
+          },
+          "accountNumber": {
+            "description": "Use BBAN when using concatenated UK domestic accountr nr (14 characters), omit when using UK account nr and UK sort code separately.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Company_representative": {
+        "properties": {
+          "name": {
+            "description": "First and last name of private person.",
+            "maxLength": 255,
+            "minLength": 2,
+            "pattern": "[^0-9]*",
+            "type": "string"
+          },
+          "birthDate": {
+            "description": "Birth date of private person (YYYY-MM-DD).",
+            "format": "date",
+            "type": "string"
+          },
+          "residency": {
+            "description": "Country of residence of private person (ISO 3166-1 alpha-3).",
+            "pattern": "[A-Z]{3}",
+            "type": "string"
+          }
+        },
+        "required": [
+          "birthDate",
+          "name",
+          "residency"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY"
+      }
+    }
+  }
+}

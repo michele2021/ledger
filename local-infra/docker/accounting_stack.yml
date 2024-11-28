@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+
+  accounting_core:
+    image: accounting_core:1
+    container_name: accounting_core
+    build:
+      context: ../..
+      dockerfile: Dockerfile-Dev
+    network_mode: epay_ledger_bridge
+    env_file:
+      - .env
+    ports:
+      - ${DEBUG_PORT}:${DEBUG_PORT}
+      - ${ACCOUNTING_HTTP_APP}:${ACCOUNTING_HTTP_APP}
+      - ${ACCOUNTING_HTTP_ADMIN}:${ACCOUNTING_HTTP_ADMIN}

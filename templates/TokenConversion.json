@@ -1,0 +1,29 @@
+{
+  "class": "TokenConvert",
+  "eventType": "TOKEN_CONVERSION",
+  "accountTypes": ["Distributor","Client"],
+  "journalType": "Converted",
+  "txType": "Token",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "issuer": {
+        "description": "The issuer of the (master)card",
+        "type": "string"
+      },
+      "prepaidCardExternalId": {
+        "description" : "External Id of the prepaid card",
+        "type": "string"
+      },
+      "test": {
+        "description" : "If it is TRUE then “_TEST” suffix will be added to the account Code",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "issuer",
+      "prepaidCardExternalId"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "class": "TokenCreate",
+  "eventType": "TOKEN_CREATE",
+  "accountTypes": ["Distributor","Client"],
+  "journalType": "Created",
+  "txType": "Token",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "publishableId": {
+        "description" : "The token serial number",
+        "type": "string"
+      },
+      "activatingLocationRef": {
+        "description" : "A value uniquely identifying the source of this token request, e.g. a physical POS in a store, a website, etc.",
+        "type": "string"
+      },
+      "orderItemId": {
+        "description" : "order_items.orderItemId in productsDB.",
+        "type": "string"
+      },
+      "orderId": {
+        "description" : "orders.orderId in productsDB.",
+        "type": "string"
+      },
+      "bookingDate": {
+        "description" : "Timestamp to be used to book the event in the ledger in ISO 8601 GMT date time format: YYYY-MM-DD\"T\"hh:mm:ss\"Z\"",
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}(.\\d{1,9})?Z$"
+      },
+      "clientTokenMetadata": {
+        "description" : "Reference specified by the client.",
+        "type": "string"
+      },
+      "test": {
+        "description" : "If it is TRUE then “_TEST” suffix will be added to the account Code",
+        "type": "boolean"
+      }
+    }
+  }
+}
