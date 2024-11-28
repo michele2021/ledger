@@ -1,2 +1,2 @@
 # ledger
-Ledger app
+Ledger app project
