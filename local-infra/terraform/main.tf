@@ -36,7 +36,7 @@ provider "aws" {
 
 module "reports_bucket" {
   source      = "./modules/s3_bucket"
-  bucket_name = "clevercards-development-ledger-data"
+  bucket_name = "ledger-development-ledger-data"
   acl         = "public-read"
 }
 

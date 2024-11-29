@@ -6,7 +6,7 @@ WARN="\033[0;33mWARNING: ${NC}"
 ERROR="\033[0;31mERROR: ${NC}"
 
 JAR_DIR="./build/libs/"
-JAR_FILE="accounting-core-*.jar"
+JAR_FILE="ledger-*.jar"
 
 dockerBuildServices() {
   echo -e "${INFO}Building docker services stack"

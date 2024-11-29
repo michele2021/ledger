@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 class S3TransferManagerTest {
 
     private static final String REPORTS_DIRECTORY = "in/epay_it/dsr/";
-    private static final String DATA_BUCKET = "clevercards-test-ledger-data";
+    private static final String DATA_BUCKET = "ledger-test-ledger-data";
 
     @Mock
     private AWSConfig awsConfig;

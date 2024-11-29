@@ -1,4 +1,4 @@
-# accounting-core
+# ledger
 
 ### Requirements:
 + Java 11
@@ -139,5 +139,5 @@ gradle run
 
 gradle clean runShadow
 
-java -jar build/libs/accounting-core*-all.jar server server.yaml
+java -jar build/libs/ledger*-all.jar server server.yaml
 ```

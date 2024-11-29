@@ -33,7 +33,7 @@ public class TestQueueMessage {
                 "    \"activatingLocationRef\" : \"POS-LOC2\"\n" +
                 "  },\n" +
                 "  \"uuid\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -49,7 +49,7 @@ public class TestQueueMessage {
                 "    \"activatingLocationRef\" : \"POS-LOC2\"\n" +
                 "  },\n" +
                 "  \"uuid\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -65,7 +65,7 @@ public class TestQueueMessage {
                 "    \"activatingLocationRef\" : \"POS-LOC2\"\n" +
                 "  },\n" +
                 "  \"uuid\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -91,7 +91,7 @@ public class TestQueueMessage {
                 "    \"activationTimezone\" : \"Europe/Warsaw\"\n" +
                 "  },\n" +
                 "  \"txReference\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -115,7 +115,7 @@ public class TestQueueMessage {
                 "    \"activationTimezone\" : \"Europe/Warsaw\"\n" +
                 "  },\n" +
                 "  \"uuid\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -129,7 +129,7 @@ public class TestQueueMessage {
                 "  \"type\" :\"TOKEN_CANCEL\", \n" +
                 "  \"accountCode\" : \"EPAY\", \n" +
                 "  \"txReference\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -148,7 +148,7 @@ public class TestQueueMessage {
                 "    \"prepaidCardExternalId\" : \"ExternalId\"\n" +
                 "  },\n" +
                 "  \"txReference\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n" +
                 "}";
     }
@@ -163,7 +163,7 @@ public class TestQueueMessage {
                 "  \"type\" :\"CLIENT_ORDER_CANCEL\", \n" +
                 "  \"accountCode\" : \"EPAY\", \n" +
                 "  \"txReference\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565\n," +
                 "  \"additionalData\" : {  \n" +
                 "    \"orderId\" : 5487545\n" +
@@ -180,7 +180,7 @@ public class TestQueueMessage {
                 "  \"type\" :\"CLIENT_ORDER_CANCEL\", \n" +
                 "  \"accountCode\" : \"EPAY\", \n" +
                 "  \"txReference\" : \"abc875ca-db99-42bd-bca1-ef7c1ec67ba5\",\n" +
-                "  \"source\" : \"CLEVERCARDS_API\",\n" +
+                "  \"source\" : \"LEDGER_API\",\n" +
                 "  \"timestamp\" : 315664565,\n" +
                 "  \"additionalData\" : {  \n" +
                 "    \"sku\" : \"dfsdf234\",\n" +

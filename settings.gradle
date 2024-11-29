@@ -1,4 +1,4 @@
-rootProject.name = 'accounting-core'
+rootProject.name = 'ledger'
 
 def includedBuilds = [ '../accounting-commons' ]
 

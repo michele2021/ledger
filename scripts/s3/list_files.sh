@@ -2,7 +2,7 @@
 
 DIR=""
 IMAGE_NAME="^localstack$"
-BUCKET_NAME="clevercards-development-ledger-data"
+BUCKET_NAME="ledger-development-ledger-data"
 
 if [ "$1" != "" ]; then
 DIR="$1/"

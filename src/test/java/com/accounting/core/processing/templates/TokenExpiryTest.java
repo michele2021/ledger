@@ -221,7 +221,7 @@ class TokenExpiryTest {
         when(amount.getQuantity()).thenReturn(1000L);
         when(amount.getCurrencyId()).thenReturn(currencyId);
 
-        when(repositoryHelper.getAccountRepo().getByCodeAndType("CleverCards", Constants.AccountType.BusinessEntity.name())).thenReturn(revenueAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType("Ledger", Constants.AccountType.BusinessEntity.name())).thenReturn(revenueAccount);
         when(revenueAccount.getAccountId()).thenReturn(revenueAccountId);
 
         when(repositoryHelper.getRegisterTypeRepo().get("TokenExpired")).thenReturn(RegisterType.builder().registerTypeId(registerTypeTokenExpiredId).build());

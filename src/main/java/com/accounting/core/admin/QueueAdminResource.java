@@ -35,8 +35,8 @@ public class QueueAdminResource {
 
     @GET
     @Path("/health")
-    @Server(url = "https://ledger-gateway.clevercards.works/accounting-core-admin/admin", description = "Staging environment")
-    @Server(url = "https://ledger-gateway.clevercards.link/accounting-core-admin/admin", description = "Integration environment")
+    @Server(url = "https://ledger-gateway.ledger.works/ledger-admin/admin", description = "Staging environment")
+    @Server(url = "https://ledger-gateway.ledger.link/ledger-admin/admin", description = "Integration environment")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiResponse(
             responseCode = HTTP_STATUS_OK,

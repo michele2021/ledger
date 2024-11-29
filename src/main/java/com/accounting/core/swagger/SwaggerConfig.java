@@ -79,21 +79,21 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
 
     private Info getInfo() {
         return new Info()
-                .title("CleverCards - Accounting-Core")
+                .title("Ledger")
                 .contact(getContactInfo())
-                .description("Accounting-Core execution API.")
+                .description("Ledger execution API.")
                 .version("1.0.0");
     }
 
     private Contact getContactInfo() {
-        return new Contact().name("CleverCards")
-                .email("help@Clevercards.com")
-                .url("https://clevercards.com");
+        return new Contact().name("Ledger")
+                .email("help@example.com")
+                .url("https://example.com");
     }
 
     private List<Server> getServers() {
         Server staging = new Server()
-                .url("https://ledger-gateway.clevercards.works/accounting-core")
+                .url("https://ledger-gateway.ledger.works/ledger")
                 .description("Staging environment");
 
         if (STAGING_ENV.equalsIgnoreCase(CURRENT_ENVIRONMENT)) {
@@ -101,7 +101,7 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
         }
 
         Server integration = new Server()
-                .url("https://ledger-gateway.clevercards.link/accounting-core")
+                .url("https://ledger-gateway.ledger.link/ledger")
                 .description("Integration environment");
 
         if (INTEGRATION_ENV.equalsIgnoreCase(CURRENT_ENVIRONMENT)) {

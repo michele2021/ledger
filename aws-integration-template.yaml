@@ -240,7 +240,7 @@ Resources:
     Properties:
       ApplicationName:
         Ref: ApplicationName
-      Description: AWS ElasticBeanstalk Clevercards API Configuration Template
+      Description: AWS ElasticBeanstalk Ledger API Configuration Template
       SolutionStackName: "64bit Amazon Linux 2 v3.4.3 running Docker"
       OptionSettings:
         - Namespace: "aws:elasticbeanstalk:application"

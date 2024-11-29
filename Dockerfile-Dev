@@ -1,14 +1,14 @@
 FROM openjdk:11-jdk-slim
-WORKDIR /accounting-core
+WORKDIR /ledger
 
-COPY build/libs/accounting-core-*.jar ./
+COPY build/libs/ledger-*.jar ./
 COPY server.yaml ./
 COPY swagger.yaml ./
 COPY templates ./templates
 
 EXPOSE $ACCOUNTING_HTTP_APP $ACCOUNTING_HTTP_ADMIN $DEBUG_PORT
 
-CMD java -cp accounting-core-*.jar com.accounting.commons.db.DatabaseChangesExecutor \
+CMD java -cp ledger-*.jar com.accounting.commons.db.DatabaseChangesExecutor \
     $ENVIRONMENT $PG_HOST $PG_DB_NAME $ACC_DB_USERNAME $ACC_DB_PASSWORD && \
-    java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$DEBUG_PORT -jar accounting-core-*.jar server server.yaml
+    java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$DEBUG_PORT -jar ledger-*.jar server server.yaml
 
