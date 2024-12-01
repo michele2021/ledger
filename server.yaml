@@ -39,7 +39,7 @@ database:
   minIdleTime: 1 minute
 
 aws:
-  queueEnabled: true
+  queueEnabled: false
   region: ${AWS_REGION:-}
 
   # Optional - localstack integration - if set overrides the default AWS communication endpoint.
@@ -63,7 +63,7 @@ aws:
 
   # DynamoDB table for API audit trail
   dynamodbApiAuditTableName: ${AWS_DYNAMO_DB_API_AUDIT_TABLE_NAME:-ledger-auditing-${ENVIRONMENT:-development}}
-  dynamodbApiAuditEnabled: true
+  dynamodbApiAuditEnabled: false
 
   # s3 bucket name for daily sales reports
   dataBucket: ${AWS_LEDGER_DATA_BUCKET:-ledger-${ENVIRONMENT:-development}-ledger-data}

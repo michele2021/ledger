@@ -21,7 +21,7 @@ def getMavenSettingsCredentials = {
     return output.'servers'.'server'
 }
 
-def getS3Credentials = { credentials ->
+/*def getS3Credentials = { credentials ->
     def entries = getMavenSettingsCredentials()
     for (entry in entries) {
         if (entry.'id'.text() == 'maven.cleverbug.com') {
@@ -30,23 +30,23 @@ def getS3Credentials = { credentials ->
             return
         }
     }
-}
+}*/
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
+    /*maven {
         url s3_release_repository
         credentials(AwsCredentials, getS3Credentials)
     }
     maven {
         url s3_snapshot_repository
         credentials(AwsCredentials, getS3Credentials)
-    }
+    }*/
 }
 
 project.ext {
-    accounting_commons_version = '5.96-SNAPSHOT'
+    accounting_commons_version = '1.0-SNAPSHOT'
     // monavate_iban_version = '1.22.2'
 
     dropwizard_version = "4.0.11"
@@ -124,7 +124,7 @@ publishing {
     }
 }
 
-publishing {
+/*publishing {
     repositories {
         maven {
             if (project.version.endsWith('-SNAPSHOT')) {
@@ -135,7 +135,7 @@ publishing {
             credentials(AwsCredentials, getS3Credentials)
         }
     }
-}
+}*/
 
 test {
     useJUnitPlatform()

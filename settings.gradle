@@ -1,6 +1,6 @@
 rootProject.name = 'ledger'
 
-def includedBuilds = [ '../accounting-commons' ]
+def includedBuilds = [ '../service-commons' ]
 
 includedBuilds.each { buildFolder ->
     if (file(buildFolder).exists()) {
