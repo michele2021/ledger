@@ -58,13 +58,13 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
 
     @Override
     public void run(AccountingCoreAppConfig config, Environment environment) {
-        Injector injector = Guice.createInjector(new AccountingCoreModule(environment, config), new SecurityModule(config));
+        var injector = Guice.createInjector(new AccountingCoreModule(environment, config), new SecurityModule(config));
         environment.jersey().register(injector.getInstance(SwaggerResource.class));
         environment.jersey().register(injector.getInstance(AccountingQueuesResource.class));
         environment.jersey().register(injector.getInstance(TemplateExecutionResource.class));
         environment.jersey().register(injector.getInstance(AccountResource.class));
 
-        environment.healthChecks().register("database", injector.getInstance(DatabseHealthCheck.class));
+        environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
         environment.healthChecks().register("app", injector.getInstance(AppHealthCheck.class));
 
         //CORS config init
@@ -97,7 +97,7 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
             MessagesSkipperService queuesService = injector.getInstance(MessagesSkipperServiceImpl.class);
             NotificationService notificationsService = injector.getInstance(SystemNotificationsService.class);
 
-            MessageQueueClient messageQueueClient = new MessageQueueClient(
+            var messageQueueClient = new MessageQueueClient(
                     awsConfig.getQueueAccountingName(), awsConfig, config.getDebugToolsConfig(),
                     environment, messageProcessor, notificationsService, queuesService);
 
