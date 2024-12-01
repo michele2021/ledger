@@ -78,18 +78,18 @@ dependencies {
     implementation group: 'org.jdbi', name: 'jdbi3-gson2', version: '3.36.0'
     implementation "org.jdbi:jdbi3-postgres:${jdbi3_version}"
 
+    compileOnly "org.projectlombok:lombok:${lombok_version}"
+    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
+
+    testCompileOnly "org.projectlombok:lombok:${lombok_version}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
+
     implementation 'com.google.inject:guice:7.0.0'
     implementation 'com.google.code.gson:gson:2.8.9'
     // TODO what is this??
     implementation 'com.networknt:json-schema-validator:1.0.68'
 
     // implementation "com.accounting:monavate-iban-java-client:${monavate_iban_version}"
-
-    implementation "org.projectlombok:lombok:${lombok_version}"
-    //annotationProcessor "org.projectlombok:lombok:${lombok_version}"
-
-    implementation "org.projectlombok:lombok:${lombok_version}"
- //   testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_jupiter_version}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junit_jupiter_version}"
