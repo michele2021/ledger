@@ -4,7 +4,7 @@ import com.accounting.commons.CCHTTPHeaders;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import in.vectorpro.dropwizard.swagger.SwaggerBundle;
 import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
-import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.core.setup.Bootstrap;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -32,15 +32,16 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
 
     public static void addSwaggerBundle(Bootstrap<AccountingCoreAppConfig> bootstrap) {
         if (!PRODUCTION_ENV.equalsIgnoreCase(CURRENT_ENVIRONMENT)) {
-            var swaggerBundle = new SwaggerBundle<AccountingCoreAppConfig>() {
-                @Override
-                protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AccountingCoreAppConfig configuration) {
-                    SwaggerConfig swaggerConfig = configuration.swaggerConfig;
-                    swaggerConfig.setUriPrefix(SWAGGER_URI_PREFIX);
-                    return swaggerConfig;
-                }
-            };
-            bootstrap.addBundle(swaggerBundle);
+            // TODO temporarily removed due to incompatibility
+//            var swaggerBundle = new SwaggerBundle<AccountingCoreAppConfig>() {
+//                @Override
+//                protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AccountingCoreAppConfig configuration) {
+//                    SwaggerConfig swaggerConfig = configuration.swaggerConfig;
+//                    swaggerConfig.setUriPrefix(SWAGGER_URI_PREFIX);
+//                    return swaggerConfig;
+//                }
+//            };
+//            bootstrap.addBundle(swaggerBundle);
         }
     }
 
@@ -62,7 +63,7 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
                 .type(SecurityScheme.Type.APIKEY);
 
         OpenAPI oas = new OpenAPI().info(getInfo())
-                .servers(getServers());
+                .servers(getServers1());
 
         oas.addSecurityItem(securityRequirement);
         oas.setComponents(new Components());
@@ -91,7 +92,7 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
                 .url("https://example.com");
     }
 
-    private List<Server> getServers() {
+    private List<Server> getServers1() {
         Server staging = new Server()
                 .url("https://ledger-gateway.ledger.works/ledger")
                 .description("Staging environment");

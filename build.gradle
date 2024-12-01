@@ -60,7 +60,7 @@ project.ext {
 
 dependencies {
     // TODO what is this?
-    implementation 'in.vectorpro.dropwizard:dropwizard-swagger:2.0.28-1'
+    implementation 'in.vectorpro.dropwizard:dropwizard-swagger:2.0.28-3'
     implementation "com.accounting.commons:accounting-commons:${accounting_commons_version}"
 
     implementation "io.dropwizard:dropwizard-core:${dropwizard_version}"

@@ -3,6 +3,7 @@ package com.accounting.core.admin;
 import com.accounting.commons.queue.MessageQueueClient;
 import com.accounting.core.swagger.ApiDefaultResponses;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,12 +13,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import static com.accounting.core.swagger.ApiDocConstants.HTTP_STATUS_OK;
 import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;

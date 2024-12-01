@@ -1,14 +1,11 @@
 package com.accounting.core.admin;
 
-import com.accounting.commons.queue.MessageQueueClient;
-import com.accounting.commons.queue.MessagesSkipperService;
-import com.accounting.commons.tasks.QueueProcessorTask;
 import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.setup.AdminEnvironment;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
-import io.dropwizard.setup.AdminEnvironment;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,18 +13,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletRegistration;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletRegistration;
 
 import static com.accounting.core.testUtils.TestUtils.assertArg;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-
 
 
 @ExtendWith(MockitoExtension.class)
@@ -89,9 +80,7 @@ class AdminResourceBundleTest {
         verify(environment).metrics();
         verify(environment).admin();
         verifyNoMoreInteractions(environment);
-        verify(adminEnvironment).addServlet(eq("admin resources"), assertArg( (ServletContainer container) -> {
-            assertThat(container).isInstanceOf(ServletContainer.class);
-        }));
+        verify(adminEnvironment).addServlet(eq("admin resources"), assertArg( (ServletContainer container) -> assertThat(container).isInstanceOf(ServletContainer.class)));
         verifyNoMoreInteractions(adminEnvironment);
         verify(servletRegistration).addMapping(eq("/admin/*"));
 

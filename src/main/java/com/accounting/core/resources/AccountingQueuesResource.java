@@ -3,6 +3,7 @@ package com.accounting.core.resources;
 import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.resources.security.ApiKeyAuth;
 import com.accounting.core.swagger.ApiBadRequestResponse;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,12 +15,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import static com.accounting.core.swagger.ApiDocConstants.HTTP_STATUS_OK;
 import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;

@@ -7,13 +7,13 @@ import com.accounting.commons.conf.DebugToolsConfig;
 import com.accounting.commons.conf.RepositoryConfig;
 import com.accounting.core.swagger.SwaggerConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @Getter
 @Setter
