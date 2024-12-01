@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+
 public class TestUtils {
 
 
@@ -94,6 +95,5 @@ public class TestUtils {
             verificator.accept((T) argument, ++counter);
         }
     }
-
 
 }

@@ -13,7 +13,6 @@ import com.accounting.commons.repository.database.*;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
-import com.accounting.core.queue.SQSAccountingBalanceQueue;
 import com.accounting.core.queue.SQSAccountingMessagesQueue;
 import com.accounting.core.services.AccountService;
 import com.accounting.core.services.AccountServiceImpl;
@@ -21,9 +20,9 @@ import com.accounting.core.services.TemplateExecutionService;
 import com.accounting.core.services.TemplateExecutionServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi3.JdbiFactory;
-import io.dropwizard.core.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.gson2.Gson2Plugin;
 import org.jdbi.v3.postgres.PostgresPlugin;
@@ -31,7 +30,7 @@ import org.jdbi.v3.postgres.PostgresPlugin;
 public class AccountingCoreModule extends AbstractModule {
 
     private final Jdbi jdbi;
-    private final SQSAccountingBalanceQueue accountingBalanceQueue;
+   // private final SQSAccountingBalanceQueue accountingBalanceQueue;
     private final SQSAccountingMessagesQueue accountingMessagesQueue;
     private final AccountingCoreAppConfig config;
     private final TemplateCache templateCache;
@@ -42,7 +41,7 @@ public class AccountingCoreModule extends AbstractModule {
         this.jdbi = factory.build(environment, config.getDataSourceFactory(), "postgresql");
         jdbi.installPlugin(new PostgresPlugin());
         jdbi.installPlugin(new Gson2Plugin());
-        this.accountingBalanceQueue = SQSAccountingBalanceQueue.of(config.getAWSConfig());
+        //this.accountingBalanceQueue = SQSAccountingBalanceQueue.of(config.getAWSConfig());
         this.accountingMessagesQueue = SQSAccountingMessagesQueue.of(config.getAWSConfig());
         this.templateCache = new TemplateCache();
     }
@@ -62,10 +61,10 @@ public class AccountingCoreModule extends AbstractModule {
         return templateCache;
     }
 
-    @Provides
-    public SQSAccountingBalanceQueue provideSQSAccountingBalanceQueue() {
-        return accountingBalanceQueue;
-    }
+//    @Provides
+//    public SQSAccountingBalanceQueue provideSQSAccountingBalanceQueue() {
+//        return accountingBalanceQueue;
+//    }
 
     @Provides
     public SQSAccountingMessagesQueue provideSQSAccountingMessagesQueue() {
