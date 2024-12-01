@@ -39,7 +39,7 @@ database:
   minIdleTime: 1 minute
 
 aws:
-  queueEnabled: true
+  queueEnabled: false
   region: ${AWS_REGION:-}
 
   # Optional - localstack integration - if set overrides the default AWS communication endpoint.

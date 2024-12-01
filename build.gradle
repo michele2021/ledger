@@ -59,7 +59,7 @@ project.ext {
 }
 
 dependencies {
-    // TODO what is this?
+    // TODO no longer compatible with more recent dropwizrd?
     implementation 'in.vectorpro.dropwizard:dropwizard-swagger:2.0.28-3'
     implementation "com.accounting.commons:accounting-commons:${accounting_commons_version}"
 
@@ -85,11 +85,11 @@ dependencies {
 
     // implementation "com.accounting:monavate-iban-java-client:${monavate_iban_version}"
 
-    compileOnly "org.projectlombok:lombok:${lombok_version}"
-    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
+    implementation "org.projectlombok:lombok:${lombok_version}"
+    //annotationProcessor "org.projectlombok:lombok:${lombok_version}"
 
-    testCompileOnly "org.projectlombok:lombok:${lombok_version}"
-    testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
+    implementation "org.projectlombok:lombok:${lombok_version}"
+ //   testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_jupiter_version}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junit_jupiter_version}"

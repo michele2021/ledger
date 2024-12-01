@@ -11,13 +11,13 @@ import org.jdbi.v3.core.Jdbi;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.CapturesArguments;
-import org.mockito.internal.matchers.VarargMatcher;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 public class TestUtils {
 
@@ -72,7 +72,7 @@ public class TestUtils {
         return Mockito.argThat(new ArgumentCapturingMatcher<>(lambda));
     }
 
-    private static class ArgumentCapturingMatcher<T> implements ArgumentMatcher<T>, CapturesArguments, VarargMatcher {
+    private static class ArgumentCapturingMatcher<T> implements ArgumentMatcher<T>, CapturesArguments {
 
         private final BiConsumer<T, Integer> verificator;
         private int counter = 0;
@@ -95,6 +95,5 @@ public class TestUtils {
             verificator.accept((T) argument, ++counter);
         }
     }
-
 
 }
