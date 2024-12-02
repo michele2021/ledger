@@ -77,7 +77,6 @@ public class MessageProcessorTest {
             return "Test error code";
         }
 
-        @Override
         public MessageFormat getMessageFormat() {
             return new MessageFormat(
                     "Test message \"{1}\" .");
@@ -233,7 +232,13 @@ public class MessageProcessorTest {
         }
 
         Set<ValidationMessage> errors = new HashSet<>();
-        errors.add(ValidationMessage.of("type", new TestErrorMessageType(), "at"));
+        MessageProcessorTest.TestErrorMessageType errorMessageType = new MessageProcessorTest.TestErrorMessageType();
+        ValidationMessage validationMessage = ValidationMessage.builder()
+                .type("type")
+                .code(errorMessageType.getErrorCode())
+                .format(errorMessageType.getMessageFormat())
+                .build();
+        errors.add(validationMessage);
         when(jsonSchema.validate(any())).thenReturn(errors);
 
         //when

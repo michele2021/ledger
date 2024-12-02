@@ -704,7 +704,13 @@ class TemplateExecutionServiceImplTest {
 
         when(jsonSchemaFactory.getSchema(anyString())).thenReturn(jsonSchema);
         Set<ValidationMessage> errors = new HashSet<>();
-        errors.add(ValidationMessage.of("type", new MessageProcessorTest.TestErrorMessageType(), "at"));
+        MessageProcessorTest.TestErrorMessageType errorMessageType = new MessageProcessorTest.TestErrorMessageType();
+        ValidationMessage validationMessage = ValidationMessage.builder()
+                .type("type")
+                .code(errorMessageType.getErrorCode())
+                .format(errorMessageType.getMessageFormat())
+                .build();
+        errors.add(validationMessage);
         when(jsonSchema.validate(any())).thenReturn(errors);
 
 
