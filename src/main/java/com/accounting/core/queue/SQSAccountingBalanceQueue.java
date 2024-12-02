@@ -1,6 +1,7 @@
 package com.accounting.core.queue;
 
 import com.accounting.commons.conf.AWSConfig;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
@@ -13,6 +14,7 @@ public class SQSAccountingBalanceQueue {
     private SqsClient client;
     private final boolean isEnabled;
 
+    @Inject
     public SQSAccountingBalanceQueue(AWSConfig config) {
         this.isEnabled = config.isQueueEnabled();
 

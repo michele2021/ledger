@@ -45,8 +45,8 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
             Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString(), Message.EventType.CLIENT_FEE_PAYOUT.toString());
     private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", ALLOWED_TYPES) + "\"";
 
-    private final String queueUrl;
-    private final SqsClient sqsClient;
+    private String queueUrl;
+    private SqsClient sqsClient;
 
     private final TemplateCache templateCache;
     private final AccountRepoIf accountRepo;
@@ -54,6 +54,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
     private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final boolean isEnabled;
 
     @Inject
     public TemplateExecutionServiceImpl(
@@ -64,9 +65,13 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         this.templateCache = templateCache;
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
         this.accountRepo = repositoryHelper.getAccountRepo();
-
-        this.sqsClient = awsConfig.createSqsClient();
-        this.queueUrl = awsConfig.getQueueUrl(sqsClient, awsConfig.getQueueAccountingName());
+        this.isEnabled = awsConfig.isQueueEnabled();
+        if (isEnabled) {
+            this.sqsClient = awsConfig.createSqsClient();
+            this.queueUrl = awsConfig.getQueueUrl(sqsClient, awsConfig.getQueueAccountingName());
+        } else {
+            log.info("SQS queue disabled in config.");
+        }
     }
 
 
@@ -85,6 +90,9 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     private void sendMessageToQueue(QueueMessageDTO message) throws JsonProcessingException {
+        if (!isEnabled) {
+            return;
+        }
         log.debug("Message to send: " + message);
         SendMessageResponse response = sqsClient.sendMessage(SendMessageRequest.builder()
                 .queueUrl(queueUrl)
