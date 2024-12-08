@@ -3,10 +3,10 @@ database:
   driverClass: org.postgresql.Driver
 
   # the username
-  user: ${ACC_DB_USERNAME:-}
+  user: ${ACC_DB_USERNAME:-app}
 
   # the password
-  password: ${ACC_DB_PASSWORD:-}
+  password: ${ACC_DB_PASSWORD:-app}
 
   # the JDBC URL
   url: jdbc:postgresql://${PG_HOST:-localhost}:${PG_PORT:-5432}/accounting
@@ -39,8 +39,9 @@ database:
   minIdleTime: 1 minute
 
 aws:
+  s3AccessEnabled: false
   queueEnabled: false
-  region: ${AWS_REGION:-}
+  region: ${AWS_REGION:-eu-west-1}
 
   # Optional - localstack integration - if set overrides the default AWS communication endpoint.
   endpoint: ${AWS_ENDPOINT:-}

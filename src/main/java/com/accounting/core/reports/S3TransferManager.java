@@ -23,12 +23,14 @@ final class S3TransferManager {
     public static final String ERROR_DIR = "ERROR";
 
     private final AWSConfig awsConfig;
-    private final S3FilesManager s3FilesManager;
+    private S3FilesManager s3FilesManager;
 
     @Inject
     public S3TransferManager(AWSConfig awsConfig) {
         this.awsConfig = awsConfig;
-        this.s3FilesManager = new S3FilesManagerImpl(awsConfig, DailySalesReportUtils.LOG_PREFIX);
+        if (awsConfig.isS3AccessEnabled()) {
+            this.s3FilesManager = new S3FilesManagerImpl(awsConfig, DailySalesReportUtils.LOG_PREFIX);
+        }
     }
 
     public static String getProcessedReportsDirectory() {
@@ -37,6 +39,7 @@ final class S3TransferManager {
     }
 
     public S3File downloadFileByPartialKey(String fileName) throws FileManagerException {
+        assert s3FilesManager != null;
         return s3FilesManager.downloadFileByPartialKey(awsConfig.getDataBucket(), resolvePath(fileName));
     }
 
@@ -60,10 +63,12 @@ final class S3TransferManager {
         destinationKey = Path.of(destinationKey).resolve(fileName).toString();
 
         fileName = resolvePath(fileName);
+        assert s3FilesManager != null;
         s3FilesManager.copyToDirectory(awsConfig.getDataBucket(), destinationKey, fileName);
     }
 
     private void deleteFile(String fileName) throws FileManagerException {
+        assert s3FilesManager != null;
         s3FilesManager.deleteFile(awsConfig.getDataBucket(), resolvePath(fileName));
     }
 
