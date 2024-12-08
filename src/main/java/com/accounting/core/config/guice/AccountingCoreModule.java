@@ -13,6 +13,7 @@ import com.accounting.commons.repository.database.*;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
+import com.accounting.core.queue.SQSAccountingBalanceQueue;
 import com.accounting.core.queue.SQSAccountingMessagesQueue;
 import com.accounting.core.services.AccountService;
 import com.accounting.core.services.AccountServiceImpl;
@@ -30,7 +31,7 @@ import org.jdbi.v3.postgres.PostgresPlugin;
 public class AccountingCoreModule extends AbstractModule {
 
     private final Jdbi jdbi;
-   // private final SQSAccountingBalanceQueue accountingBalanceQueue;
+    private final SQSAccountingBalanceQueue accountingBalanceQueue;
     private final SQSAccountingMessagesQueue accountingMessagesQueue;
     private final AccountingCoreAppConfig config;
     private final TemplateCache templateCache;
@@ -41,7 +42,7 @@ public class AccountingCoreModule extends AbstractModule {
         this.jdbi = factory.build(environment, config.getDataSourceFactory(), "postgresql");
         jdbi.installPlugin(new PostgresPlugin());
         jdbi.installPlugin(new Gson2Plugin());
-        //this.accountingBalanceQueue = SQSAccountingBalanceQueue.of(config.getAWSConfig());
+        this.accountingBalanceQueue = SQSAccountingBalanceQueue.of(config.getAWSConfig());
         this.accountingMessagesQueue = SQSAccountingMessagesQueue.of(config.getAWSConfig());
         this.templateCache = new TemplateCache();
     }
@@ -61,10 +62,10 @@ public class AccountingCoreModule extends AbstractModule {
         return templateCache;
     }
 
-//    @Provides
-//    public SQSAccountingBalanceQueue provideSQSAccountingBalanceQueue() {
-//        return accountingBalanceQueue;
-//    }
+    @Provides
+    public SQSAccountingBalanceQueue provideSQSAccountingBalanceQueue() {
+        return accountingBalanceQueue;
+    }
 
     @Provides
     public SQSAccountingMessagesQueue provideSQSAccountingMessagesQueue() {

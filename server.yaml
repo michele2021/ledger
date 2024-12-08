@@ -64,7 +64,7 @@ aws:
   # DynamoDB table for API audit trail
   dynamodbApiAuditTableName: ${AWS_DYNAMO_DB_API_AUDIT_TABLE_NAME:-ledger-auditing-${ENVIRONMENT:-development}}
   dynamodbApiAuditEnabled: false
-  dynamodbApiAuditEnabledTimeoutMs: 10000
+  dynamodbApiAuditTimeoutMs: 10000
 
   # s3 bucket name for daily sales reports
   dataBucket: ${AWS_LEDGER_DATA_BUCKET:-ledger-${ENVIRONMENT:-development}-ledger-data}

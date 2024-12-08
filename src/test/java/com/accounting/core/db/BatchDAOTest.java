@@ -237,22 +237,22 @@ class BatchDAOTest {
 
         if (batchStatus == OPEN) {
             assertThat(result).allMatch(batch -> isNull(batch.getClosedDate()));
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodBeginDate()) >= 0);
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodEndDate()) < 0);
+            assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodBeginDate()));
+            assertThat(result).allMatch(batch -> LocalDate.now().isBefore(batch.getPeriodEndDate()));
         }
         if (batchStatus == FIXED) {
             assertThat(result).allMatch(batch -> isNull(batch.getClosedDate()));
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodBeginDate()) >= 0);
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodEndDate()) >= 0);
+            assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodBeginDate()));
+            assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodEndDate()));
         }
         if (batchStatus == CLOSED) {
             assertThat(result).allMatch(batch -> nonNull(batch.getClosedDate()));
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodBeginDate()) >= 0);
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodEndDate()) >= 0);
+            assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodBeginDate()));
+            assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodEndDate()));
         }
         if (batchStatus == INFINITE) {
             assertThat(result).allMatch(batch -> isNull(batch.getClosedDate()));
-            assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodBeginDate()) >= 0);
+            assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodBeginDate()));
             assertThat(result).allMatch(batch -> isNull(batch.getPeriodEndDate()));
         }
     }
@@ -269,9 +269,9 @@ class BatchDAOTest {
                 .build());
 
         assertThat(result).allMatch(batch -> isNull(batch.getClosedDate()));
-        assertThat(result).allMatch(batch -> LocalDate.now().compareTo(batch.getPeriodBeginDate()) >= 0);
+        assertThat(result).allMatch(batch -> !LocalDate.now().isBefore(batch.getPeriodBeginDate()));
         assertThat(result).allMatch(batch ->
-                isNull(batch.getPeriodEndDate()) || LocalDate.now().compareTo(batch.getPeriodEndDate()) < 0
+                isNull(batch.getPeriodEndDate()) || LocalDate.now().isBefore(batch.getPeriodEndDate())
         );
     }
 
