@@ -21,12 +21,12 @@ import java.util.List;
 
 import static com.accounting.commons.Message.AdditionalData.*;
 
-@Slf4j
 /**
  * N.B. This class is currently not used.
  * There is no longer the possibility to create a record in the "orders" table associated with a tx
  * (this functionality can be reintroduced if necessary).
  */
+@Slf4j
 public class ClientOrderReceived extends AbstractTemplate {
 
     private static final Type TOKENS_LIST_TYPE = new TypeToken<ArrayList<TokenOriginal>>() {

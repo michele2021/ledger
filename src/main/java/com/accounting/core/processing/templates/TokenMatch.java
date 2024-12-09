@@ -62,7 +62,7 @@ public class TokenMatch extends JournalLinesMaker {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
 
         long accountId = account.getAccountId();
         List<JournalLine> journalLines = new ArrayList<>();

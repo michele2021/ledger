@@ -206,11 +206,9 @@ abstract class AbstractTemplate extends JournalLinesMaker {
     private FeeTier findTier(@Nonnull List<FeeTier> tiers, long quantity) {
         for (FeeTier tier : tiers) {
             // TODO refactor and support "LIMIT" tiers
-            if ("EXACT".equals(tier.getTierType())) {
-                if (tier.getTierQuantity() == quantity) {
-                    log.debug("found tier with id: " + tier.getTierId() + " exact quantity: " + tier.getTierQuantity());
-                    return tier;
-                }
+            if ("EXACT".equals(tier.getTierType()) && tier.getTierQuantity() == quantity) {
+                log.debug("found tier with id: {} exact quantity: {}", tier.getTierId(), tier.getTierQuantity());
+                return tier;
             }
         }
         return null;

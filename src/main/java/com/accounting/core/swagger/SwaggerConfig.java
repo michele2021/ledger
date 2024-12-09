@@ -2,7 +2,6 @@ package com.accounting.core.swagger;
 
 import com.accounting.commons.CCHTTPHeaders;
 import com.accounting.core.config.AccountingCoreAppConfig;
-import in.vectorpro.dropwizard.swagger.SwaggerBundle;
 import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.dropwizard.core.setup.Bootstrap;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;

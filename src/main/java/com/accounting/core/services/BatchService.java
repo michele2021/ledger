@@ -13,12 +13,9 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class BatchService {
 
-
     private final BatchDAO batchDAO;
 
     public void executeMaintenanceTask(List<String> accountCodes) {
         //TODO will be implemented in LED-45
     }
-
-
 }

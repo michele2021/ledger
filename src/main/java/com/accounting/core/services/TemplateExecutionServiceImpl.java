@@ -76,7 +76,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
 
     public void executeTemplate(QueueMessageDTO message) {
-        log.debug("executeTemplate(): Start: " + message);
+        log.debug("executeTemplate(): Start: {}", message);
         validate(message);
 
         try {
@@ -93,7 +93,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         if (!isEnabled) {
             return;
         }
-        log.debug("Message to send: " + message);
+        log.debug("Message to send: {}", message);
         SendMessageResponse response = sqsClient.sendMessage(SendMessageRequest.builder()
                 .queueUrl(queueUrl)
                 .messageGroupId(SQS_LEDGER_MESSAGE_GROUP_ID)
@@ -101,7 +101,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                         .timestamp(System.currentTimeMillis())
                         .build()))
                 .build());
-        log.debug("Message sent: " + response);
+        log.debug("Message sent: {}", response);
     }
 
 
@@ -113,7 +113,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         sb.append(validationMessage);
 
         if (log.isTraceEnabled()) {
-            log.trace("Validation error: " + sb);
+            log.trace("Validation error: {}", sb);
         }
         return new WebValidationException(sb.toString());
     }

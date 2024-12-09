@@ -51,7 +51,7 @@ public class BankPayment extends AbstractTemplate {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
         List<JournalLine> jls = new ArrayList<>();
 
         // Debit/Credit

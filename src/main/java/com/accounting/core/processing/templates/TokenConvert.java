@@ -144,7 +144,7 @@ public class TokenConvert extends AbstractTemplate {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
         List<JournalLine> jl = new ArrayList<>();
         long accountId = account.getAccountId();
         long issuerAccountId = issuerAccount.getAccountId();

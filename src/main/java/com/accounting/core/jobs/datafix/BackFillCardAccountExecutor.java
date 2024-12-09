@@ -83,8 +83,6 @@ public class BackFillCardAccountExecutor {
 
     private JsonObject buildAdditionalData( String prepaidCardExternalId ) {
         JsonObject additionalData = new JsonObject();
-//        String bookingDate = OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-//        additionalData.addProperty(Message.AdditionalData.bookingDate.toString(), bookingDate);
         additionalData.addProperty(Message.AdditionalData.prepaidCardExternalId.toString(), prepaidCardExternalId);
         return additionalData;
     }

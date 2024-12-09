@@ -22,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.accounting.commons.Message.AdditionalData.bookingDate;
 import static java.lang.String.format;
@@ -116,7 +115,7 @@ public class TokenCancel extends AbstractTemplate {
         List<JournalLineDTO> journalLines = journal.getJournalLines()
                 .stream()
                 .filter(e -> (registerTypeCodes.contains(e.getRegisterTypeCode())))
-                .collect(Collectors.toList());
+                .toList();
         if(journalLines.size() != 1) {
             throw new AccountingMakerException("For journal " + journal.getJournalId() + ", " + journalLines.size() + " line(s) found with register types " + registerTypeCodes + ", but exactly 1 was expected.");
         }

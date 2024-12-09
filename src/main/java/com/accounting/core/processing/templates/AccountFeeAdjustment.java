@@ -54,6 +54,7 @@ public class AccountFeeAdjustment extends AbstractTemplate {
         String ccAccountCode = Constants.BusinessEntityAccount.CleverCards.toString();
         Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.BusinessEntity.toString());
         throwExceptionIfNull(ccAccount, "Business Entity not found in the repository for account code: " + ccAccount);
+        assert ccAccount != null;
         long ccAccountId = ccAccount.getAccountId();
 
         Constants.Currencies currency = Constants.Currencies.valueOf(amount.getCurrencyCode());

@@ -5,7 +5,6 @@ import com.accounting.commons.entities.Account;
 import com.accounting.commons.entities.Amount;
 import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.entities.TxType;
-import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.Tx;
@@ -40,7 +39,7 @@ public class ClientFeePayout extends AbstractTemplate {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
         List<JournalLine> journalLines = new ArrayList<>();
 
         long accountId = account.getAccountId();

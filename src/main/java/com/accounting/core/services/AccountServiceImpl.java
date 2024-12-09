@@ -39,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public long createAccount(@NotNull AccountDTO accountDTO) {
-        log.debug("create Account with DTO: " + accountDTO);
+        log.debug("create Account with DTO: {}", accountDTO);
 
         // validations
         if(!TextUtils.isAlphanumericUnderscore(accountDTO.getAccountCode())) {
@@ -102,7 +102,7 @@ public class AccountServiceImpl implements AccountService {
         sb.append(validationMessage);
 
         if (log.isTraceEnabled()) {
-            log.trace("Validation error: " + sb);
+            log.trace("Validation error: {}", sb);
         }
         return new WebValidationException(sb.toString());
     }

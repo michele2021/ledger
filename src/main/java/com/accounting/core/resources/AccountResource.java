@@ -45,11 +45,12 @@ public class AccountResource {
 
     private final AccountService accountService;
 
-    private static final String EPAY_IT_ACCOUNT_EXAMPLE = "{\n" +
-            "        \"accountCode\" :\"EPAY_IT\", \n" +
-            "        \"accountTypeCode\" : \"Distributor\", \n" +
-            "        \"description\" : \"https://www.epayitalia.it/\"\n" +
-            "}";
+    private static final String EPAY_IT_ACCOUNT_EXAMPLE = """
+            {
+                    "accountCode" :"EPAY_IT",\s
+                    "accountTypeCode" : "Distributor",\s
+                    "description" : "https://www.epayitalia.it/"
+            }""";
 
     @POST
     @ApiKeyAuth

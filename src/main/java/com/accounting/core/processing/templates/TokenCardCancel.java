@@ -87,7 +87,7 @@ public class TokenCardCancel extends AbstractTemplate {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
         List<JournalLine> journalLines = new ArrayList<>();
 
         long accountId = account.getAccountId();

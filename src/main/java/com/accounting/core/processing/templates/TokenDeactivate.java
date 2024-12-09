@@ -84,7 +84,7 @@ public class TokenDeactivate extends AbstractTemplate {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
         List<JournalLine> jls = new ArrayList<>();
 
         // N.B: A Token can be deactivated only if it was in status Activated.

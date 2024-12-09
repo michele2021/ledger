@@ -141,9 +141,9 @@ public final class DailySalesReportsProcessor {
             } catch (TokenMatchingException e) {
                 errors.add(e.getMessage());
             } catch (DsrReprocessingException ex) {
-                ex.printStackTrace();
+                log.error("Exception occurred: ", ex);
             } catch (RuntimeException ex) {
-                ex.printStackTrace();
+                log.error("Exception occurred: ", ex);
                 errors.add(ex.getMessage());
             }
         }

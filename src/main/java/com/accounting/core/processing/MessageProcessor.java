@@ -137,6 +137,7 @@ public class MessageProcessor implements MessageProcessorIf {
         }
 
         throwExceptionIfNull(account, format("Account in queue message not recognized: %s/%s", accountCode, accountTypes));
+        assert account != null;
         log.info("Going to use account with code {} and type {}. Is test: {}.", account.getCode(), account.getAccountTypeCode(), account.isTest());
         return account;
     }

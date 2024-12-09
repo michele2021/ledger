@@ -6,7 +6,6 @@ import com.accounting.core.jobs.entities.CardBackFill;
 import com.accounting.core.jobs.entities.PaymentView;
 import com.accounting.core.jobs.entities.TxJournalLineBatch;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
-import org.jdbi.v3.sqlobject.customizer.BindList;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 

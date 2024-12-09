@@ -11,7 +11,6 @@ import com.accounting.core.entities.Tx;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 public class AccountAddFundsCorrection extends AccountAddFunds {
@@ -29,11 +28,6 @@ public class AccountAddFundsCorrection extends AccountAddFunds {
         tx.setAmount(amount);
 
         return tx;
-    }
-
-    @Override
-    public OffsetDateTime getJournalBookingDate() {
-        return bookingDateTime;
     }
 
     // we do the opposite (Credit/Debit) bookings of "PAYMENT_RECEIVED"

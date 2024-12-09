@@ -63,28 +63,28 @@ public class MoveAccountExecutor {
 
             // fetch Journal lines related to the tokens in txFix.
             List<TxJournalLineBatch> lines = dataFixDAO.getJournalLineBatchToUpdate(originalAccountIdTx);
-            log.info("Retrieved " + lines.size() + " journal lines to update.");
+            log.info("Retrieved {} journal lines to update.", lines.size());
 
             if(test) {
-                log.info("Journal lines: " + lines);
+                log.info("Journal lines: {}", lines);
                 log.info("Running in test mode, skipping any data update.");
                 handle.rollback();
                 return;
             }
             // update tx table (based on records in txFix).
             int numRows = dataFixDAO.updateTx(originalAccountIdTx, newAccountIdTx);
-            log.info("Updated " + numRows + " txs with new accountId: " + newAccountIdTx);
+            log.info("Updated {} txs with new accountId: {}", numRows, newAccountIdTx);
 
             // update the batchId on the journalLine (based on records in txFix)
             for (TxJournalLineBatch line : lines) {
                 // switch to test account
                 long newAccountIdJL = getNewBatchAccountId(newAccountIdTx, newIssuerAccountId, line);
                 if(newAccountIdJL == line.getAccountId()) {
-                    log.info("Processing journal line " + line.getJournalLineId() + " on account " + line.getAccountCode() + "(" + line.getAccountTypeCode() + "). No need to change the batch --> skipping the line.");
+                    log.info("Processing journal line {} on account {}({}). No need to change the batch --> skipping the line.", line.getJournalLineId(), line.getAccountCode(), line.getAccountTypeCode());
                     continue;
                 }
                 long batchId = journalMaker.getOrCreateAvailableBatch(line.getRegisterTypeId(), newAccountIdJL);
-                log.info("Update journal line " + line.getJournalLineId() + " on account " + line.getAccountCode() + "(" + line.getAccountTypeCode() + "). New batchId: " + batchId + " with new accountId: " + newAccountIdJL);
+                log.info("Update journal line {} on account {}({}). New batchId: {} with new accountId: {}", line.getJournalLineId(), line.getAccountCode(), line.getAccountTypeCode(), batchId, newAccountIdJL);
                 dataFixDAO.updateJournalLineBatch(line.getJournalLineId(), batchId);
             }
 

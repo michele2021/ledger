@@ -2,8 +2,6 @@ package com.accounting.core.tasks;
 
 import io.dropwizard.servlets.tasks.Task;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +11,7 @@ import static com.accounting.commons.tasks.TasksSwitcher.getSingleMandatoryParam
 
 public class RepositoryConfigTask extends Task {
 
-    private final String IMPLEMENTATION = "implementation";
+    private static final String IMPLEMENTATION = "implementation";
 
     public RepositoryConfigTask() {
         super("repo-impl");

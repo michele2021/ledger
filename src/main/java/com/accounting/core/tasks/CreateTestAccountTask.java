@@ -15,8 +15,8 @@ import static com.accounting.commons.tasks.TasksSwitcher.getSingleMandatoryParam
 public class CreateTestAccountTask extends Task {
 
     private final DataFixProcessor dataFixProcessor;
-    private final String ACCOUNT_CODE = "accountCode";
-    private final String ACCOUNT_TYPE_CODE = "accountTypeCode";
+    private static final String ACCOUNT_CODE = "accountCode";
+    private static final String ACCOUNT_TYPE_CODE = "accountTypeCode";
 
     @Inject
     public CreateTestAccountTask(DataFixProcessor dataFixProcessor) {

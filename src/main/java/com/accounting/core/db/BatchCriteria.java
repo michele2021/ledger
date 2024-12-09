@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 @EqualsAndHashCode(callSuper = true)
 public class BatchCriteria extends AbstractCriteria<BatchCriteria.Column> {
 
-
+    @Getter
     @SuppressWarnings("unused")
     @AllArgsConstructor
     public enum Column implements CriteriaColumn {
@@ -32,7 +32,6 @@ public class BatchCriteria extends AbstractCriteria<BatchCriteria.Column> {
         CLOSED_DATE("b.closedDate"),
         CREATED("b.created");
 
-        @Getter
         final String columnName;
 
 

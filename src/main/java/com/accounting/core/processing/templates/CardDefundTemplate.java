@@ -48,6 +48,7 @@ public class CardDefundTemplate extends AbstractTemplate {
         // Credit
         // TODO temporarily we use a dummy account.
         Account dummyAccount = accountRepo.getByCodeAndType(DUMMY_CARDHOLDER_CODE, Constants.AccountType.CardHolder.toString());
+        assert dummyAccount != null;
         addCreditLine(journalId, journalLines, Constants.RegisterType.CardHolder, dummyAccount.getAccountId(), amount);
 
         return journalLines;

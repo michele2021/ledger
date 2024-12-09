@@ -24,7 +24,7 @@ import static java.lang.String.format;
 
 public class CardAccountReload extends AbstractTemplate {
     private Tx oriTx;
-    private Account issuerAccount;
+    private final Account issuerAccount;
     private final OffsetDateTime bookingDateTime;
     private final String prepaidCardExternalId;
 
@@ -59,7 +59,7 @@ public class CardAccountReload extends AbstractTemplate {
     }
 
     @Override
-    public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
+    public List<JournalLine> buildJournalLines(long journalId) {
         List<JournalLine> jl = new ArrayList<>();
         long accountId = account.getAccountId();
         long issuerAccountId = issuerAccount.getAccountId();

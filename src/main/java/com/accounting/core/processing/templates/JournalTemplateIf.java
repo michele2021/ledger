@@ -22,11 +22,6 @@ public interface JournalTemplateIf {
 
     List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException;
 
-    //    N.B. not used anymore. Leaving the code in case we want to introduce something similar again in the future.
-    //    default List<JournalLine> buildJournalLinesTestAccount(long journalId) throws AccountingMakerException {
-    //        throw new UnsupportedOperationException("Operation not supported for the current template");
-    //    }
-
     boolean isTestAccount();
 
     default boolean addNewTx() {

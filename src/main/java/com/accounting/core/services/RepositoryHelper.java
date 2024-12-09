@@ -87,11 +87,7 @@ public class RepositoryHelper {
             if ((fee.getFeeQuantity() != null && fee.getCurrencyId() == null) || (fee.getFeeQuantity() == null && fee.getCurrencyId() != null)) {
                 throw new WebApplicationException("Contractual fee definition is inconsistent: quantity and currency need to be either both null or both set. FeeId: " + fee.getFeeId());
             }
-            // check no longer required
-            //      if (fee.getFeeQuantity() == null && fee.getCurrencyId() == null && fee.getFeePercentage() == null) {
-            //          throw new WebApplicationException("Contractual fee definition is inconsistent: either a fixed amount or a percentage needs to be specified. FeeId: " + fee.getFeeId());
-            //      }
-            if ((fee.getFeeQuantity() != null || fee.getCurrencyId() != null) && fee.getFeePercentage() != null) {
+            if (fee.getFeeQuantity() != null && fee.getFeePercentage() != null) {
                 throw new WebApplicationException("Contractual fee definition is inconsistent: percentage and amount cannot be both specified. FeeId: " + fee.getFeeId());
             }
         }

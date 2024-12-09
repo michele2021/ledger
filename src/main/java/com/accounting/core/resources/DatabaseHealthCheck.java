@@ -17,6 +17,8 @@ public class DatabaseHealthCheck extends HealthCheck {
         // DataSourceFactory provides a default in case this is missing in the config file
         String query = dataSourceFactory.getValidationQuery().get();
         String ret = jdbi.withHandle(handle -> handle.createQuery(query).mapTo(String.class).one());
-        return ret.equals("1") ? HealthCheck.Result.healthy() : HealthCheck.Result.unhealthy("query returned " + ret + "rows.");
+        return ret.equals("1")
+                ? HealthCheck.Result.healthy()
+                : HealthCheck.Result.unhealthy("query returned " + ret + "rows.");
     }
 }
