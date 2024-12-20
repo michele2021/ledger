@@ -6,6 +6,8 @@ import com.accounting.commons.db.QueueDAO;
 import com.accounting.commons.infra.cache.*;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
+import com.accounting.commons.kafka.*;
+import com.accounting.commons.kafka.impl.*;
 import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
 import com.accounting.commons.repository.*;
@@ -222,6 +224,11 @@ public class AccountingCoreModule extends AbstractModule {
         bind(MessagesSkipperService.class).to(MessagesSkipperServiceImpl.class);
         bind(TemplateExecutionService.class).to(TemplateExecutionServiceImpl.class);
         bind(AccountService.class).to(AccountServiceImpl.class);
+        //
+        bind(KafkaProducerFactory.class).to(KafkaProducerFactoryImpl.class);
+        bind(KafkaMessageProducer.class).to(KafkaMessageProducerImpl.class);
+        bind(KafkaConsumerFactory.class).to(KafkaConsumerFactoryImpl.class);
+        bind(KafkaMessageConsumer.class).to(KafkaMessageConsumerImpl.class);
 
         templateCache.load();
     }

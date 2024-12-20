@@ -29,8 +29,6 @@ public class JournalTemplate {
     Constants.JournalType journalType;
     String additionalDataSchema;
 
-    //List<Constants.RegisterType> registerTypes; //unused
-
     @SuppressWarnings("unused")
     public static class JournalTemplateBuilder {
         @SerializedName("class")
@@ -46,5 +44,4 @@ public class JournalTemplate {
             return json.toString();
         }
     }
-
 }
