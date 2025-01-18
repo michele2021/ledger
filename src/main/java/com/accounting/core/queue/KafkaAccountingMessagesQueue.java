@@ -9,19 +9,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 @Slf4j
-public class SQSAccountingMessagesQueue {
+public class KafkaAccountingMessagesQueue {
 
     private KafkaMessageProducer kafkaMessageProducer;
     private final boolean isEnabled;
 
     @Inject
-    public SQSAccountingMessagesQueue(KafkaMessageProducer kafkaMessageProducer, AWSConfig awsConfig) {
+    public KafkaAccountingMessagesQueue(KafkaMessageProducer kafkaMessageProducer, AWSConfig awsConfig) {
         this.kafkaMessageProducer = kafkaMessageProducer;
         this.isEnabled = awsConfig.isQueueEnabled();
     }
 
 
-    public SQSAccountingMessagesQueue(AWSConfig config) {
+    public KafkaAccountingMessagesQueue(AWSConfig config) {
         this.isEnabled = config.isQueueEnabled();
         if (isEnabled) {
             String queueName = config.getQueueAccountingName();
@@ -31,8 +31,8 @@ public class SQSAccountingMessagesQueue {
         }
     }
 
-    public static SQSAccountingMessagesQueue of(AWSConfig config) {
-        return new SQSAccountingMessagesQueue(config);
+    public static KafkaAccountingMessagesQueue of(AWSConfig config) {
+        return new KafkaAccountingMessagesQueue(config);
     }
 
     public RecordMetadata sendMessage(String message) {

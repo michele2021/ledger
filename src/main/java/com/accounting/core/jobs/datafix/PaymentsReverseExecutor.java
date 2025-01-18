@@ -5,7 +5,7 @@ import com.accounting.commons.Message;
 import com.accounting.core.db.DataFixDAO;
 import com.accounting.core.exceptions.JobProcessingException;
 import com.accounting.core.jobs.entities.PaymentView;
-import com.accounting.core.queue.SQSAccountingMessagesQueue;
+import com.accounting.core.queue.KafkaAccountingMessagesQueue;
 import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -21,10 +21,10 @@ import java.util.List;
 public class PaymentsReverseExecutor {
 
     private final Jdbi jdbi;
-    private final SQSAccountingMessagesQueue accountingQueue;
+    private final KafkaAccountingMessagesQueue accountingQueue;
 
     @Inject
-    public PaymentsReverseExecutor(RepositoryHelper repositoryHelper, SQSAccountingMessagesQueue accountingMessagesQueue) {
+    public PaymentsReverseExecutor(RepositoryHelper repositoryHelper, KafkaAccountingMessagesQueue accountingMessagesQueue) {
         this.jdbi = repositoryHelper.getJdbi();
         this.accountingQueue = accountingMessagesQueue;
     }

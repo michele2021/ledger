@@ -6,7 +6,7 @@ import com.accounting.commons.infra.jobs.CCJobParams;
 import com.accounting.core.db.TokenExpiryDAO;
 import com.accounting.core.entities.views.TokenExpiryView;
 import com.accounting.core.exceptions.JobProcessingException;
-import com.accounting.core.queue.SQSAccountingMessagesQueue;
+import com.accounting.core.queue.KafkaAccountingMessagesQueue;
 import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class TokenExpiryJob extends BaseJob {
 
     private final TokenExpiryDAO tokenExpiryDAO;
-    private final SQSAccountingMessagesQueue accountingQueue;
+    private final KafkaAccountingMessagesQueue accountingQueue;
     // These are 109 test tokens (108 for CHARIS_UK_TEST and 1 for EPAY_IT_TEST) that have only 2 lines in the "Activated" journal.
     private final Set<String> EXCLUDED_TXREFERENCES_PROD = new HashSet<>(List.of("ctkn_8c6714a5-4e57-4dff-b0a9-62b770b3d4ec"
             ,"ctkn_28020d80-6221-4a09-be9b-0be94f5bd8f1"
@@ -133,7 +133,7 @@ public class TokenExpiryJob extends BaseJob {
             ,"ctkn_test_9cfdee7c-7ab6-4181-b9b4-4e3c3223474e"));
 
     @Inject
-    public TokenExpiryJob(SQSAccountingMessagesQueue accountingMessagesQueue, RepositoryHelper repositoryHelper) {
+    public TokenExpiryJob(KafkaAccountingMessagesQueue accountingMessagesQueue, RepositoryHelper repositoryHelper) {
         this.name = SystemConstants.Jobs.TOKEN_EXPIRY;
         this.tokenExpiryDAO = repositoryHelper.getTokenExpiryDAO();
         this.jobsDAO = repositoryHelper.getJobsDAO();

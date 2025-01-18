@@ -21,7 +21,7 @@ import com.accounting.commons.repository.database.*;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
-import com.accounting.core.queue.SQSAccountingMessagesQueue;
+import com.accounting.core.queue.KafkaAccountingMessagesQueue;
 import com.accounting.core.services.AccountService;
 import com.accounting.core.services.AccountServiceImpl;
 import com.accounting.core.services.TemplateExecutionService;
@@ -38,14 +38,14 @@ import org.jdbi.v3.postgres.PostgresPlugin;
 public class AccountingCoreModule extends AbstractModule {
 
     private final Jdbi jdbi;
-    private final SQSAccountingMessagesQueue accountingMessagesQueue;
+    private final KafkaAccountingMessagesQueue accountingMessagesQueue;
     private final AccountingCoreAppConfig config;
     private final TemplateCache templateCache;
 
     public AccountingCoreModule(Environment environment, AccountingCoreAppConfig config) {
         this.config = config;
         this.jdbi = initJdbi(environment, config.getDataSourceFactory());
-        this.accountingMessagesQueue = SQSAccountingMessagesQueue.of(config.getAWSConfig());
+        this.accountingMessagesQueue = KafkaAccountingMessagesQueue.of(config.getAWSConfig());
         this.templateCache = new TemplateCache();
     }
 
@@ -73,7 +73,7 @@ public class AccountingCoreModule extends AbstractModule {
     }
 
     @Provides
-    public SQSAccountingMessagesQueue provideSQSAccountingMessagesQueue() {
+    public KafkaAccountingMessagesQueue provideSQSAccountingMessagesQueue() {
         return accountingMessagesQueue;
     }
 
