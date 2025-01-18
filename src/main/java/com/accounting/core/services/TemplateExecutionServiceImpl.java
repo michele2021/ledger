@@ -5,6 +5,8 @@ import com.accounting.commons.Message;
 import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.exceptions.WebValidationException;
+import com.accounting.commons.kafka.KafkaMessage;
+import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
 import com.accounting.core.dto.QueueMessageAmountDTO;
@@ -13,27 +15,23 @@ import com.accounting.core.entities.JournalTemplate;
 import com.accounting.core.processing.TemplateCache;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import jakarta.ws.rs.WebApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
-import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
-import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.accounting.commons.Constants.SQS_LEDGER_MESSAGE_GROUP_ID;
+import static com.accounting.commons.utils.MappingUtils.OBJECT_MAPPER;
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 
@@ -45,21 +43,20 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
             Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString(), Message.EventType.CLIENT_FEE_PAYOUT.toString());
     private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", ALLOWED_TYPES) + "\"";
 
-    private String queueUrl;
-    private SqsClient sqsClient;
 
+    private KafkaMessageProducer kafkaMessageProducer;
     private final TemplateCache templateCache;
     private final AccountRepoIf accountRepo;
     private final CurrencyRepoIf currencyRepo;
 
     private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final boolean isEnabled;
 
     @Inject
     public TemplateExecutionServiceImpl(
             AWSConfig awsConfig,
             TemplateCache templateCache,
+            KafkaMessageProducer kafkaMessageProducer,
             RepositoryHelper repositoryHelper
     ) {
         this.templateCache = templateCache;
@@ -67,8 +64,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         this.accountRepo = repositoryHelper.getAccountRepo();
         this.isEnabled = awsConfig.isQueueEnabled();
         if (isEnabled) {
-            this.sqsClient = awsConfig.createSqsClient();
-            this.queueUrl = awsConfig.getQueueUrl(sqsClient, awsConfig.getQueueAccountingName());
+            this.kafkaMessageProducer = kafkaMessageProducer;
         } else {
             log.info("SQS queue disabled in config.");
         }
@@ -78,14 +74,12 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     public void executeTemplate(QueueMessageDTO message) {
         log.debug("executeTemplate(): Start: {}", message);
         validate(message);
-
         try {
             sendMessageToQueue(message);
         } catch (JsonProcessingException e) {
             log.error("Failed to send message to SQS", e);
             throw new WebApplicationException("Failed to send message to SQS", e);
         }
-
         log.debug("executeTemplate(): Success");
     }
 
@@ -94,13 +88,12 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
             return;
         }
         log.debug("Message to send: {}", message);
-        SendMessageResponse response = sqsClient.sendMessage(SendMessageRequest.builder()
-                .queueUrl(queueUrl)
-                .messageGroupId(SQS_LEDGER_MESSAGE_GROUP_ID)
-                .messageBody(objectMapper.writeValueAsString(message.toBuilder()
+        var m = OBJECT_MAPPER.writeValueAsString(message.toBuilder()
                         .timestamp(System.currentTimeMillis())
-                        .build()))
-                .build());
+                        .build());
+
+        var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
+        var response = kafkaMessageProducer.sendMessage(kafkaMessage);
         log.debug("Message sent: {}", response);
     }
 
@@ -238,7 +231,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
         try {
             Set<ValidationMessage> errors = jsonSchemaFactory.getSchema(schemaContent)
-                    .validate(objectMapper.readTree(message.getAdditionalData().toString()));
+                    .validate(OBJECT_MAPPER.readTree(message.getAdditionalData().toString()));
             if (!errors.isEmpty()) {
                 throw validationError("additionalData",
                         format("AdditionalData does not conform to the schema. Validation errors:\n%s", errors.stream()

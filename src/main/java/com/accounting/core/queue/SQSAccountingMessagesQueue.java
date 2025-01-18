@@ -1,27 +1,31 @@
 package com.accounting.core.queue;
 
-import com.accounting.commons.SystemConstants;
 import com.accounting.commons.conf.AWSConfig;
+import com.accounting.commons.kafka.KafkaMessage;
+import com.accounting.commons.kafka.KafkaMessageProducer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
-import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
+import org.apache.kafka.clients.producer.RecordMetadata;
 
 @Slf4j
 public class SQSAccountingMessagesQueue {
 
-    private String url;
-    private SqsClient client;
+    private KafkaMessageProducer kafkaMessageProducer;
     private final boolean isEnabled;
+
+    @Inject
+    public SQSAccountingMessagesQueue(KafkaMessageProducer kafkaMessageProducer, AWSConfig awsConfig) {
+        this.kafkaMessageProducer = kafkaMessageProducer;
+        this.isEnabled = awsConfig.isQueueEnabled();
+    }
+
 
     public SQSAccountingMessagesQueue(AWSConfig config) {
         this.isEnabled = config.isQueueEnabled();
-
         if (isEnabled) {
             String queueName = config.getQueueAccountingName();
             log.info("SQS queue enabled. Accounting Messages queue name: {}", queueName);
-            this.client = config.createSqsClient();
-            this.url = config.getQueueUrl(client, queueName);
         } else {
             log.info("SQS queue disabled in config.");
         }
@@ -31,16 +35,16 @@ public class SQSAccountingMessagesQueue {
         return new SQSAccountingMessagesQueue(config);
     }
 
-    public SendMessageResponse sendMessage(String message) {
+    public RecordMetadata sendMessage(String message) {
         if (!isEnabled) {
             return null;
         }
         log.info("Pushing message to the main accounting queue: {}", message);
-        SendMessageRequest smr = SendMessageRequest.builder()
-                .queueUrl(url)
-                .messageBody(message)
-                .messageGroupId(SystemConstants.SQSMessageGroupId.mgr1.toString())
-                .build();
-        return client.sendMessage(smr);
+        var kafkaMessage = KafkaMessage.builder().key("MAIN").value(message).build();
+        try {
+            return kafkaMessageProducer.sendMessage(kafkaMessage);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

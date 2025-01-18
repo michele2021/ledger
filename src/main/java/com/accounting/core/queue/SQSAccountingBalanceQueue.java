@@ -18,14 +18,15 @@ public class SQSAccountingBalanceQueue {
     public SQSAccountingBalanceQueue(AWSConfig config) {
         this.isEnabled = config.isQueueEnabled();
 
-        if (isEnabled) {
-            String queueName = config.getQueueAccountingBalanceName();
-            log.info("SQS queue enabled. Accounting-Balance queue name: {}", queueName);
-            this.client = config.createSqsClient();
-            this.url = config.getQueueUrl(client, queueName);
-        } else {
-            log.info("SQS queue disabled in config.");
-        }
+//        if (isEnabled) {
+//            String queueName = config.getQueueAccountingBalanceName();
+//            log.info("SQS queue enabled. Accounting-Balance queue name: {}", queueName);
+//            this.client = config.createSqsClient();
+//            this.url = config.getQueueUrl(client, queueName);
+//        } else {
+//            log.info("SQS queue disabled in config.");
+//        }
+        log.info("SQS queue disabled in config.");
     }
 
     public static SQSAccountingBalanceQueue of(AWSConfig config) {

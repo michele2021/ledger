@@ -19,7 +19,6 @@ import com.accounting.core.processing.templates.JournalTemplateFactoryImpl;
 import com.accounting.core.processing.templates.JournalTemplateIf;
 import com.accounting.core.services.RepositoryHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.accounting.commons.utils.MappingUtils.OBJECT_MAPPER;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -47,7 +47,6 @@ public class MessageProcessor implements MessageProcessorIf {
     private final TxTypeRepoIf txTypeRepo;
 
     private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final JournalTemplateFactory journalTemplateFactory;
 
@@ -88,7 +87,7 @@ public class MessageProcessor implements MessageProcessorIf {
     }
 
     void validateAdditionalData(QueueMessage message, JournalTemplate journalTemplate) throws AccountingTemplateException {
-        String schemaContent = journalTemplate.getAdditionalDataSchema();
+        var schemaContent = journalTemplate.getAdditionalDataSchema();
         if (StringUtils.isEmpty(schemaContent)) {
             return;
         }
@@ -99,7 +98,7 @@ public class MessageProcessor implements MessageProcessorIf {
 
         try {
             Set<ValidationMessage> errors = jsonSchemaFactory.getSchema(schemaContent)
-                    .validate(objectMapper.readTree(message.getAdditionalData().toString()));
+                    .validate(OBJECT_MAPPER.readTree(message.getAdditionalData().toString()));
             if (!errors.isEmpty()) {
                 throw new AccountingTemplateException("Invalid message.additionalData:\n" + errors.stream()
                         .map(ValidationMessage::getMessage)

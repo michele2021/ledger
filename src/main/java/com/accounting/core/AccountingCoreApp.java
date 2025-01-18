@@ -1,11 +1,9 @@
 package com.accounting.core;
 
-import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.infra.cache.AccountCache;
+import com.accounting.commons.kafka.KafkaMessageConsumer;
 import com.accounting.commons.queue.MessageQueueClient;
-import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
-import com.accounting.commons.services.NotificationService;
 import com.accounting.commons.services.SystemNotificationsService;
 import com.accounting.commons.tasks.TasksNames;
 import com.accounting.core.admin.AdminResourceBundle;
@@ -90,21 +88,23 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
     }
 
     private void registerMessagesQueueClient(Environment environment, Injector injector, AccountingCoreAppConfig config) {
-        AWSConfig awsConfig = config.getAWSConfig();
-        if (awsConfig.isQueueEnabled()) {
-            log.info("Building message queue client...");
-            MessageProcessor messageProcessor = injector.getInstance(MessageProcessor.class);
-            MessagesSkipperService queuesService = injector.getInstance(MessagesSkipperServiceImpl.class);
-            NotificationService notificationsService = injector.getInstance(SystemNotificationsService.class);
-
-            var messageQueueClient = new MessageQueueClient(
-                    awsConfig.getQueueAccountingName(), awsConfig, config.getDebugToolsConfig(),
-                    environment, messageProcessor, notificationsService, queuesService);
-
-            messageQueueClient.registerQueueProcessorTask(TasksNames.QUEUE_PROCESSOR_TASK);
-            messageQueueClient.registerMessagesRecorderTask(TasksNames.MESSAGES_RECORDER_TASK);
-
-            adminResource.jersey().register(new QueueAdminResource(messageQueueClient));
+        var awsConfig = config.getAWSConfig();
+        if (!awsConfig.isQueueEnabled()) {
+            return;
         }
+        log.info("Preparing message queue client...");
+        var messageProcessor = injector.getInstance(MessageProcessor.class);
+        var queuesService = injector.getInstance(MessagesSkipperServiceImpl.class);
+        var notificationsService = injector.getInstance(SystemNotificationsService.class);
+        var kafkaMessageConsumer = injector.getInstance(KafkaMessageConsumer.class);
+
+        var messageQueueClient = new MessageQueueClient(
+                awsConfig.getQueueAccountingName(), awsConfig, config.getDebugToolsConfig(),
+                environment, messageProcessor, kafkaMessageConsumer, notificationsService, queuesService);
+
+        messageQueueClient.registerQueueProcessorTask(TasksNames.QUEUE_PROCESSOR_TASK);
+        messageQueueClient.registerMessagesRecorderTask(TasksNames.MESSAGES_RECORDER_TASK);
+
+        adminResource.jersey().register(new QueueAdminResource(messageQueueClient));
     }
 }

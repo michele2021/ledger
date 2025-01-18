@@ -11,7 +11,6 @@ import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
 import java.util.HashSet;
 import java.util.List;
@@ -168,8 +167,8 @@ public class TokenExpiryJob extends BaseJob {
         for (TokenExpiryView token : tokens) {
             log.info("Sending message to process expiry for token with txId {}", token.getTxId());
             JsonObject message = buildMsg(Message.EventType.TOKEN_EXPIRY, token);
-            SendMessageResponse sendMessageResponse = accountingQueue.sendMessage(message.toString());
-            log.info("Message submitted to the accounting processing queue with id: {}", sendMessageResponse.messageId());
+            var sendMessageResponse = accountingQueue.sendMessage(message.toString());
+            log.info("Message submitted to the accounting processing queue with id: {}", sendMessageResponse);
         }
         info("Processing completed, %d messages have been submitted!", tokens.size());
     }

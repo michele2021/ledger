@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static com.accounting.commons.Constants.SQS_LEDGER_MESSAGE_GROUP_ID;
 import static com.accounting.commons.Message.EventType.PAYMENT_RECEIVED;
+import static com.accounting.commons.utils.MappingUtils.OBJECT_MAPPER;
 import static com.accounting.core.testUtils.TestUtils.assertArg;
 import static com.accounting.core.testUtils.TestUtils.setUpMockRepositoryHelper;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,7 +76,7 @@ class TemplateExecutionServiceImplTest {
     @InjectMocks
     TemplateExecutionServiceImpl subject;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = OBJECT_MAPPER;
 
     @Mock
     JournalTemplate journalTemplate;

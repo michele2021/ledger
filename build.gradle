@@ -73,6 +73,9 @@ dependencies {
     implementation "io.dropwizard:dropwizard-jdbi3:${dropwizard_version}"
     testImplementation "io.dropwizard:dropwizard-testing:${dropwizard_version}"
 
+    // Kafka
+    implementation 'org.apache.kafka:kafka-clients:3.8.0'
+
     implementation platform("software.amazon.awssdk:bom:${awssdk_version}")
     implementation "software.amazon.awssdk:sqs:${awssdk_version}"
     implementation "software.amazon.awssdk:sns:${awssdk_version}"
@@ -124,6 +127,7 @@ compileJava {
 
 shadowJar {
     mergeServiceFiles()
+    enabled = project.hasProperty('buildShadowJar') && project.buildShadowJar == 'true'
 }
 
 publishing {

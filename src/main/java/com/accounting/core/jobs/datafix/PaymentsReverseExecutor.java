@@ -12,7 +12,6 @@ import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -43,8 +42,8 @@ public class PaymentsReverseExecutor {
                     continue;
                 }
                 JsonObject message = buildPaymentReceived(p, Message.EventType.PAYMENT_RECEIVED_CORRECTION);
-                SendMessageResponse sendMessageResponse = accountingQueue.sendMessage(message.toString());
-                log.info("Message PAYMENT_RECEIVED_CORRECTION submitted to the accounting processing queue with id: {}", sendMessageResponse.messageId());
+                var sendMessageResponse = accountingQueue.sendMessage(message.toString());
+                log.info("Message PAYMENT_RECEIVED_CORRECTION submitted to the accounting processing queue with id: {}", sendMessageResponse);
             }
             if("SUBMIT_NEW_PAYMENTS".equalsIgnoreCase(mode)) {
                 List<PaymentView> pSubmit = dataFixDAO.getNewPaymentsToSubmit(newPaymentId);
@@ -55,8 +54,8 @@ public class PaymentsReverseExecutor {
                         continue;
                     }
                     JsonObject message = buildPaymentReceived(p, Message.EventType.PAYMENT_RECEIVED);
-                    SendMessageResponse sendMessageResponse = accountingQueue.sendMessage(message.toString());
-                    log.info("Message PAYMENT_RECEIVED submitted to the accounting processing queue with id: {}", sendMessageResponse.messageId());
+                    var sendMessageResponse = accountingQueue.sendMessage(message.toString());
+                    log.info("Message PAYMENT_RECEIVED submitted to the accounting processing queue with id: {}", sendMessageResponse);
                 }
             }
         }  catch (Exception e) {

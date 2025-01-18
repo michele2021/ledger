@@ -3,18 +3,17 @@ package com.accounting.core.resources;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.services.TemplateExecutionService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import java.math.BigDecimal;
 
+import static com.accounting.commons.utils.MappingUtils.OBJECT_MAPPER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -26,8 +25,6 @@ class TemplateExecutionResourceTest {
     ResourceExtension EXT = ResourceExtension.builder()
             .addResource(new TemplateExecutionResource(templateExecutionService))
             .build();
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
 
     /**
@@ -45,7 +42,7 @@ class TemplateExecutionResourceTest {
                         .build())
                 .uuid("uuid")
                 .txReference("txReference")
-                .additionalData(objectMapper.readTree("{ \"test\" : \"value\" }"))
+                .additionalData(OBJECT_MAPPER.readTree("{ \"test\" : \"value\" }"))
                 .source("source")
                 .build();
 

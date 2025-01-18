@@ -6,8 +6,14 @@ import com.accounting.commons.db.QueueDAO;
 import com.accounting.commons.infra.cache.*;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
-import com.accounting.commons.kafka.*;
-import com.accounting.commons.kafka.impl.*;
+import com.accounting.commons.kafka.KafkaConsumerFactory;
+import com.accounting.commons.kafka.KafkaMessageConsumer;
+import com.accounting.commons.kafka.KafkaMessageProducer;
+import com.accounting.commons.kafka.KafkaProducerFactory;
+import com.accounting.commons.kafka.impl.KafkaConsumerFactoryImpl;
+import com.accounting.commons.kafka.impl.KafkaMessageConsumerImpl;
+import com.accounting.commons.kafka.impl.KafkaMessageProducerImpl;
+import com.accounting.commons.kafka.impl.KafkaProducerFactoryImpl;
 import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
 import com.accounting.commons.repository.*;
@@ -15,7 +21,6 @@ import com.accounting.commons.repository.database.*;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
-import com.accounting.core.queue.SQSAccountingBalanceQueue;
 import com.accounting.core.queue.SQSAccountingMessagesQueue;
 import com.accounting.core.services.AccountService;
 import com.accounting.core.services.AccountServiceImpl;
@@ -33,20 +38,23 @@ import org.jdbi.v3.postgres.PostgresPlugin;
 public class AccountingCoreModule extends AbstractModule {
 
     private final Jdbi jdbi;
-    private final SQSAccountingBalanceQueue accountingBalanceQueue;
     private final SQSAccountingMessagesQueue accountingMessagesQueue;
     private final AccountingCoreAppConfig config;
     private final TemplateCache templateCache;
 
     public AccountingCoreModule(Environment environment, AccountingCoreAppConfig config) {
         this.config = config;
-        final JdbiFactory factory = new JdbiFactory();
-        this.jdbi = factory.build(environment, config.getDataSourceFactory(), "postgresql");
-        jdbi.installPlugin(new PostgresPlugin());
-        jdbi.installPlugin(new Gson2Plugin());
-        this.accountingBalanceQueue = SQSAccountingBalanceQueue.of(config.getAWSConfig());
+        this.jdbi = initJdbi(environment, config.getDataSourceFactory());
         this.accountingMessagesQueue = SQSAccountingMessagesQueue.of(config.getAWSConfig());
         this.templateCache = new TemplateCache();
+    }
+
+    private Jdbi initJdbi(Environment environment, DataSourceFactory dataSourceFactory) {
+        var factory = new JdbiFactory();
+        var jdbi = factory.build(environment, dataSourceFactory, "postgresql");
+        jdbi.installPlugin(new PostgresPlugin());
+        jdbi.installPlugin(new Gson2Plugin());
+        return jdbi;
     }
 
     @Provides
@@ -62,11 +70,6 @@ public class AccountingCoreModule extends AbstractModule {
     @Provides
     public TemplateCache provideTemplateCache() {
         return templateCache;
-    }
-
-    @Provides
-    public SQSAccountingBalanceQueue provideSQSAccountingBalanceQueue() {
-        return accountingBalanceQueue;
     }
 
     @Provides
@@ -151,85 +154,77 @@ public class AccountingCoreModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        RegisterTypeRepoIf registerTypeRepo;
-        JournalTypeRepoIf journalTypeRepo;
-        TxTypeRepoIf txTypeRepo;
-        CurrencyRepoIf currencyRepo;
-        SubsystemRepoIf subsystemRepo;
-        AccountRepoIf accountRepo;
-        AccountTypeRepoIf accountTypeRepo;
-        TxVariantRepoIf txVariantRepo;
-        FeeBaseRepoIf feeBaseRepo;
+        configureRepositories();
+        configureCaching();
+        configureKafka();
+        configureServices();
+        templateCache.load();
+    }
 
-        //
-        JournalTypeDAO journalTypeDAO = jdbi.onDemand(JournalTypeDAO.class);
-        RegisterTypeDAO registerTypeDAO = jdbi.onDemand(RegisterTypeDAO.class);
-        TxTypeDAO txTypeDAO = jdbi.onDemand(TxTypeDAO.class);
-        CurrencyDAO currencyDAO = jdbi.onDemand(CurrencyDAO.class);
-        SubsystemDAO subsystemDAO = jdbi.onDemand(SubsystemDAO.class);
-        AccountDAO accountDAO = jdbi.onDemand(AccountDAO.class);
-        AccountTypeDAO accountTypeDAO = jdbi.onDemand(AccountTypeDAO.class);
-        TxVariantDAO txVariantDAO = jdbi.onDemand(TxVariantDAO.class);
-        FeeBaseDAO feeBaseDAO = jdbi.onDemand(FeeBaseDAO.class);
-        AccountCache accountCache = new AccountCache(accountDAO);
-        //
-        AccountTypeCache accountTypeCache = new AccountTypeCache(accountTypeDAO);
-        TxVariantCache txVariantCache = new TxVariantCache(txVariantDAO);
-        SubsystemCache subsystemCache = new SubsystemCache(subsystemDAO);
-        CurrencyCache currencyCache = new CurrencyCache(currencyDAO);
-        TxTypeCache txTypeCache = new TxTypeCache(txTypeDAO);
-        RegisterTypeCache registerTypeCache = new RegisterTypeCache(registerTypeDAO);
-        JournalTypeCache journalTypeCache = new JournalTypeCache(journalTypeDAO);
-        FeeBaseCache feeBaseCache = new FeeBaseCache(feeBaseDAO);
-        //
-        bind(AccountCache.class).toInstance(accountCache);
-        bind(AccountTypeCache.class).toInstance(accountTypeCache);
-        bind(SubsystemCache.class).toInstance(subsystemCache);
-        bind(CurrencyCache.class).toInstance(currencyCache);
-        bind(TxTypeCache.class).toInstance(txTypeCache);
-        bind(RegisterTypeCache.class).toInstance(registerTypeCache);
-        bind(JournalTypeCache.class).toInstance(journalTypeCache);
-        bind(FeeBaseCache.class).toInstance(feeBaseCache);
-        //
+    private void configureCaching() {
         if (config.getRepositoryConfig().getCache()) {
-            journalTypeRepo = journalTypeCache;
-            registerTypeRepo = registerTypeCache;
-            txTypeRepo = txTypeCache;
-            currencyRepo = currencyCache;
-            subsystemRepo = subsystemCache;
-            accountRepo = accountCache;
-            accountTypeRepo = accountTypeCache;
-            txVariantRepo = txVariantCache;
-            feeBaseRepo = feeBaseCache;
+            bindRepositoriesToCache();
         } else {
-            journalTypeRepo = new JournalTypeRepoDAO(journalTypeDAO);
-            registerTypeRepo = new RegisterTypeRepoDAO(registerTypeDAO);
-            txTypeRepo = new TxTypeRepoDAO(txTypeDAO);
-            currencyRepo = new CurrencyRepoDAO(currencyDAO);
-            subsystemRepo = new SubsystemRepoDAO(subsystemDAO);
-            accountRepo = new AccountRepoDAO(accountDAO);
-            accountTypeRepo = new AccountTypeRepoDAO(accountTypeDAO);
-            txVariantRepo = new TxVariantRepoDAO(txVariantDAO);
-            feeBaseRepo = new FeeBaseRepoDAO(feeBaseDAO);
+            bindRepositoriesToDAO();
         }
-        bind(JournalTypeRepoIf.class).toInstance(journalTypeRepo);
-        bind(RegisterTypeRepoIf.class).toInstance(registerTypeRepo);
-        bind(TxTypeRepoIf.class).toInstance(txTypeRepo);
-        bind(CurrencyRepoIf.class).toInstance(currencyRepo);
-        bind(SubsystemRepoIf.class).toInstance(subsystemRepo);
-        bind(AccountRepoIf.class).toInstance(accountRepo);
-        bind(AccountTypeRepoIf.class).toInstance(accountTypeRepo);
-        bind(TxVariantRepoIf.class).toInstance(txVariantRepo);
-        bind(FeeBaseRepoIf.class).toInstance(feeBaseRepo);
-        bind(MessagesSkipperService.class).to(MessagesSkipperServiceImpl.class);
-        bind(TemplateExecutionService.class).to(TemplateExecutionServiceImpl.class);
-        bind(AccountService.class).to(AccountServiceImpl.class);
-        //
+    }
+
+    private void configureRepositories() {
+        var accountDAO = jdbi.onDemand(AccountDAO.class);
+        var accountTypeDAO = jdbi.onDemand(AccountTypeDAO.class);
+        var txTypeDAO = jdbi.onDemand(TxTypeDAO.class);
+        var journalTypeDAO = jdbi.onDemand(JournalTypeDAO.class);
+        var registerTypeDAO = jdbi.onDemand(RegisterTypeDAO.class);
+        var currencyDAO = jdbi.onDemand(CurrencyDAO.class);
+        var subsystemDAO = jdbi.onDemand(SubsystemDAO.class);
+        var txVariantDAO = jdbi.onDemand(TxVariantDAO.class);
+        var feeBaseDAO = jdbi.onDemand(FeeBaseDAO.class);
+
+        bind(AccountCache.class).toInstance(new AccountCache(accountDAO));
+        bind(AccountTypeCache.class).toInstance(new AccountTypeCache(accountTypeDAO));
+        bind(TxTypeCache.class).toInstance(new TxTypeCache(txTypeDAO));
+        bind(JournalTypeCache.class).toInstance(new JournalTypeCache(journalTypeDAO));
+        bind(RegisterTypeCache.class).toInstance(new RegisterTypeCache(registerTypeDAO));
+        bind(CurrencyCache.class).toInstance(new CurrencyCache(currencyDAO));
+        bind(SubsystemCache.class).toInstance(new SubsystemCache(subsystemDAO));
+        bind(TxVariantCache.class).toInstance(new TxVariantCache(txVariantDAO));
+        bind(FeeBaseCache.class).toInstance(new FeeBaseCache(feeBaseDAO));
+    }
+
+    private void configureKafka() {
         bind(KafkaProducerFactory.class).to(KafkaProducerFactoryImpl.class);
         bind(KafkaMessageProducer.class).to(KafkaMessageProducerImpl.class);
         bind(KafkaConsumerFactory.class).to(KafkaConsumerFactoryImpl.class);
         bind(KafkaMessageConsumer.class).to(KafkaMessageConsumerImpl.class);
+    }
 
-        templateCache.load();
+    private void configureServices() {
+        bind(MessagesSkipperService.class).to(MessagesSkipperServiceImpl.class);
+        bind(TemplateExecutionService.class).to(TemplateExecutionServiceImpl.class);
+        bind(AccountService.class).to(AccountServiceImpl.class);
+    }
+
+    private void bindRepositoriesToDAO() {
+        bind(JournalTypeRepoIf.class).toInstance(new JournalTypeRepoDAO(jdbi.onDemand(JournalTypeDAO.class)));
+        bind(RegisterTypeRepoIf.class).toInstance(new RegisterTypeRepoDAO(jdbi.onDemand(RegisterTypeDAO.class)));
+        bind(TxTypeRepoIf.class).toInstance(new TxTypeRepoDAO(jdbi.onDemand(TxTypeDAO.class)));
+        bind(CurrencyRepoIf.class).toInstance(new CurrencyRepoDAO(jdbi.onDemand(CurrencyDAO.class)));
+        bind(SubsystemRepoIf.class).toInstance(new SubsystemRepoDAO(jdbi.onDemand(SubsystemDAO.class)));
+        bind(AccountRepoIf.class).toInstance(new AccountRepoDAO(jdbi.onDemand(AccountDAO.class)));
+        bind(AccountTypeRepoIf.class).toInstance(new AccountTypeRepoDAO(jdbi.onDemand(AccountTypeDAO.class)));
+        bind(TxVariantRepoIf.class).toInstance(new TxVariantRepoDAO(jdbi.onDemand(TxVariantDAO.class)));
+        bind(FeeBaseRepoIf.class).toInstance(new FeeBaseRepoDAO(jdbi.onDemand(FeeBaseDAO.class)));
+    }
+
+    private void bindRepositoriesToCache() {
+        bind(JournalTypeRepoIf.class).toInstance(new JournalTypeCache(jdbi.onDemand(JournalTypeDAO.class)));
+        bind(RegisterTypeRepoIf.class).toInstance(new RegisterTypeCache(jdbi.onDemand(RegisterTypeDAO.class)));
+        bind(TxTypeRepoIf.class).toInstance(new TxTypeCache(jdbi.onDemand(TxTypeDAO.class)));
+        bind(CurrencyRepoIf.class).toInstance(new CurrencyCache(jdbi.onDemand(CurrencyDAO.class)));
+        bind(SubsystemRepoIf.class).toInstance(new SubsystemCache(jdbi.onDemand(SubsystemDAO.class)));
+        bind(AccountRepoIf.class).toInstance(new AccountCache(jdbi.onDemand(AccountDAO.class)));
+        bind(AccountTypeRepoIf.class).toInstance(new AccountTypeCache(jdbi.onDemand(AccountTypeDAO.class)));
+        bind(TxVariantRepoIf.class).toInstance(new TxVariantCache(jdbi.onDemand(TxVariantDAO.class)));
+        bind(FeeBaseRepoIf.class).toInstance(new FeeBaseCache(jdbi.onDemand(FeeBaseDAO.class)));
     }
 }
