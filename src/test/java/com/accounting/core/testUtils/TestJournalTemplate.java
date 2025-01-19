@@ -35,21 +35,6 @@ public class TestJournalTemplate {
     }
 
     @SneakyThrows
-    public static JournalTemplate tokenCancel() {
-        return templateCache.get(TOKEN_CANCEL);
-    }
-
-    @SneakyThrows
-    public static JournalTemplate tokenConvert() {
-        return templateCache.get(TOKEN_CONVERSION);
-    }
-
-    @SneakyThrows
-    public static JournalTemplate clientOrderCancelled() {
-        return templateCache.get(CLIENT_ORDER_CANCEL);
-    }
-
-    @SneakyThrows
     public static JournalTemplate clientOrderReceived() {
         return templateCache.get(CLIENT_ORDER_RECEIVE);
     }

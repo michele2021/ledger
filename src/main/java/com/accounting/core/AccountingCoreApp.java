@@ -12,7 +12,6 @@ import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.config.guice.AccountingCoreModule;
 import com.accounting.core.config.guice.SecurityModule;
 import com.accounting.core.jobs.DataFixProcessor;
-import com.accounting.core.jobs.TokenExpiryJob;
 import com.accounting.core.processing.MessageProcessor;
 import com.accounting.core.reports.DailySalesReportsProcessor;
 import com.accounting.core.resources.*;
@@ -84,7 +83,6 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         environment.admin().addTask(new CreateTestAccountTask(injector.getInstance(DataFixProcessor.class)));
         environment.admin().addTask(new DataManagerTask(injector.getInstance(DataFixProcessor.class)));
         environment.admin().addTask(new BatchManagerTask(injector.getInstance(BatchService.class)));
-        environment.admin().addTask(new TokenExpiryTask(injector.getInstance(TokenExpiryJob.class)));
     }
 
     private void registerMessagesQueueClient(Environment environment, Injector injector, AccountingCoreAppConfig config) {
