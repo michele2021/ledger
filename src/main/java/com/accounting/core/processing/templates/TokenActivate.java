@@ -143,8 +143,8 @@ public class TokenActivate extends AbstractTemplate {
         addDebitLine(journalId, journalLines, Constants.RegisterType.TokenReceivable, accountId, amount);
 
         // Credit/Debit 3
-        addCreditLine(journalId, journalLines, Constants.RegisterType.IssuerPrefundAccount, issuerAccountId, amount);
-        addDebitLine(journalId, journalLines, Constants.RegisterType.CardsPayablePending, issuerAccountId, amount);
+        //addCreditLine(journalId, journalLines, Constants.RegisterType.IssuerPrefundAccount, issuerAccountId, amount);
+        //addDebitLine(journalId, journalLines, Constants.RegisterType.CardsPayablePending, issuerAccountId, amount);
 
         return journalLines;
     }

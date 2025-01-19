@@ -1,7 +1,8 @@
 package com.accounting.core.processing.templates;
 
-import com.accounting.commons.Constants;
-import com.accounting.commons.entities.*;
+import com.accounting.commons.entities.Account;
+import com.accounting.commons.entities.Amount;
+import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.repository.RegisterTypeRepoIf;
 import com.accounting.core.db.JournalDAO;
@@ -74,7 +75,7 @@ public class TokenMatch extends JournalLinesMaker {
         if (nonNull(receivedFee)) {
 
             // Credit
-            addCreditLine(journalId, journalLines, Constants.RegisterType.FeeMatched, accountId, receivedFee);
+            //addCreditLine(journalId, journalLines, Constants.RegisterType.FeeMatched, accountId, receivedFee);
 
             Amount txAmount = tokenReconciliationTx.getAmount();
 
@@ -84,11 +85,11 @@ public class TokenMatch extends JournalLinesMaker {
         }
 
         // Credit
-        addCreditLine(journalId, journalLines, Constants.RegisterType.TokenMatched, accountId, tokenAmount);
+        //addCreditLine(journalId, journalLines, Constants.RegisterType.TokenMatched, accountId, tokenAmount);
 
         // Debit
         // N.B. saleAmount can also be calculated ad receivedFee + tokenAmount
-        addDebitLine(journalId, journalLines, Constants.RegisterType.SaleMatched, accountId, saleAmount);
+        //addDebitLine(journalId, journalLines, Constants.RegisterType.SaleMatched, accountId, saleAmount);
 
         return journalLines;
     }

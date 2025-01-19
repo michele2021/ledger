@@ -51,7 +51,7 @@ public class ActivatedJournalFeesOpenBalanceFixExecutor {
                             log.info("'Fee' journal line, switched debit credit. Number of lines updated: {} ", n);
                             continue;
                         }
-                        if (jl.getRegisterType().equals(Constants.RegisterType.FeeReceivable)) {
+                        if (jl.getRegisterType().equals(Constants.RegisterType.BankReceived)) {
                             feeQuantity = jl.getQuantity();
                             int n = dataFixDAO.deleteJournalLine(jl.getJournalLineId());
                             log.info("'FeeReceivable' journal line, deleted. Number of lines deleted: {} ", n);

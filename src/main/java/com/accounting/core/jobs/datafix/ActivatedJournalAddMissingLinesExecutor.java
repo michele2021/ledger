@@ -54,8 +54,8 @@ public class ActivatedJournalAddMissingLinesExecutor {
 
                 for (JournalTxView j : journalTxViews) {
                     long accountId = j.getAccountId();
-                    long cardsPayablePendingBatchId = journalMaker.getOrCreateAvailableBatch(getRegisterTypeId(Constants.RegisterType.CardsPayablePending), issuerAccount.getAccountId());
-                    long issuerPrefundAccountBatchId = journalMaker.getOrCreateAvailableBatch(getRegisterTypeId(Constants.RegisterType.IssuerPrefundAccount), issuerAccount.getAccountId());
+                    long cardsPayablePendingBatchId = journalMaker.getOrCreateAvailableBatch(getRegisterTypeId(Constants.RegisterType.Payable), issuerAccount.getAccountId());
+                    long issuerPrefundAccountBatchId = journalMaker.getOrCreateAvailableBatch(getRegisterTypeId(Constants.RegisterType.Fee), issuerAccount.getAccountId());
                     long openBalanceBatchId = journalMaker.getOrCreateAvailableBatch(getRegisterTypeId(Constants.RegisterType.OpenBalance), accountId);
                     long tokenReceivableBatchId = journalMaker.getOrCreateAvailableBatch(getRegisterTypeId(Constants.RegisterType.TokenReceivable), accountId);
                     log.info("Going to create journal lines for accountId {}, journalId {}, currencyId {}, quantity {}, registers {}, {}, {}, {}",

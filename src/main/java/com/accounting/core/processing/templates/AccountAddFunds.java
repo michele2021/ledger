@@ -112,10 +112,10 @@ public class AccountAddFunds extends AbstractTemplate {
             addDebitLine(journalId, journalLines, Constants.RegisterType.VAT, ccAccountId, vatAmount);
         }
         // Discount
-        if (Objects.nonNull(discountAmount)) {
-            addDebitLine(journalId, journalLines, Constants.RegisterType.ClientDiscount, accountId, discountAmount);
-            addCreditLine(journalId, journalLines, Constants.RegisterType.ClientDiscountPayable, ccAccountId, discountAmount);
-        }
+//        if (Objects.nonNull(discountAmount)) {
+//            addDebitLine(journalId, journalLines, Constants.RegisterType.ClientDiscount, accountId, discountAmount);
+//            addCreditLine(journalId, journalLines, Constants.RegisterType.ClientDiscountPayable, ccAccountId, discountAmount);
+//        }
         // Debit/Credit
         addDebitLine(journalId, journalLines, Constants.RegisterType.OpenBalance, accountId, amount);
         addCreditLine(journalId, journalLines, Constants.RegisterType.PrefundGL, accountId, prefundGLAmount);
@@ -148,10 +148,10 @@ public class AccountAddFunds extends AbstractTemplate {
             addCreditLine(journalId, journalLines, Constants.RegisterType.VAT, ccAccountId, vatAmount);
         }
         // Discount
-        if (Objects.nonNull(discountAmount)) {
-            addCreditLine(journalId, journalLines, Constants.RegisterType.ClientDiscount, accountId, discountAmount);
-            addDebitLine(journalId, journalLines, Constants.RegisterType.ClientDiscountPayable, ccAccountId, discountAmount);
-        }
+//        if (Objects.nonNull(discountAmount)) {
+//            addCreditLine(journalId, journalLines, Constants.RegisterType.ClientDiscount, accountId, discountAmount);
+//            addDebitLine(journalId, journalLines, Constants.RegisterType.ClientDiscountPayable, ccAccountId, discountAmount);
+//        }
         // Debit/Credit
         addCreditLine(journalId, journalLines, Constants.RegisterType.OpenBalance, accountId, amount);
         addDebitLine(journalId, journalLines, Constants.RegisterType.PrefundGL, accountId, prefundGLAmount);

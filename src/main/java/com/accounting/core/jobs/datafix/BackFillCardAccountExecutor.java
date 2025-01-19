@@ -2,11 +2,9 @@ package com.accounting.core.jobs.datafix;
 
 import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
-import com.accounting.commons.entities.Account;
-import com.accounting.commons.entities.AccountType;
-import com.accounting.commons.entities.JournalType;
-import com.accounting.commons.entities.TxType;
+import com.accounting.commons.entities.*;
 import com.accounting.commons.exceptions.AccountingMakerException;
+import com.accounting.commons.queue.QueueMessage;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.AccountTypeRepoIf;
 import com.accounting.commons.repository.JournalTypeRepoIf;
@@ -16,8 +14,8 @@ import com.accounting.core.db.DataFixDAO;
 import com.accounting.core.exceptions.JobProcessingException;
 import com.accounting.core.jobs.entities.CardBackFill;
 import com.accounting.core.processing.JournalMaker;
-import com.accounting.core.processing.templates.CardCreate;
 import com.accounting.core.processing.templates.JournalTemplateIf;
+import com.accounting.core.processing.templates.TokenCreate;
 import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -61,15 +59,13 @@ public class BackFillCardAccountExecutor {
                 Account cardAccount = createCardAccount(prepaidCardExternalId);
                 JournalType jtCreated = journalTypeRepo.get(Constants.JournalType.Created.toString());
                 TxType txtCard = txTypeRepo.get(Constants.TxType.Card.toString());
-                JsonObject additionalData = buildAdditionalData(prepaidCardExternalId);
-                JournalTemplateIf journalTemplate = new CardCreate(journalMaker,
+//                JsonObject additionalData = buildAdditionalData(prepaidCardExternalId);
+                JournalTemplateIf journalTemplate = new TokenCreate(journalMaker,
                         cardAccount,
-                        clientAccount,
-                        card.getAmount(),
+                        Amount.of(2,2),
                         jtCreated,
                         txtCard,
-                        card.getTxId(),
-                        additionalData,
+                        QueueMessage.builder().build(),
                         repositoryHelper);
                 journalTemplate.process();
                 dataFixDAO.markCardAsBackFilled(prepaidCardExternalId);
