@@ -1,7 +1,5 @@
 package com.accounting.core.tasks;
 
-import com.accounting.commons.Constants;
-import com.accounting.commons.conf.SystemConfig;
 import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.core.exceptions.JobProcessingException;
 import com.accounting.core.jobs.DataFixProcessor;
@@ -12,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +54,7 @@ public class DataManagerTask extends Task {
             boolean test = Boolean.TRUE.equals(getSingleOptionalParameter(parameters, TEST_PARAM).map(Boolean::valueOf).orElse(false));
             dataFixProcessor.changeAccount(test, originalAccountIdTx, newAccountIdTx, newAccountIdIssuer);
         } else if ("CLEAN_TEST_JOURNALS".equalsIgnoreCase(action)) {
-            Set<String> testTokensTxReferences = Constants.testTokensAll.get(SystemConfig.getInstanceType());
+            Set<String> testTokensTxReferences = Collections.emptySet();
             int hoursInterval = getSingleOptionalParameter(parameters, HOURS_CLEAN_JOURNALS_PARAM).map(Integer::valueOf).orElse(HOURS_CLEAN_JOURNALS);
             if (AccountingUtils.isEmptyOrNull(testTokensTxReferences)) {
                 log.info("No test tokens to process in this environment!");

@@ -2,7 +2,6 @@ package com.accounting.core.processing;
 
 import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
-import com.accounting.commons.conf.SystemConfig;
 import com.accounting.commons.entities.*;
 import com.accounting.commons.exceptions.AccountingEventException;
 import com.accounting.commons.exceptions.AccountingException;
@@ -19,8 +18,6 @@ import com.accounting.core.processing.templates.JournalTemplateFactoryImpl;
 import com.accounting.core.processing.templates.JournalTemplateIf;
 import com.accounting.core.services.RepositoryHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
@@ -127,44 +124,11 @@ public class MessageProcessor implements MessageProcessorIf {
 
         List<Constants.AccountType> accountTypes = journalTemplate.getAccountTypes();
         Account account = getAccountByCodeAndTypes(accountCode, accountTypes);
-        if (switchToTestAccount(message) && nonNull(account) && !account.isTest()) {
-            accountCode = accountCode.concat("_TEST");
-            account = accountRepo.getByCodeAndType(accountCode, account.getAccountTypeCode());
-            if (nonNull(account) && !account.isTest()) {
-                throw new AccountingTemplateException(format("Corresponding account is not a test one: %s/%s", accountCode, accountTypes));
-            }
-        }
 
         throwExceptionIfNull(account, format("Account in queue message not recognized: %s/%s", accountCode, accountTypes));
         assert account != null;
         log.info("Going to use account with code {} and type {}. Is test: {}.", account.getCode(), account.getAccountTypeCode(), account.isTest());
         return account;
-    }
-
-    // For the messages TOKEN_CREATE, TOKEN_CREATE_ACTIVE and TOKEN_CONVERSION a new boolean flag has been added in 'additionalData' called 'test'.
-    // If it is TRUE then check if the account in the message is a 'test' account:
-    //   yes -> do nothing
-    //   no  -> internally switch the account '_TEST' suffix will be added to the account Code
-    // We also switch to the corresponding test account if the txReference is in a pre-defined list.
-    private boolean switchToTestAccount(QueueMessage message) {
-        if (!message.getType().contains("TOKEN_")) {
-            return false;
-        }
-        String txReference = message.getTxReference();
-        if (nonNull(txReference)) {
-            Set<String> testTokensEnv = Constants.testTokensAll.get(SystemConfig.getInstanceType());
-            if (testTokensEnv != null && testTokensEnv.contains(txReference)) {
-                log.info("Going to switch to the corresponding test account (the txReference is in the predefined list).");
-                return true;
-            }
-        }
-        JsonObject additionalData = message.getAdditionalData();
-        JsonElement testFlag = nonNull(additionalData) ? additionalData.get(Message.AdditionalData.test.toString()) : null;
-        if(nonNull(testFlag) && testFlag.getAsBoolean()) {
-            log.info("Going to switch to the corresponding test account (received 'test: true' flag).");
-            return true;
-        }
-        return false;
     }
 
 
