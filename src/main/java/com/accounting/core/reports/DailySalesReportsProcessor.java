@@ -68,7 +68,7 @@ public final class DailySalesReportsProcessor {
         this.mismatchedTokensDAO = repositoryHelper.getMismatchedTokensDAO();
         this.journalType = repositoryHelper.getJournalTypeRepo().get(Constants.JournalType.Matched.name());
 
-        this.account = repositoryHelper.getAccountRepo().getByCodeAndType(Constants.ClientAccount.EPAY_IT.name(),
+        this.account = repositoryHelper.getAccountRepo().getByCodeAndType(Constants.ClientAccount.DEFAULT.name(),
                 Constants.AccountType.Client.name());
     }
 

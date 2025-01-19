@@ -47,7 +47,7 @@ class DailySalesReportsProcessorTest {
     private static final Currency CURRENCY = new Currency(2, 1, "EUR");
     private static final TxType DSR_TX_TYPE = new TxType(9, Constants.TxType.DailySalesReport.name());
     private static final TxType TOKEN_RECONCILIATION_TX_TYPE = new TxType(11, Constants.TxType.TokenReconciliation.name());
-    private static final Account ACCOUNT = new Account(16, "EPAY_IT", 7,
+    private static final Account ACCOUNT = new Account(16, "DEFAULT", 7,
             Constants.AccountType.Client.name(), 15L, "EPAY", "", null, null, false, OffsetDateTime.now(), "user1");
     private static final JournalType JOURNAL_TYPE = new JournalType(14, Constants.JournalType.Matched.name());
 

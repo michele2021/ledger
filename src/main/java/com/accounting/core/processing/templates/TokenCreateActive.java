@@ -69,7 +69,7 @@ public class TokenCreateActive extends AbstractTemplate {
     }
 
     private String getPublishableIdAdditionalData(Account account) throws AccountingMakerException {
-        boolean mandatory = (Constants.ClientAccount.EPAY_IT.toString().equals(account.getAccountCode()));
+        boolean mandatory = false;
         return mandatory ? getAdditionalData(publishableId).getAsString() : getAdditionalData(publishableId, JsonElement::getAsString);
     }
 

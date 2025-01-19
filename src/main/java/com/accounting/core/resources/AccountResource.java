@@ -16,9 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
@@ -29,6 +26,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.accounting.core.swagger.ApiDocConstants.HTTP_STATUS_OK;
 import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;
@@ -47,9 +46,9 @@ public class AccountResource {
 
     private static final String EPAY_IT_ACCOUNT_EXAMPLE = """
             {
-                    "accountCode" :"EPAY_IT",\s
-                    "accountTypeCode" : "Distributor",\s
-                    "description" : "https://www.epayitalia.it/"
+                    "accountCode" :"DEFAULT",\s
+                    "accountTypeCode" : "Client",\s
+                    "description" : "https://www.default.it/"
             }""";
 
     @POST
@@ -68,7 +67,7 @@ public class AccountResource {
             content = @Content(
                     schema = @Schema(implementation = AccountDTO.class),
                     examples = {
-                            @ExampleObject(name="EPAY_IT", description = "Creation of EPAY_IT Distributor account", value = EPAY_IT_ACCOUNT_EXAMPLE)
+                            @ExampleObject(name="DEFAULT", description = "Creation of DEFAULT Distributor account", value = EPAY_IT_ACCOUNT_EXAMPLE)
                     }
             ))
     public Response create(@Context HttpHeaders headers, @NotNull @Valid AccountDTO accountDTO) {

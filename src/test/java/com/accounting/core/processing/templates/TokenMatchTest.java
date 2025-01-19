@@ -44,7 +44,7 @@ class TokenMatchTest {
     private final DailySalesReportRow reportRow = TestDailySalesReportsUtils.getReportRow();
 
     @Spy
-    private final Account account = new Account(16, "EPAY_IT", 7,
+    private final Account account = new Account(16, "DEFAULT", 7,
             Constants.AccountType.Client.name(), 15L, "EPAY", "", null, null, false, OffsetDateTime.now(), "user1");
 
     @Spy

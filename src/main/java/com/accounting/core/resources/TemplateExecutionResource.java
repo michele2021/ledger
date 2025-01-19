@@ -16,9 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -28,6 +25,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.accounting.core.swagger.ApiDocConstants.HTTP_STATUS_OK;
 import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;
@@ -42,19 +41,19 @@ public class TemplateExecutionResource {
 
     private static final String PAYMENT_RECEIVED_EXAMPLE = "{\n" +
             "        \"type\" :\"PAYMENT_RECEIVED\", \n" +
-            "        \"accountCode\" : \"EPAY_IT\", \n" +
+            "        \"accountCode\" : \"DEFAULT\", \n" +
             "        \"amount\" : { \"quantity\":150.00, \"currencyCode\":\"EUR\" },\n" +
             "        \"additionalData\" : { " +
             "             \"bankAccountCode\" : \"ItalyClients1\", " +
             "             \"discountAmount\" : 10," +
-            "             \"description\" : \"Payment from EPAY_IT, discount applied\" " +
+            "             \"description\" : \"Payment from DEFAULT, discount applied\" " +
             "        },\n" +
             "        \"source\" : \"FRONT_END_APP\"\n" +
             "}";
 
     private static final String PAYMENT_RECEIVED_CORRECTION_EXAMPLE = "{\n" +
             "        \"type\" :\"PAYMENT_RECEIVED_CORRECTION\", \n" +
-            "        \"accountCode\" : \"EPAY_IT\", \n" +
+            "        \"accountCode\" : \"DEFAULT\", \n" +
             "        \"amount\" : { \"quantity\":150.00, \"currencyCode\":\"EUR\" },\n" +
             "        \"additionalData\" : { \n" +
             "             \"bankAccountCode\" : \"ItalyClients1\",\n" +
@@ -66,7 +65,7 @@ public class TemplateExecutionResource {
 
     private static final String CLIENT_FEE_PAYOUT_EXAMPLE = "{\n" +
             "        \"type\" :\"CLIENT_FEE_PAYOUT\", \n" +
-            "        \"accountCode\" : \"EPAY_IT\", \n" +
+            "        \"accountCode\" : \"DEFAULT\", \n" +
             "        \"amount\" : { \"quantity\":150.00, \"currencyCode\":\"EUR\" },\n" +
             "        \"source\" : \"FRONT_END_APP\"\n" +
             "}";
