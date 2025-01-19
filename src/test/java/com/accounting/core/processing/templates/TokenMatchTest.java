@@ -45,7 +45,7 @@ class TokenMatchTest {
 
     @Spy
     private final Account account = new Account(16, "EPAY_IT", 7,
-            Constants.AccountType.Distributor.name(), 15L, "EPAY", "", null, null, false, OffsetDateTime.now(), "user1");
+            Constants.AccountType.Client.name(), 15L, "EPAY", "", null, null, false, OffsetDateTime.now(), "user1");
 
     @Spy
     private final JournalType journalType = new JournalType(14, Constants.JournalType.Matched.name());

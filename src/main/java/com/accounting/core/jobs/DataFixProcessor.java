@@ -16,7 +16,6 @@ public class DataFixProcessor {
     private final ActivatedJournalFeesOpenBalanceFixExecutor activatedJournalFeesOpenBalanceFixExecutor;
     private final ActivatedJournalAddMissingLinesExecutor activatedJournalAddMissingLinesExecutor;
     private final PaymentsReverseExecutor paymentsReverseExecutor;
-    private final BackFillCardAccountExecutor backFillAccountExecutor;
 
     @Inject
     public DataFixProcessor(MoveAccountExecutor moveAccountExecutor,
@@ -24,15 +23,13 @@ public class DataFixProcessor {
                             JournalCleaningExecutor journalCleaningExecutor,
                             ActivatedJournalFeesOpenBalanceFixExecutor activatedJournalFeesOpenBalanceFixExecutor,
                             ActivatedJournalAddMissingLinesExecutor activatedJournalAddMissingLinesExecutor,
-                            PaymentsReverseExecutor paymentsReverseExecutor,
-                            BackFillCardAccountExecutor backFillAccountExecutor) {
+                            PaymentsReverseExecutor paymentsReverseExecutor) {
         this.moveAccountExecutor = moveAccountExecutor;
         this.createTestAccountExecutor = createTestAccountExecutor;
         this.journalCleaningExecutor = journalCleaningExecutor;
         this.activatedJournalFeesOpenBalanceFixExecutor = activatedJournalFeesOpenBalanceFixExecutor;
         this.activatedJournalAddMissingLinesExecutor = activatedJournalAddMissingLinesExecutor;
         this.paymentsReverseExecutor = paymentsReverseExecutor;
-        this.backFillAccountExecutor = backFillAccountExecutor;
     }
 
     public void changeAccount(boolean test, long originalAccountIdTx, long newAccountIdTx, Long newAccountIdIssuer) throws JobProcessingException {
@@ -57,9 +54,5 @@ public class DataFixProcessor {
 
     public void reverseAndSubmitPayments(String mode, Long txId, Long newPaymentId, boolean test) throws JobProcessingException {
         paymentsReverseExecutor.execute(mode, txId, newPaymentId, test);
-    }
-
-    public void backFillCardAccount() throws JobProcessingException {
-        backFillAccountExecutor.execute();
     }
 }

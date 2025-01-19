@@ -45,7 +45,7 @@ public class MoveAccountExecutor {
 
     public void execute(boolean test, long originalAccountIdTx, long newAccountIdTx, Long newIssuerAccountId) throws JobProcessingException {
         // check the new accounts exists
-        checkAccountExists(newAccountIdTx, List.of(Constants.AccountType.Client.toString(), Constants.AccountType.Distributor.toString()));
+        checkAccountExists(newAccountIdTx, List.of(Constants.AccountType.Client.toString()));
         if (nonNull(newIssuerAccountId)) {
             checkAccountExists(newIssuerAccountId, List.of(Constants.AccountType.Issuer.toString()));
         }
@@ -105,7 +105,7 @@ public class MoveAccountExecutor {
         String accountCode = line.getAccountCode();
         String accountTypeCode = line.getAccountTypeCode();
 
-        if (Constants.AccountType.Client.toString().equals(accountTypeCode) || Constants.AccountType.Distributor.toString().equals(accountTypeCode)) {
+        if (Constants.AccountType.Client.toString().equals(accountTypeCode)) {
             newAccountIdJL = newAccountIdTx;
         } else {
             if (toTestAccount) {

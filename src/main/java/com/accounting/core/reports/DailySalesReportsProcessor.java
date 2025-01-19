@@ -69,7 +69,7 @@ public final class DailySalesReportsProcessor {
         this.journalType = repositoryHelper.getJournalTypeRepo().get(Constants.JournalType.Matched.name());
 
         this.account = repositoryHelper.getAccountRepo().getByCodeAndType(Constants.ClientAccount.EPAY_IT.name(),
-                Constants.AccountType.Distributor.name());
+                Constants.AccountType.Client.name());
     }
 
     @Getter

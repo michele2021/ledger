@@ -7,10 +7,10 @@ import com.accounting.core.exceptions.JobProcessingException;
 import com.accounting.core.jobs.DataFixProcessor;
 import com.google.inject.Inject;
 import io.dropwizard.servlets.tasks.Task;
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -77,8 +77,6 @@ public class DataManagerTask extends Task {
             Long newPaymentId = getSingleOptionalParameter(parameters, NEW_PAYMENT_ID_PARAM).map(Long::valueOf).orElse(null);
             boolean test = Boolean.TRUE.equals(getSingleOptionalParameter(parameters, TEST_PARAM).map(Boolean::valueOf).orElse(false));
             dataFixProcessor.reverseAndSubmitPayments(mode, txId, newPaymentId, test);
-        } else if ("BACK_FILL_CARD_ACCOUNT".equalsIgnoreCase(action)) {
-            dataFixProcessor.backFillCardAccount();
         } else {
             throw new WebApplicationException(format("Parameter '%s' has an unrecognized value '%s'. Supported values: 'CHANGE_ACCOUNT'.", ACTION_PARAM, action), Response.Status.BAD_REQUEST);
         }

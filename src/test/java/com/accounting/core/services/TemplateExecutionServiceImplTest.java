@@ -43,18 +43,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TemplateExecutionServiceImplTest {
 
-    static final String PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA = "{\n" +
-            "    \"$schema\": \"https://json-schema.org/draft/2019-09/schema\",\n" +
-            "    \"type\": \"object\",\n" +
-            "    \"properties\": {\n" +
-            "      \"bankAccountCode\": {\n" +
-            "        \"type\": \"string\"\n" +
-            "      }\n" +
-            "    },\n" +
-            "    \"required\": [\n" +
-            "      \"bankAccountCode\"\n" +
-            "    ]\n" +
-            "  }";
+    static final String PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA = """
+            {
+                "$schema": "https://json-schema.org/draft/2019-09/schema",
+                "type": "object",
+                "properties": {
+                  "bankAccountCode": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "bankAccountCode"
+                ]
+              }""";
 
     RepositoryHelper repositoryHelper = setUpMockRepositoryHelper();
 
@@ -109,11 +110,11 @@ class TemplateExecutionServiceImplTest {
         String expectedMessageBody = objectMapper.writeValueAsString(message);
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -141,7 +142,7 @@ class TemplateExecutionServiceImplTest {
         verify(templateCache).get(eq(PAYMENT_RECEIVED));
         verify(journalTemplate).getAccountTypes();
         verify(journalTemplate).getAdditionalDataSchema();
-        verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("accountCode"), eq("CardProgram"));
+        verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("accountCode"), eq("BusinessEntity"));
         verify(repositoryHelper.getCurrencyRepo()).get(eq("ABC"));
         verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("bankAccountCode"), eq("BankAccount"));
 
@@ -304,9 +305,9 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(null);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(null);
 
 
         //when
@@ -316,7 +317,7 @@ class TemplateExecutionServiceImplTest {
         //then
         assertThat(validationError.getMessage())
                 .contains("message.accountCode")
-                .contains("Account not recognized: accountCode/[CardProgram]");
+                .contains("Account not recognized: accountCode/[BusinessEntity]");
     }
 
 
@@ -334,10 +335,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
 
         //when
@@ -365,10 +366,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
 
         //when
@@ -399,10 +400,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         //when
         WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
@@ -432,10 +433,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         //when
         WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
@@ -465,10 +466,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(null);
 
@@ -501,10 +502,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -538,10 +539,10 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -576,11 +577,11 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(null);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -614,11 +615,11 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -652,11 +653,11 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -690,11 +691,11 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -744,11 +745,11 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -795,11 +796,11 @@ class TemplateExecutionServiceImplTest {
                 .build();
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
-        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.CardProgram));
+        when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.BusinessEntity));
         when(journalTemplate.getAdditionalDataSchema()).thenReturn(PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA);
 
         Account cardAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("CardProgram"))).thenReturn(cardAccount);
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BusinessEntity"))).thenReturn(cardAccount);
 
         Currency currency = Currency.builder().build();
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
