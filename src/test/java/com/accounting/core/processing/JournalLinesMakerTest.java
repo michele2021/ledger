@@ -81,7 +81,7 @@ class JournalLinesMakerTest {
     void testAddDebitLine2() {
         // given
         List<JournalLine> journalLines = new ArrayList<>();
-        String registerTypeCode = Constants.RegisterType.FeeReceivable.name();
+        String registerTypeCode = Constants.RegisterType.Fee.name();
 
         RegisterType registerType = RegisterType.builder()
                 .registerTypeId(1)
@@ -105,7 +105,7 @@ class JournalLinesMakerTest {
         when(journalMaker.getOrCreateAvailableBatch(registerTypeId, accountId)).thenReturn(batchId);
 
         // when
-        tokenMatch.addDebitLine(journalId, journalLines, Constants.RegisterType.FeeReceivable, accountId, amount);
+        tokenMatch.addDebitLine(journalId, journalLines, Constants.RegisterType.Fee, accountId, amount);
 
         // then
         assertThat(journalLines).hasSize(1);
@@ -190,7 +190,7 @@ class JournalLinesMakerTest {
     @Test
     void getRegisterTypeId() {
         // given
-        String registerTypeCode = Constants.RegisterType.SaleMatched.name();
+        String registerTypeCode = Constants.RegisterType.Fee.name();
 
         RegisterType expectedRegisterType = RegisterType.builder()
                 .registerTypeId(1)
@@ -201,7 +201,7 @@ class JournalLinesMakerTest {
         when(registerTypeRepo.get(registerTypeCode)).thenReturn(expectedRegisterType);
 
         // when
-        int actualRegisterTypeId = tokenMatch.getRegisterTypeId(Constants.RegisterType.SaleMatched);
+        int actualRegisterTypeId = tokenMatch.getRegisterTypeId(Constants.RegisterType.Fee);
 
         // then
         assertEquals(expectedRegisterType.getRegisterTypeId(), actualRegisterTypeId);

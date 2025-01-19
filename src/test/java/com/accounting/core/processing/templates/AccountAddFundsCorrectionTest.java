@@ -362,11 +362,6 @@ public class AccountAddFundsCorrectionTest {
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankReceived.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeBankReceivedId).build());
 
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.ClientDiscount.toString()))
-                .thenReturn(RegisterType.builder().registerTypeId(registerTypeClientDiscountId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.ClientDiscountPayable.toString()))
-                .thenReturn(RegisterType.builder().registerTypeId(registerTypeClientDiscountPayableId).build());
-
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.OpenBalance.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeOpenBalanceId).build());
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.PrefundGL.toString()))

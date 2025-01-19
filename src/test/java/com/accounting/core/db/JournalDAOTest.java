@@ -87,23 +87,23 @@ class JournalDAOTest {
                 .list();
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTxId()).isEqualTo(txId);
-        assertThat(result.get(0).getOrderId()).isEqualTo(orderId);
-        assertThat(result.get(0).getPublishableId()).isEqualTo(publishableId);
-        assertThat(result.get(0).getActivatingLocationRef()).isEqualTo(activatingLocationRef);
-        assertThat(result.get(0).getLocationRef()).isEqualTo(locationRef);
-        assertThat(result.get(0).getActivationTimestamp()).isEqualTo(activationTimestamp);
-        assertThat(result.get(0).getActivationTimezone()).isEqualTo(activationTimezone);
-        assertThat(result.get(0).getOrderItemId()).isEqualTo(orderItemId);
-        assertThat(result.get(0).getType()).isEqualTo(Constants.TokenType.POSA);
+        assertThat(result.getFirst().getTxId()).isEqualTo(txId);
+        assertThat(result.getFirst().getOrderId()).isEqualTo(orderId);
+        assertThat(result.getFirst().getPublishableId()).isEqualTo(publishableId);
+        assertThat(result.getFirst().getActivatingLocationRef()).isEqualTo(activatingLocationRef);
+        assertThat(result.getFirst().getLocationRef()).isEqualTo(locationRef);
+        assertThat(result.getFirst().getActivationTimestamp()).isEqualTo(activationTimestamp);
+        assertThat(result.getFirst().getActivationTimezone()).isEqualTo(activationTimezone);
+        assertThat(result.getFirst().getOrderItemId()).isEqualTo(orderItemId);
+        assertThat(result.getFirst().getType()).isEqualTo(Constants.TokenType.POSA);
 
         List<Map<String, Object>> resultMap = handle.select("SELECT created, updated FROM public.token WHERE txid =?", txId)
                 .mapToMap()
                 .list();
 
         assertThat(resultMap).hasSize(1);
-        assertThat(resultMap.get(0).get("created")).isNotNull();
-        assertThat(resultMap.get(0).get("updated")).isNotNull();
+        assertThat(resultMap.getFirst().get("created")).isNotNull();
+        assertThat(resultMap.getFirst().get("updated")).isNotNull();
     }
 
 
@@ -169,17 +169,17 @@ class JournalDAOTest {
                 .list();
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTxId()).isEqualTo(txId);
-        assertThat(result.get(0).getOrderId()).isEqualTo(orderId);
-        assertThat(result.get(0).getPublishableId()).isEqualTo(publishableId);
-        assertThat(result.get(0).getActivatingLocationRef()).isEqualTo(activatingLocationRef);
-        assertThat(result.get(0).getActivationTimestamp()).isEqualTo(activationTimestamp);
-        assertThat(result.get(0).getActivationTimezone()).isEqualTo(activationTimezone);
-        assertThat(result.get(0).getPrepaidCardExternalId()).isEqualTo(prepaidCardExternalId);
+        assertThat(result.getFirst().getTxId()).isEqualTo(txId);
+        assertThat(result.getFirst().getOrderId()).isEqualTo(orderId);
+        assertThat(result.getFirst().getPublishableId()).isEqualTo(publishableId);
+        assertThat(result.getFirst().getActivatingLocationRef()).isEqualTo(activatingLocationRef);
+        assertThat(result.getFirst().getActivationTimestamp()).isEqualTo(activationTimestamp);
+        assertThat(result.getFirst().getActivationTimezone()).isEqualTo(activationTimezone);
+        assertThat(result.getFirst().getPrepaidCardExternalId()).isEqualTo(prepaidCardExternalId);
         //make sure thi are not changed
-        assertThat(result.get(0).getLocationRef()).isEqualTo(locationRef);
-        assertThat(result.get(0).getOrderItemId()).isEqualTo(orderItemId);
-        assertThat(result.get(0).getType()).isEqualTo(Constants.TokenType.POSA);
+        assertThat(result.getFirst().getLocationRef()).isEqualTo(locationRef);
+        assertThat(result.getFirst().getOrderItemId()).isEqualTo(orderItemId);
+        assertThat(result.getFirst().getType()).isEqualTo(Constants.TokenType.POSA);
 
 
         List<Map<String, Object>> resultMap = handle.select("SELECT created, updated FROM public.token WHERE txid =?", txId)
@@ -187,8 +187,8 @@ class JournalDAOTest {
                 .list();
 
         assertThat(resultMap).hasSize(1);
-        assertThat(resultMap.get(0).get("created")).isNotNull();
-        assertThat(resultMap.get(0).get("updated")).isNotNull();
+        assertThat(resultMap.getFirst().get("created")).isNotNull();
+        assertThat(resultMap.getFirst().get("updated")).isNotNull();
     }
 
     @Test
@@ -705,7 +705,7 @@ class JournalDAOTest {
         final Integer journalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", journalType);
         final Integer registerTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
-                "WHERE registerTypeCode = ?;", Constants.RegisterType.FeeReceivable);
+                "WHERE registerTypeCode = ?;", Constants.RegisterType.Fee);
 
         assertNotNull(txTypeId);
         assertNotNull(accountId);
@@ -793,7 +793,7 @@ class JournalDAOTest {
         final Integer journalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", journalType);
         final Integer registerTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
-                "WHERE registerTypeCode = ?;", Constants.RegisterType.FeeReceivable);
+                "WHERE registerTypeCode = ?;", Constants.RegisterType.Fee);
 
         assertNotNull(txTypeId);
         assertNotNull(accountId);
@@ -926,7 +926,7 @@ class JournalDAOTest {
         final Integer activatedJournalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", Constants.JournalType.Activated);
         final Integer cardsPayablePendingRegisterTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
-                "WHERE registerTypeCode = ?;", Constants.RegisterType.CardsPayablePending);
+                "WHERE registerTypeCode = ?;", Constants.RegisterType.Fee);
         assertNotNull(activatedJournalTypeId);
         assertNotNull(cardsPayablePendingRegisterTypeId);
 
@@ -987,7 +987,7 @@ class JournalDAOTest {
         final Integer activatedJournalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", journalType);
         final Integer registerTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
-                "WHERE registerTypeCode = ?;", Constants.RegisterType.FeeReceivable);
+                "WHERE registerTypeCode = ?;", Constants.RegisterType.Fee);
 
         assertNotNull(txTypeId);
         assertNotNull(accountId);
@@ -1116,7 +1116,7 @@ class JournalDAOTest {
         // then
         assertThat(childTxs).isNotEmpty().hasSize(1);
 
-        TxStatus actualTx = childTxs.get(0);
+        TxStatus actualTx = childTxs.getFirst();
 
         assertThat(actualTx.getTokenType()).isNotNull();
         assertThat(actualTx.getTxId()).isEqualTo(childTx.getTxId());
