@@ -1,7 +1,0 @@
-{
-  "class": "CardDefundTemplate",
-  "eventType": "CARD_DEFUNDING",
-  "accountTypes": ["CardProgram"],
-  "journalType": "CardDefunded",
-  "txType": "CardDefunding"
-}

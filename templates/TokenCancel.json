@@ -1,7 +1,0 @@
-{
-  "class": "TokenCancel",
-  "eventType": "TOKEN_CANCEL",
-  "accountTypes": ["Distributor","Client"],
-  "journalType": "Cancelled",
-  "txType": "Token"
-}

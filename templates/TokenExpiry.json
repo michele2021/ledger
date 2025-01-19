@@ -1,7 +1,0 @@
-{
-  "class": "TokenExpiry",
-  "eventType": "TOKEN_EXPIRY",
-  "accountTypes": ["Distributor","Client"],
-  "journalType": "Expired",
-  "txType": "Token"
-}

@@ -1,7 +1,0 @@
-{
-  "class": "ClientFeePayout",
-  "eventType": "CLIENT_FEE_PAYOUT",
-  "accountTypes": ["Distributor","Client"],
-  "journalType": "FeePaid",
-  "txType": "Payout"
-}

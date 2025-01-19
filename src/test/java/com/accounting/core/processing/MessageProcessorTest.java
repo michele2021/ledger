@@ -89,8 +89,7 @@ public class MessageProcessorTest {
         return Stream.of(
                 Arguments.of(TestQueueMessage.tokenCreate(), TestJournalTemplate.tokenCreate()),
                 Arguments.of(TestQueueMessage.tokenActivate(), TestJournalTemplate.tokenActivate()),
-                Arguments.of(TestQueueMessage.tokenCreateActivate(), TestJournalTemplate.tokenCreateActivate()),
-                Arguments.of(TestQueueMessage.tokenCancel(), TestJournalTemplate.tokenCancel())
+                Arguments.of(TestQueueMessage.tokenCreateActivate(), TestJournalTemplate.tokenCreateActivate())
         );
     }
 
@@ -141,7 +140,7 @@ public class MessageProcessorTest {
         }
 
         //validateAccount
-        verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq(message.getAccountCode()), eq(journalTemplate.getAccountTypes().get(0).toString()));
+        verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq(message.getAccountCode()), eq(journalTemplate.getAccountTypes().getFirst().toString()));
 
         //validateAmount
         if (Objects.isNull(message.getAmount())) {
