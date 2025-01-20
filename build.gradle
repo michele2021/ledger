@@ -54,7 +54,7 @@ project.ext {
     accounting_commons_version = '1.0-SNAPSHOT'
     // monavate_iban_version = '1.22.2'
 
-    dropwizard_version = "4.0.11"
+    dropwizard_version = "4.0.12"
     lombok_version = '1.18.36'
     jdbi3_version = '3.47.0'
     awssdk_version = '2.18.6'
