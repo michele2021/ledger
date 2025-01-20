@@ -2,6 +2,7 @@ package com.accounting.core.config.guice;
 
 import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.conf.DebugToolsConfig;
+import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.db.QueueDAO;
 import com.accounting.commons.infra.cache.*;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
@@ -44,7 +45,7 @@ public class AccountingCoreModule extends AbstractModule {
     public AccountingCoreModule(Environment environment, AccountingCoreAppConfig config) {
         this.config = config;
         this.jdbi = initJdbi(environment, config.getDataSourceFactory());
-        this.accountingMessagesQueue = KafkaAccountingMessagesQueue.of(config.getAWSConfig());
+        this.accountingMessagesQueue = KafkaAccountingMessagesQueue.of(config.getAwsConfig(), config.getKafkaConfig());
         this.templateCache = new TemplateCache();
     }
 
@@ -58,7 +59,7 @@ public class AccountingCoreModule extends AbstractModule {
 
     @Provides
     public AWSConfig provideAWSConfig() {
-        return config.getAWSConfig();
+        return config.getAwsConfig();
     }
 
     @Provides
@@ -69,6 +70,11 @@ public class AccountingCoreModule extends AbstractModule {
     @Provides
     public TemplateCache provideTemplateCache() {
         return templateCache;
+    }
+
+    @Provides
+    public KafkaConfig provideKafkaConfig() {
+        return config.getKafkaConfig();
     }
 
     @Provides

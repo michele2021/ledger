@@ -3,6 +3,7 @@ package com.accounting.core.services;
 import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
 import com.accounting.commons.conf.AWSConfig;
+import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.exceptions.WebValidationException;
 import com.accounting.commons.kafka.KafkaMessage;
@@ -16,7 +17,6 @@ import com.accounting.core.entities.JournalTemplate;
 import com.accounting.core.processing.TemplateCache;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.networknt.schema.JsonSchemaFactory;
@@ -40,7 +40,7 @@ import static java.util.Objects.nonNull;
 @Singleton
 public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
-    private static final List<String> ALLOWED_TYPES = ImmutableList.of(Message.EventType.PAYMENT_RECEIVED.toString(),
+    private static final List<String> ALLOWED_TYPES = List.of(Message.EventType.PAYMENT_RECEIVED.toString(),
             Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString(), Message.EventType.CLIENT_FEE_PAYOUT.toString());
     private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", ALLOWED_TYPES) + "\"";
 
@@ -52,10 +52,12 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
     private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
     private final boolean isEnabled;
+    private final String defaultQueueTopic;
 
     @Inject
     public TemplateExecutionServiceImpl(
             AWSConfig awsConfig,
+            KafkaConfig kafkaConfig,
             TemplateCache templateCache,
             KafkaMessageProducer<String, String> kafkaMessageProducer,
             RepositoryHelper repositoryHelper
@@ -63,6 +65,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         this.templateCache = templateCache;
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
         this.accountRepo = repositoryHelper.getAccountRepo();
+        this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
         this.isEnabled = awsConfig.isQueueEnabled();
         if (isEnabled) {
             this.kafkaMessageProducer = kafkaMessageProducer;
@@ -95,7 +98,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
         var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
         var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
-        var response = kafkaMessageProducer.send("default", "MAIN", serializedMessage);
+        var response = kafkaMessageProducer.send(defaultQueueTopic, "MAIN", serializedMessage);
         log.debug("Message sent: {}", response);
     }
 
@@ -236,9 +239,9 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                     .validate(OBJECT_MAPPER.readTree(message.getAdditionalData().toString()));
             if (!errors.isEmpty()) {
                 throw validationError("additionalData",
-                        format("AdditionalData does not conform to the schema. Validation errors:\n%s", errors.stream()
+                        format("AdditionalData does not conform to the schema. Validation errors:%n%s", errors.stream()
                                 .map(ValidationMessage::getMessage)
-                                .collect(Collectors.joining("\n")))
+                                .collect(Collectors.joining("%n")))
                 );
             }
         } catch (JsonProcessingException e) {

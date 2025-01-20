@@ -1,10 +1,7 @@
 package com.accounting.core.config;
 
 
-import com.accounting.commons.conf.AWSConfig;
-import com.accounting.commons.conf.CORSConfig;
-import com.accounting.commons.conf.DebugToolsConfig;
-import com.accounting.commons.conf.RepositoryConfig;
+import com.accounting.commons.conf.*;
 import com.accounting.core.swagger.SwaggerConfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.core.Configuration;
@@ -27,13 +24,12 @@ public class AccountingCoreAppConfig extends Configuration {
     @Valid
     @NotNull
     @JsonProperty("aws")
-    private AWSConfig AWSConfig = new AWSConfig();
+    private AWSConfig awsConfig = new AWSConfig();
 
     @Valid
     @NotNull
     @JsonProperty("debugTools")
     private DebugToolsConfig debugToolsConfig = new DebugToolsConfig();
-
 
     @Valid
     @NotNull
@@ -45,6 +41,10 @@ public class AccountingCoreAppConfig extends Configuration {
     @JsonProperty("cors")
     private CORSConfig corsConfig = new CORSConfig();
 
-    public SwaggerConfig swaggerConfig = new SwaggerConfig();
+    private SwaggerConfig swaggerConfig = new SwaggerConfig();
 
+    @Valid
+    @NotNull
+    @JsonProperty("kafka")
+    private KafkaConfig kafkaConfig = new KafkaConfig();
 }

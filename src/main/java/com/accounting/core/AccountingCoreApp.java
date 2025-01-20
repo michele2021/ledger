@@ -89,7 +89,7 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
     }
 
     private void registerMessagesQueueClient(Environment environment, Injector injector, AccountingCoreAppConfig config) {
-        var awsConfig = config.getAWSConfig();
+        var awsConfig = config.getAwsConfig();
         if (!awsConfig.isQueueEnabled()) {
             return;
         }

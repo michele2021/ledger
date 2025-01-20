@@ -2,6 +2,7 @@ package com.accounting.core.services;
 
 import com.accounting.commons.Constants;
 import com.accounting.commons.conf.AWSConfig;
+import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.entities.Currency;
 import com.accounting.commons.exceptions.WebValidationException;
@@ -61,11 +62,13 @@ class TemplateExecutionServiceImplTest {
 
     AWSConfig awsConfig;
     SqsClient sqsClient;
+    KafkaConfig kafkaConfig;
     final String queueUrl = "queueUrl";
 
     {
         awsConfig = mock(AWSConfig.class);
         sqsClient = mock(SqsClient.class);
+        kafkaConfig = mock(KafkaConfig.class);
         when(awsConfig.createSqsClient()).thenReturn(sqsClient);
         when(awsConfig.getQueueAccountingName()).thenReturn("QueueAccounting");
         when(awsConfig.getQueueUrl(same(sqsClient), eq("QueueAccounting"))).thenReturn(queueUrl);

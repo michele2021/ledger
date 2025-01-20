@@ -100,6 +100,16 @@ cors:
   allowedHeadersAdmin: ${ALLOWED_HEADERS_ADMIN:-Authorization,X-Requested-With,Content-Type,Accept,Origin,X-API-KEY}
   allowedMethodsAdmin: ${ALLOWED_METHODS_ADMIN:-OPTIONS,GET,PUT,POST,DELETE,HEAD}
 
+kafka:
+  bootstrapServers: ${BOOTSTRAP_SERVERS:-127.0.0.1:9092}
+  defaultQueueTopic: ${DEFAULT_QUEUE_TOPIC:-default}
+  dlqTopic: ${DLQ_TOPIC:-dlq}
+  consumerGroupId: ${CONSUMER_GROUP_ID:-accounting_kafka_consumer}
+  producerSendTimeoutMs: ${SEND_TIMEOUT_MS:-100}
+  producerBatchSize: ${PRODUCER_BATCH_SIZE:-100}
+  producerLingerMs: ${PRODUCER_LINGER_MS:-50}
+  consumerPollTimeoutMs: ${POLL_TIMEOUT_MS:-100}
+
 logging:
   appenders:
     - type: file

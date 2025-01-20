@@ -15,7 +15,7 @@ public class SecurityModule extends AbstractModule {
 
     public SecurityModule(AccountingCoreAppConfig config) {
         this.apiKeyAuthInterceptor = new ApiKeyAuthInterceptor();
-        this.apiPreProcessInterceptor = new ApiPreProcessInterceptor(config.getAWSConfig());
+        this.apiPreProcessInterceptor = new ApiPreProcessInterceptor(config.getAwsConfig());
     }
 
     @Override
