@@ -72,12 +72,10 @@ public class RepositoryHelper {
         }
         int size = repo.size();
         // if the repository is a cache (size >=0) additionally check that all the values in the cache are also in the constants.
-        if (size != -1) {
-            if (size != types.length) {
-                String message = format("Exception: %s - values in cache: %s , while values in Constants are %s", entityName, size, types.length);
-                log.error("Config validation: {} - values in cache: {}, while values in Constants are {}", entityName, size, types.length);
-                throw new WebApplicationException(message);
-            }
+        if (size != -1 && size != types.length) {
+            String message = format("Exception: %s - values in cache: %s , while values in Constants are %s", entityName, size, types.length);
+            log.error("Config validation: {} - values in cache: {}, while values in Constants are {}", entityName, size, types.length);
+            throw new WebApplicationException(message);
         }
     }
 
@@ -113,12 +111,12 @@ public class RepositoryHelper {
     }
 
     public void validateEnvVars() {
-        for (Constants.EnvVar var : Constants.EnvVar.values()) {
-            if (!var.mandatory) {
+        for (Constants.EnvVar envVar : Constants.EnvVar.values()) {
+            if (!envVar.mandatory) {
                 continue;
             }
-            if(Objects.isNull(System.getenv(var.toString()))) {
-                throw new WebApplicationException("Mandatory environment variable " + var + " is not set.");
+            if(Objects.isNull(System.getenv(envVar.toString()))) {
+                throw new WebApplicationException("Mandatory environment variable " + envVar + " is not set.");
             }
         }
     }

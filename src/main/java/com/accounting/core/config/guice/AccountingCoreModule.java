@@ -10,10 +10,7 @@ import com.accounting.commons.kafka.KafkaConsumerFactory;
 import com.accounting.commons.kafka.KafkaMessageConsumer;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.kafka.KafkaProducerFactory;
-import com.accounting.commons.kafka.impl.KafkaConsumerFactoryImpl;
-import com.accounting.commons.kafka.impl.KafkaMessageConsumerImpl;
-import com.accounting.commons.kafka.impl.KafkaMessageProducerImpl;
-import com.accounting.commons.kafka.impl.KafkaProducerFactoryImpl;
+import com.accounting.commons.kafka.impl.*;
 import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
 import com.accounting.commons.repository.*;
@@ -28,6 +25,8 @@ import com.accounting.core.services.TemplateExecutionService;
 import com.accounting.core.services.TemplateExecutionServiceImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi3.JdbiFactory;
@@ -51,10 +50,10 @@ public class AccountingCoreModule extends AbstractModule {
 
     private Jdbi initJdbi(Environment environment, DataSourceFactory dataSourceFactory) {
         var factory = new JdbiFactory();
-        var jdbi = factory.build(environment, dataSourceFactory, "postgresql");
-        jdbi.installPlugin(new PostgresPlugin());
-        jdbi.installPlugin(new Gson2Plugin());
-        return jdbi;
+        var jdbiInstance = factory.build(environment, dataSourceFactory, "postgresql");
+        jdbiInstance.installPlugin(new PostgresPlugin());
+        jdbiInstance.installPlugin(new Gson2Plugin());
+        return jdbiInstance;
     }
 
     @Provides
@@ -193,9 +192,14 @@ public class AccountingCoreModule extends AbstractModule {
 
     private void configureKafka() {
         bind(KafkaProducerFactory.class).to(KafkaProducerFactoryImpl.class);
-        bind(KafkaMessageProducer.class).to(KafkaMessageProducerImpl.class);
+        bind(new TypeLiteral<KafkaMessageProducer<String, String>>(){}).to(KafkaMessageProducerImpl.class);
         bind(KafkaConsumerFactory.class).to(KafkaConsumerFactoryImpl.class);
-        bind(KafkaMessageConsumer.class).to(KafkaMessageConsumerImpl.class);
+        bind(new TypeLiteral<KafkaMessageConsumer<String>>(){})
+                .annotatedWith(Names.named("KafkaMessageConsumer"))
+                .to(KafkaMessageConsumerImpl.class);
+        bind(new TypeLiteral<KafkaMessageConsumer<String>>(){})
+                .annotatedWith(Names.named("KafkaDLQMessageConsumer"))
+                .to(KafkaDLQMessageConsumerImpl.class);
     }
 
     private void configureServices() {

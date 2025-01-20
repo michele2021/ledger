@@ -2,6 +2,7 @@ package com.accounting.core;
 
 import com.accounting.commons.infra.cache.AccountCache;
 import com.accounting.commons.kafka.KafkaMessageConsumer;
+import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.queue.MessageQueueClient;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
 import com.accounting.commons.services.SystemNotificationsService;
@@ -22,6 +23,8 @@ import com.accounting.core.swagger.SwaggerResource;
 import com.accounting.core.tasks.*;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Application;
@@ -94,11 +97,12 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         var messageProcessor = injector.getInstance(MessageProcessor.class);
         var queuesService = injector.getInstance(MessagesSkipperServiceImpl.class);
         var notificationsService = injector.getInstance(SystemNotificationsService.class);
-        var kafkaMessageConsumer = injector.getInstance(KafkaMessageConsumer.class);
+        var kafkaMessageProducer = injector.getInstance(new Key<KafkaMessageProducer<String, String>>() {});
+        var kafkaMessageConsumer = injector.getInstance(new Key<KafkaMessageConsumer<String>>(Names.named("KafkaMessageConsumer")) {});
 
         var messageQueueClient = new MessageQueueClient(
                 awsConfig.getQueueAccountingName(), awsConfig, config.getDebugToolsConfig(),
-                environment, messageProcessor, kafkaMessageConsumer, notificationsService, queuesService);
+                environment, messageProcessor, kafkaMessageProducer, kafkaMessageConsumer, notificationsService, queuesService);
 
         messageQueueClient.registerQueueProcessorTask(TasksNames.QUEUE_PROCESSOR_TASK);
         messageQueueClient.registerMessagesRecorderTask(TasksNames.MESSAGES_RECORDER_TASK);

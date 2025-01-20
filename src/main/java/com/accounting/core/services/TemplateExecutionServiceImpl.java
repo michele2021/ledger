@@ -9,6 +9,7 @@ import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
+import com.accounting.commons.utils.MappingUtils;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.entities.JournalTemplate;
@@ -44,7 +45,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", ALLOWED_TYPES) + "\"";
 
 
-    private KafkaMessageProducer kafkaMessageProducer;
+    private KafkaMessageProducer<String, String> kafkaMessageProducer;
     private final TemplateCache templateCache;
     private final AccountRepoIf accountRepo;
     private final CurrencyRepoIf currencyRepo;
@@ -56,7 +57,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     public TemplateExecutionServiceImpl(
             AWSConfig awsConfig,
             TemplateCache templateCache,
-            KafkaMessageProducer kafkaMessageProducer,
+            KafkaMessageProducer<String, String> kafkaMessageProducer,
             RepositoryHelper repositoryHelper
     ) {
         this.templateCache = templateCache;
@@ -93,7 +94,8 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                         .build());
 
         var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
-        var response = kafkaMessageProducer.sendMessage(kafkaMessage);
+        var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
+        var response = kafkaMessageProducer.send("default", "MAIN", serializedMessage);
         log.debug("Message sent: {}", response);
     }
 

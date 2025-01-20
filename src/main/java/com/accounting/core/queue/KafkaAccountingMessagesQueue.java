@@ -3,6 +3,7 @@ package com.accounting.core.queue;
 import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
+import com.accounting.commons.utils.MappingUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +12,11 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 @Slf4j
 public class KafkaAccountingMessagesQueue {
 
-    private KafkaMessageProducer kafkaMessageProducer;
+    private KafkaMessageProducer<String, String> kafkaMessageProducer;
     private final boolean isEnabled;
 
     @Inject
-    public KafkaAccountingMessagesQueue(KafkaMessageProducer kafkaMessageProducer, AWSConfig awsConfig) {
+    public KafkaAccountingMessagesQueue(KafkaMessageProducer<String, String> kafkaMessageProducer, AWSConfig awsConfig) {
         this.kafkaMessageProducer = kafkaMessageProducer;
         this.isEnabled = awsConfig.isQueueEnabled();
     }
@@ -42,7 +43,8 @@ public class KafkaAccountingMessagesQueue {
         log.info("Pushing message to the main accounting queue: {}", message);
         var kafkaMessage = KafkaMessage.builder().key("MAIN").value(message).build();
         try {
-            return kafkaMessageProducer.sendMessage(kafkaMessage);
+            var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
+            return kafkaMessageProducer.send("default", "MAIN", serializedMessage);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
