@@ -1,6 +1,5 @@
 package com.accounting.core.queue;
 
-import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;

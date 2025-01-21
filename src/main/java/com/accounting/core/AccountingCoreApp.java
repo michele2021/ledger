@@ -108,7 +108,7 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         if (kafkaConfig.isQueueReadEnabled()) {
             kafkaMessageConsumer = injector.getInstance(new Key<>(Names.named("KafkaMessageConsumer")) {});
         }
-        KafkaMessageConsumer<String> kafkaDLQMessageConsumer = null;
+        KafkaMessageConsumer<String> kafkaDLQMessageConsumer;
         if (kafkaConfig.isDlqReadEnabled()) {
             kafkaDLQMessageConsumer = injector.getInstance(new Key<>(Names.named("KafkaDLQMessageConsumer")) {});
             Objects.requireNonNull(kafkaDLQMessageConsumer);
