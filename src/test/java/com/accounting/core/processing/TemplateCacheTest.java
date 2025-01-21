@@ -45,6 +45,7 @@ class TemplateCacheTest {
 
         jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
 
+        // TODO here add new templates!!
         assertTemplate(templates.get(TOKEN_ACTIVATE), "TokenActivate", "TokenActivate.json", Constants.TxType.Token, TOKEN_ACTIVATE, List.of(Client), Constants.JournalType.Activated, true);
         assertTemplate(templates.get(TOKEN_CREATE), "TokenCreate", "TokenCreate.json", Constants.TxType.Token, TOKEN_CREATE, List.of(Client), Constants.JournalType.Created, true);
         assertTemplate(templates.get(TOKEN_CREATE_ACTIVE), "TokenCreateActive", "TokenCreateActive.json", Constants.TxType.Token, TOKEN_CREATE_ACTIVE, List.of(Client), Constants.JournalType.Activated, true);
