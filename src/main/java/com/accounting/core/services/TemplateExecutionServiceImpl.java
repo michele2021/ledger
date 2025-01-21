@@ -66,11 +66,11 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
         this.accountRepo = repositoryHelper.getAccountRepo();
         this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
-        this.isEnabled = awsConfig.isQueueEnabled();
+        this.isEnabled = kafkaConfig.isQueueWriteEnabled();
         if (isEnabled) {
             this.kafkaMessageProducer = kafkaMessageProducer;
         } else {
-            log.info("SQS queue disabled in config.");
+            log.info("Queue disabled in config.");
         }
     }
 

@@ -18,27 +18,24 @@ public class KafkaAccountingMessagesQueue {
     private final String defaultQueueTopic;
 
     @Inject
-    public KafkaAccountingMessagesQueue(KafkaMessageProducer<String, String> kafkaMessageProducer, AWSConfig awsConfig,
-                                        KafkaConfig kafkaConfig) {
+    public KafkaAccountingMessagesQueue(KafkaMessageProducer<String, String> kafkaMessageProducer, KafkaConfig kafkaConfig) {
         this.kafkaMessageProducer = kafkaMessageProducer;
-        this.isEnabled = awsConfig.isQueueEnabled();
+        this.isEnabled = kafkaConfig.isQueueWriteEnabled();
         this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
     }
 
-
-    public KafkaAccountingMessagesQueue(AWSConfig config, KafkaConfig kafkaConfig) {
+    public KafkaAccountingMessagesQueue(KafkaConfig kafkaConfig) {
+        this.isEnabled = kafkaConfig.isQueueWriteEnabled();
         this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
-        this.isEnabled = config.isQueueEnabled();
         if (isEnabled) {
-            String queueName = config.getQueueAccountingName();
-            log.info("SQS queue enabled. Accounting Messages queue name: {}", queueName);
+            log.info("Queue enabled. Messages queue name: {}", defaultQueueTopic);
         } else {
-            log.info("SQS queue disabled in config.");
+            log.info("Queue disabled in config.");
         }
     }
 
-    public static KafkaAccountingMessagesQueue of(AWSConfig config, KafkaConfig kafkaConfig) {
-        return new KafkaAccountingMessagesQueue(config, kafkaConfig);
+    public static KafkaAccountingMessagesQueue of(KafkaConfig kafkaConfig) {
+        return new KafkaAccountingMessagesQueue(kafkaConfig);
     }
 
     public RecordMetadata sendMessage(String message) {

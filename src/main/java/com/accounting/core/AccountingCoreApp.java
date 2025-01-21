@@ -32,6 +32,8 @@ import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
+
 @Slf4j
 public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
 
@@ -89,19 +91,31 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
     }
 
     private void registerMessagesQueueClient(Environment environment, Injector injector, AccountingCoreAppConfig config) {
-        var awsConfig = config.getAwsConfig();
-        if (!awsConfig.isQueueEnabled()) {
+        var kafkaConfig = config.getKafkaConfig();
+        if (!kafkaConfig.isQueueEnabled()) {
             return;
         }
         log.info("Preparing message queue client...");
         var messageProcessor = injector.getInstance(MessageProcessor.class);
         var queuesService = injector.getInstance(MessagesSkipperServiceImpl.class);
         var notificationsService = injector.getInstance(SystemNotificationsService.class);
-        var kafkaMessageProducer = injector.getInstance(new Key<KafkaMessageProducer<String, String>>() {});
-        var kafkaMessageConsumer = injector.getInstance(new Key<KafkaMessageConsumer<String>>(Names.named("KafkaMessageConsumer")) {});
+
+        KafkaMessageProducer<String, String> kafkaMessageProducer = null;
+        if (kafkaConfig.isQueueWriteEnabled() || kafkaConfig.isDlqWriteEnabled()) {
+            kafkaMessageProducer = injector.getInstance(new Key<>() {});
+        }
+        KafkaMessageConsumer<String> kafkaMessageConsumer = null;
+        if (kafkaConfig.isQueueReadEnabled()) {
+            kafkaMessageConsumer = injector.getInstance(new Key<>(Names.named("KafkaMessageConsumer")) {});
+        }
+        KafkaMessageConsumer<String> kafkaDLQMessageConsumer = null;
+        if (kafkaConfig.isDlqReadEnabled()) {
+            kafkaDLQMessageConsumer = injector.getInstance(new Key<>(Names.named("KafkaDLQMessageConsumer")) {});
+            Objects.requireNonNull(kafkaDLQMessageConsumer);
+        }
 
         var messageQueueClient = new MessageQueueClient(
-                awsConfig.getQueueAccountingName(), awsConfig, config.getDebugToolsConfig(),
+                kafkaConfig.getDefaultQueueTopic(), kafkaConfig, config.getDebugToolsConfig(),
                 environment, messageProcessor, kafkaMessageProducer, kafkaMessageConsumer, notificationsService, queuesService);
 
         messageQueueClient.registerQueueProcessorTask(TasksNames.QUEUE_PROCESSOR_TASK);

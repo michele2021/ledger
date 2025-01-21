@@ -45,7 +45,7 @@ public class AccountingCoreModule extends AbstractModule {
     public AccountingCoreModule(Environment environment, AccountingCoreAppConfig config) {
         this.config = config;
         this.jdbi = initJdbi(environment, config.getDataSourceFactory());
-        this.accountingMessagesQueue = KafkaAccountingMessagesQueue.of(config.getAwsConfig(), config.getKafkaConfig());
+        this.accountingMessagesQueue = KafkaAccountingMessagesQueue.of(config.getKafkaConfig());
         this.templateCache = new TemplateCache();
     }
 
