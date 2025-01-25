@@ -34,10 +34,4 @@ public class TestJournalTemplate {
         return templateCache.get(TOKEN_CREATE_ACTIVE);
     }
 
-    @SneakyThrows
-    public static JournalTemplate clientOrderReceived() {
-        return templateCache.get(CLIENT_ORDER_RECEIVE);
-    }
-
-
 }

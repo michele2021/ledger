@@ -46,7 +46,6 @@ class DailySalesReportsProcessorTest {
     private static final TxVariant TX_VARIANT = new TxVariant(1, "BASE");
     private static final Currency CURRENCY = new Currency(2, 1, "EUR");
     private static final TxType DSR_TX_TYPE = new TxType(9, Constants.TxType.DailySalesReport.name());
-    private static final TxType TOKEN_RECONCILIATION_TX_TYPE = new TxType(11, Constants.TxType.TokenReconciliation.name());
     private static final Account ACCOUNT = new Account(16, "DEFAULT", 7,
             Constants.AccountType.Client.name(), 15L, "EPAY", "", null, null, false, OffsetDateTime.now(), "user1");
     private static final JournalType JOURNAL_TYPE = new JournalType(14, Constants.JournalType.Matched.name());
@@ -75,7 +74,6 @@ class DailySalesReportsProcessorTest {
         when(repositoryHelper.getTxVariantRepo().get(anyString())).thenReturn(TX_VARIANT);
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(CURRENCY);
         when(repositoryHelper.getTxTypeRepo().get(Constants.TxType.DailySalesReport.name())).thenReturn(DSR_TX_TYPE);
-        when(repositoryHelper.getTxTypeRepo().get(Constants.TxType.TokenReconciliation.name())).thenReturn(TOKEN_RECONCILIATION_TX_TYPE);
 
         OffsetDateTime bookingDate = OffsetDateTime.of(TestDailySalesReportsUtils.CREATION_DATE_TIME, ZoneOffset.ofTotalSeconds(0));
         journal = Journal.builder()
@@ -123,7 +121,6 @@ class DailySalesReportsProcessorTest {
 
         when(reportsImporter.importReport(eq(TEST_REPORT_NAME), anyList())).thenReturn(report);
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(txReference)).thenReturn(parentTx);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation)).thenReturn(Collections.emptyList());
         when(repositoryHelper.getJournalDAO().getJournalByTxIdAndType(parentTxId, journalType)).thenReturn(journal);
         when(repositoryHelper.getJournalDAO().getReceivedFee(parentTxId, journalType)).thenReturn(Amount.of(feeQuantity, rowCurrencyId));
 
@@ -136,11 +133,9 @@ class DailySalesReportsProcessorTest {
 
         // then
         verify(repositoryHelper.getTxTypeRepo()).get(Constants.TxType.DailySalesReport.name());
-        verify(repositoryHelper.getTxTypeRepo()).get(Constants.TxType.TokenReconciliation.name());
         verify(repositoryHelper.getTxVariantRepo()).get(Constants.TxVariant.BASE.toString());
 
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(txReference);
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(parentTxId, journalType);
         verify(repositoryHelper.getJournalDAO()).getReceivedFee(parentTxId, journalType);
         verify(journalMaker).createJournal(any(TokenMatch.class));
@@ -354,9 +349,6 @@ class DailySalesReportsProcessorTest {
         when(txMock.getTokenType()).thenReturn(reportRow1.getProductType().getTokenType());
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(anyString())).thenReturn(txMock);
 
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation))
-                .thenReturn(List.of(mock(TxStatus.class), mock(TxStatus.class)));
-
         MismatchedToken expectedMismatchToken1 = MismatchedToken.builder()
                 .tokenTxId(txMock.getTxId())
                 .txId(expectedReportTxId)
@@ -372,7 +364,6 @@ class DailySalesReportsProcessorTest {
         // then
         verify(repositoryHelper.getJournalDAO()).createTx(any(Tx.class));
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(reportRow1.getTxReference());
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
 
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
 
@@ -418,9 +409,6 @@ class DailySalesReportsProcessorTest {
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(anyString())).thenReturn(parentTxMock);
         when(repositoryHelper.getJournalDAO().doesJournalExist(anyLong(), eq(Constants.JournalType.Matched))).thenReturn(true);
 
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation))
-                .thenReturn(Collections.singletonList(childTxMock));
-
         MismatchedToken expectedMismatchToken = MismatchedToken.builder()
                 .tokenTxId(childTxMock.getTxId())
                 .txId(expectedReportTxId)
@@ -435,7 +423,6 @@ class DailySalesReportsProcessorTest {
         // then
         verify(repositoryHelper.getJournalDAO()).createTx(any(Tx.class));
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(reportRow.getTxReference());
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).doesJournalExist(anyLong(), eq(Constants.JournalType.Matched));
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
 
@@ -481,16 +468,12 @@ class DailySalesReportsProcessorTest {
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(anyString())).thenReturn(parentTxMock);
         when(repositoryHelper.getJournalDAO().doesJournalExist(anyLong(), eq(Constants.JournalType.Matched))).thenReturn(true);
 
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation))
-                .thenReturn(Collections.singletonList(childTxMock));
-
         // when
         reportsProcessor.processReport(TEST_REPORT_NAME, true).get();
 
         // then
         verify(repositoryHelper.getJournalDAO()).createTxIfNotExists(any(Tx.class));
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(reportRow.getTxReference());
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).doesJournalExist(anyLong(), eq(Constants.JournalType.Matched));
 
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
@@ -534,8 +517,6 @@ class DailySalesReportsProcessorTest {
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(anyString())).thenReturn(parentTxMock);
         when(repositoryHelper.getJournalDAO().doesJournalExist(anyLong(), eq(Constants.JournalType.Matched))).thenReturn(false);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation))
-                .thenReturn(Collections.singletonList(childTxMock));
 
         MismatchedToken expectedMismatchToken = MismatchedToken.builder()
                 .tokenTxId(childTxMock.getTxId())
@@ -551,7 +532,6 @@ class DailySalesReportsProcessorTest {
         // then
         verify(repositoryHelper.getJournalDAO()).createTx(any(Tx.class));
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(reportRow.getTxReference());
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).doesJournalExist(anyLong(), eq(Constants.JournalType.Matched));
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
 
@@ -587,7 +567,6 @@ class DailySalesReportsProcessorTest {
         whenTxCreate(reprocessing, REPORT_TX_ID);
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(txReference)).thenReturn(parentTx);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation)).thenReturn(null);
         when(repositoryHelper.getJournalDAO().getJournalByTxIdAndType(parentTxId, reportRow.getJournalType())).thenReturn(null);
 
         MismatchedToken expectedMismatchToken = MismatchedToken.builder()
@@ -605,7 +584,6 @@ class DailySalesReportsProcessorTest {
         // then
         verifyTxCreate(reprocessing);
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(txReference);
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(parentTxId, reportRow.getJournalType());
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
 
@@ -644,7 +622,6 @@ class DailySalesReportsProcessorTest {
         journal.setBookingDate(OffsetDateTime.of(reportRow.getBookingDate().minusDays(1), ZoneOffset.ofTotalSeconds(0)));
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(txReference)).thenReturn(parentTx);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation)).thenReturn(null);
         when(repositoryHelper.getJournalDAO().getJournalByTxIdAndType(parentTxId, reportRow.getJournalType())).thenReturn(journal);
 
         MismatchedToken expectedMismatchToken = MismatchedToken.builder()
@@ -662,7 +639,6 @@ class DailySalesReportsProcessorTest {
         // then
         verifyTxCreate(reprocessing);
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(txReference);
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(parentTxId, reportRow.getJournalType());
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
 
@@ -703,7 +679,6 @@ class DailySalesReportsProcessorTest {
         assertNotEquals(txCurrencyId, rowCurrencyId);
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(txReference)).thenReturn(tx);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(txId, Constants.TxType.TokenReconciliation)).thenReturn(null);
         when(repositoryHelper.getJournalDAO().getJournalByTxIdAndType(txId, reportRow.getJournalType())).thenReturn(journal);
 
         MismatchedToken expectedMismatchToken = MismatchedToken.builder()
@@ -721,7 +696,6 @@ class DailySalesReportsProcessorTest {
         // then
         verifyTxCreate(reprocessing);
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(txReference);
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(txId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(txId, reportRow.getJournalType());
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
 
@@ -768,7 +742,6 @@ class DailySalesReportsProcessorTest {
         assertNotEquals(txTotalQuantity, rowQuantity);
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(txReference)).thenReturn(tx);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(txId, Constants.TxType.TokenReconciliation)).thenReturn(null);
         when(repositoryHelper.getJournalDAO().getJournalByTxIdAndType(txId, rowJournalType)).thenReturn(journal);
         when(repositoryHelper.getJournalDAO().getReceivedFee(txId, rowJournalType)).thenReturn(Amount.of(feeQuantity, rowCurrencyId));
 
@@ -787,7 +760,6 @@ class DailySalesReportsProcessorTest {
         // then
         verifyTxCreate(reprocessing);
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(txReference);
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(txId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(txId, rowJournalType);
         verify(repositoryHelper.getJournalDAO()).getReceivedFee(txId, rowJournalType);
         verifyNoMoreInteractions(repositoryHelper.getJournalDAO());
@@ -833,7 +805,6 @@ class DailySalesReportsProcessorTest {
         whenTxCreate(reprocessing, REPORT_TX_ID);
         when(reportsImporter.importReport(eq(TEST_REPORT_NAME), anyList())).thenReturn(report);
         when(repositoryHelper.getJournalDAO().getTxStatusByReference(txReference)).thenReturn(parentTx);
-        when(repositoryHelper.getJournalDAO().getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation)).thenReturn(null);
         when(repositoryHelper.getJournalDAO().getJournalByTxIdAndType(parentTxId, rowJournalType)).thenReturn(journal);
         when(repositoryHelper.getJournalDAO().getReceivedFee(parentTxId, rowJournalType)).thenReturn(Amount.of(feeQuantity, rowCurrencyId));
 
@@ -869,7 +840,6 @@ class DailySalesReportsProcessorTest {
         }
 
         verify(repositoryHelper.getJournalDAO()).getTxStatusByReference(txReference);
-        verify(repositoryHelper.getJournalDAO()).getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(parentTxId, rowJournalType);
         verify(repositoryHelper.getJournalDAO()).getReceivedFee(parentTxId, rowJournalType);
         verify(journalMaker).createJournal(any(TokenMatch.class));

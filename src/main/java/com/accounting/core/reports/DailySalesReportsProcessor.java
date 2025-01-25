@@ -24,7 +24,6 @@ import com.google.inject.Singleton;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -136,8 +135,7 @@ public final class DailySalesReportsProcessor {
                     continue;
                 }
                 // TODO Consider the possibility to create the TokenReconciliationTx in the TokenMatch template (leveraging the journalMaker framework)
-                Tx tokenReconciliationTx = createTokenReconciliationTx(reportRow, tx);
-                createMatchedJournal(reportTxId, reportRow, tokenReconciliationTx);
+                createMatchedJournal(reportTxId, reportRow, null);
             } catch (TokenMatchingException e) {
                 errors.add(e.getMessage());
             } catch (DsrReprocessingException ex) {
@@ -147,22 +145,6 @@ public final class DailySalesReportsProcessor {
                 errors.add(ex.getMessage());
             }
         }
-    }
-
-    private Tx createTokenReconciliationTx(DailySalesReportRow reportRow, TxStatus tx) {
-        final TxType txType = txTypeRepo.get(Constants.TxType.TokenReconciliation.name());
-        final Amount amount = Amount.of(reportRow.getGrossAmountQuantity(), reportRow.getCurrency().getCurrencyId());
-        final Tx tokenReconciliationTx = Tx.builder()
-                .parentTxId(tx.getTxId())
-                .txTypeId(txType.getTxTypeId())
-                .accountId(tx.getAccountId())
-                .amount(amount)
-                .creationDate(OffsetDateTime.now())
-                .txVariantId(tx.getTxVariantId())
-                .build();
-
-        tokenReconciliationTx.setTxId(journalDAO.createTx(tokenReconciliationTx));
-        return tokenReconciliationTx;
     }
 
     private void createMatchedJournal(long reportTxId, DailySalesReportRow reportRow, Tx tokenReconciliationTx) throws TokenMatchingException {
@@ -234,26 +216,6 @@ public final class DailySalesReportsProcessor {
             // We return without additional checks (that have already been performed when performing the previous "Activated" line)
             return;
         }
-
-        long parentTxId = tx.getTxId();
-        List<TxStatus> childTxs = journalDAO.getTokenTxByParentIdAndTxTypeId(parentTxId, Constants.TxType.TokenReconciliation);
-        if (ObjectUtils.isEmpty(childTxs)) {
-            return;
-        }
-        if (childTxs.size() != 1) {
-            handleTooManyChildTxs(reportTxId, reportRow, parentTxId);
-        }
-
-        TxStatus childTx = childTxs.get(0);
-        long childTxId = childTx.getTxId();
-        boolean tokenAlreadyMatched = journalDAO.doesJournalExist(childTxId, Constants.JournalType.Matched);
-
-        if (tokenAlreadyMatched && reprocess) {
-            handleAlreadyMatchedReprocessing(reportRow, childTxId);
-        } else if (tokenAlreadyMatched) {
-            handleAlreadyMatched(reportTxId, reportRow, childTxId);
-        }
-        handleNotMatchedButChildTxExists(reportTxId, reportRow, childTxId);
     }
 
     private void handleTooManyChildTxs(long reportTxId, DailySalesReportRow reportRow, long parentTxId) throws TokenMatchingException {

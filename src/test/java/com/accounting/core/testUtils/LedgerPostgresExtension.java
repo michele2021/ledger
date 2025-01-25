@@ -214,7 +214,7 @@ public class LedgerPostgresExtension extends JdbiExternalPostgresExtension imple
         );
 
         try {
-            Runtime.getRuntime().exec(command);
+            Runtime.getRuntime().exec(new String[] {command});
         } catch (IOException e) {
             throw new RuntimeException("Failed to run postgres in docker container!", e);
         }
