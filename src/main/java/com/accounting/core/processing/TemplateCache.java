@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -24,7 +24,7 @@ public class TemplateCache {
     public static final String FILE_INPUT_DIR_PATH = "./templates/";
     private static final String JSON_FILTER = "json";
 
-    private final Map<Message.EventType, JournalTemplate> templates = new HashMap<>();
+    private final Map<Message.EventType, JournalTemplate> templates = new EnumMap<>(Message.EventType.class);
 
     public void load() throws RuntimeException {
         File inputDir = new File(FILE_INPUT_DIR_PATH);

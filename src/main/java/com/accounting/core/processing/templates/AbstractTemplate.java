@@ -26,7 +26,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
@@ -114,10 +113,8 @@ abstract class AbstractTemplate extends JournalLinesMaker {
     }
 
     final void validateBookingDateInThePast(OffsetDateTime bookingDateTime) throws AccountingMakerException {
-        if (bookingDateTime != null) {
-            if (bookingDateTime.isAfter(OffsetDateTime.now())) {
-                throw new AccountingMakerException("Invalid message.additionalData: the 'bookingDate' cannot be in the future: " + bookingDateTime);
-            }
+        if (bookingDateTime != null && bookingDateTime.isAfter(OffsetDateTime.now())) {
+            throw new AccountingMakerException("Invalid message.additionalData: the 'bookingDate' cannot be in the future: " + bookingDateTime);
         }
     }
 
@@ -177,7 +174,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         fees = fees.stream()
                 .filter(e -> e.getAccountId() == account.getAccountId())
                 .filter(e -> e.getTxTypeId() == null || e.getTxTypeId() == txType.getTxTypeId())
-                .collect(Collectors.toList());
+                .toList();
         if (fees.isEmpty()) {
             // no fees to apply
             log.debug("No fees found to apply for journalType '{}', account '{}' and txType '{}' ", journalType.getCode(), account.getAccountCode(), txType.getCode());
