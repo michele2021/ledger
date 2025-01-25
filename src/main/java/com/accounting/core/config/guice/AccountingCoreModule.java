@@ -148,11 +148,6 @@ public class AccountingCoreModule extends AbstractModule {
     }
 
     @Provides
-    public TokenExpiryDAO provideTokenExpiryDAO() {
-        return jdbi.onDemand(TokenExpiryDAO.class);
-    }
-
-    @Provides
     public JobsDAO provideJobDAO() {
         return jdbi.onDemand(JobsDAO.class);
     }

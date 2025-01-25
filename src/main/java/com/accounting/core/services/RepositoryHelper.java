@@ -8,16 +8,18 @@ import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
 import com.accounting.commons.repository.*;
 import com.accounting.commons.repository.database.AccountDAO;
-import com.accounting.core.db.*;
+import com.accounting.core.db.AccountWriteDAO;
+import com.accounting.core.db.JournalDAO;
+import com.accounting.core.db.MismatchedTokensDAO;
 import com.accounting.core.queue.SQSAccountingBalanceQueue;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import jakarta.ws.rs.WebApplicationException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 
-import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -46,7 +48,6 @@ public class RepositoryHelper {
     private final JournalDAO journalDAO;
     private final MismatchedTokensDAO mismatchedTokensDAO;
     private final JobsDAO jobsDAO;
-    private final TokenExpiryDAO tokenExpiryDAO;
     private final SQSAccountingBalanceQueue accountingBalanceQueue;
 
     private void loadCaches() {
