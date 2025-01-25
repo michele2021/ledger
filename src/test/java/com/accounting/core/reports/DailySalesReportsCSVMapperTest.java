@@ -95,7 +95,7 @@ class DailySalesReportsCSVMapperTest {
 
     /*
      *  Valid CVS header
-     * "Product Type;Transaction Type;EAN;Serial/PAN;Terminal ID;TXID;DateTime;Gross Value;Net amount;Commission;Clevercard Transaction ID;Amount;Currency;Activating location Ref"
+     * "Product Type;Transaction Type;EAN;Serial/PAN;Terminal ID;TXID;DateTime;Gross Value;Net amount;Commission;rule30 Transaction ID;Amount;Currency;Activating location Ref"
      */
     @Test
     void testMapShouldFailIfColumnsCountNotMatch() {

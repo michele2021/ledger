@@ -184,7 +184,7 @@ public class AccountAddFundsTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType("ItalyClients1", Constants.AccountType.BankAccount.toString()))
                 .thenReturn(bankAccount);
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.CleverCards.toString(), Constants.AccountType.BusinessEntity.toString()))
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.BusinessEntity.toString()))
                 .thenReturn(ccAccount);
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankBalance.toString()))
@@ -274,7 +274,7 @@ public class AccountAddFundsTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType("ItalyClients1", Constants.AccountType.BankAccount.toString()))
                 .thenReturn(bankAccount);
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.CleverCards.toString(), Constants.AccountType.BusinessEntity.toString()))
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.BusinessEntity.toString()))
                 .thenReturn(ccAccount);
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankBalance.toString()))
@@ -365,7 +365,7 @@ public class AccountAddFundsTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType("ItalyClients1", Constants.AccountType.BankAccount.toString()))
                 .thenReturn(bankAccount);
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.CleverCards.toString(), Constants.AccountType.BusinessEntity.toString()))
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.BusinessEntity.toString()))
                 .thenReturn(ccAccount);
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankBalance.toString()))

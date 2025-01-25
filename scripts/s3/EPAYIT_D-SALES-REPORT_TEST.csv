@@ -1,2 +1,2 @@
-Product Type;Transaction Type;EAN;Serial/PAN;Terminal ID;TXID;DateTime;Gross Value;Net amount;Commission;Clevercard Transaction ID;Amount;Currency;Activating location Ref
+Product Type;Transaction Type;EAN;Serial/PAN;Terminal ID;TXID;DateTime;Gross Value;Net amount;Commission;Rule30 Transaction ID;Amount;Currency;Activating location Ref
 PIN;A;8055348523904;19566866518540;IT000002;1654067107;2022-07-27 09:05:07;53.00;50.00;3.00;"fe592da6-9dff-4a8b-a090-db09c9db8362";50.00;"EUR";"90357IT000002"

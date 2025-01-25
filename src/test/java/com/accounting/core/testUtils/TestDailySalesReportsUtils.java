@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class TestDailySalesReportsUtils {
 
     public static final String REPORT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    public static final String CSV_HEADER = "Product Type;Transaction Type;EAN;Serial/PAN;Terminal ID;TXID;DateTime;Gross Value;Net amount;Commission;Clevercard Transaction ID;Amount;Currency;Activating location Ref";
+    public static final String CSV_HEADER = "Product Type;Transaction Type;EAN;Serial/PAN;Terminal ID;TXID;DateTime;Gross Value;Net amount;Commission;Rule30 Transaction ID;Amount;Currency;Activating location Ref";
 
     public static final ProductType PRODUCT_TYPE = ProductType.POSA;
     public static final String EAN = "EAN(International Article Number)";

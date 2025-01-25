@@ -20,7 +20,7 @@ def getMavenSettingsCredentials = {
 def getS3Credentials = { credentials ->
     def entries = getMavenSettingsCredentials()
     for (entry in entries) {
-        if ( entry."id".text() == "maven.cleverbug.com" ) {
+        if ( entry."id".text() == "maven.rule30.com" ) {
             credentials.setAccessKey(entry.username.text())
             credentials.setSecretKey(entry.password.text())
             return
@@ -32,11 +32,11 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        url "s3://maven.cleverbug.com/release"
+        url "s3://maven.rule30.com/release"
         credentials(AwsCredentials, getS3Credentials)
     }
     maven {
-        url "s3://maven.cleverbug.com/snapshot"
+        url "s3://maven.rule30.com/snapshot"
         credentials(AwsCredentials, getS3Credentials)
     }
     maven { url "https://plugins.gradle.org/m2/" }
@@ -70,11 +70,11 @@ publishing {
     repositories {
         maven {
             /*if (project.version.endsWith('-SNAPSHOT')) {
-                url "s3://maven.cleverbug.com/snapshot"
+                url "s3://maven.rule30.com/snapshot"
             } else {
-                url "s3://maven.cleverbug.com/release"
+                url "s3://maven.rule30.com/release"
             }*/
-            url "s3://maven.cleverbug.com/release"
+            url "s3://maven.rule30.com/release"
             credentials(AwsCredentials, getS3Credentials)
         }
     }

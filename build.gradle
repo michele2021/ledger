@@ -29,7 +29,7 @@ def getMavenSettingsCredentials = {
 /*def getS3Credentials = { credentials ->
     def entries = getMavenSettingsCredentials()
     for (entry in entries) {
-        if (entry.'id'.text() == 'maven.cleverbug.com') {
+        if (entry.'id'.text() == 'maven.rule30.com') {
             credentials.setAccessKey(entry.username.text())
             credentials.setSecretKey(entry.password.text())
             return
