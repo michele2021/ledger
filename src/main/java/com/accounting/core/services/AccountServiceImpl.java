@@ -72,7 +72,7 @@ public class AccountServiceImpl implements AccountService {
             accountProperties = accountDTO.getAccountProperties()
                     .stream()
                     .map(e -> AccountProperty.builder().code(e.getName()).value(e.getValue()).build())
-                    .collect(Collectors.toList());
+                    .toList();
         }
         account = Account.builder()
                 .accountCode(accountDTO.getAccountCode())

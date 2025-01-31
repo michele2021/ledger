@@ -55,7 +55,7 @@ final class DailySalesReportsImporter {
                     .skip(DailySalesReportsCSVMapper.HEADER_ROWS_NUMBER)
                     .map(line -> mapReportRow(line, rowCounter.getAndIncrement(), errorsList))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (dailySalesReportRows.isEmpty() && rowCounter.get() == 1) {
                 errorsList.add(format("Error - csv file '%s' contains only header row.", fullReportName));
