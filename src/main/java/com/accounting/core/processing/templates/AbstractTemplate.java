@@ -36,7 +36,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
 
     @Getter
     protected final JournalType journalType;
-    protected String txReference;
+    protected final String txReference;
     protected Amount amount;
     protected final TxType txType;
     protected final Account account;

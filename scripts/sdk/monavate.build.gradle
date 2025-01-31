@@ -10,7 +10,7 @@ group = 'com.accounting.core'
 version = '1.22.2'
 
 def getMavenSettingsCredentials = {
-    String userHome = System.getProperty( "user.home" );
+    String userHome = System.getProperty( "user.home" )
     File mavenSettings = new File(userHome, ".m2/settings.xml")
     def xmlSlurper = new XmlSlurper()
     def output = xmlSlurper.parse(mavenSettings)

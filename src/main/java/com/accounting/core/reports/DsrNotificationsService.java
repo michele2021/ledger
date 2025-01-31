@@ -4,7 +4,6 @@ import com.accounting.commons.conf.DebugToolsConfig;
 import com.accounting.commons.conf.SystemConfig;
 import com.accounting.commons.services.NotificationService;
 import com.accounting.commons.services.SystemNotificationsService;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,7 @@ class DsrNotificationsService {
     void sendReportErrorWhenCreatingDSRTxNotification(String reportName) {
         sendToSns(() -> {
             log.info("DSR Error when creating the Daily Sales Report Tx. Publishing message to sns topic.");
-            Map<String, Object> message = ImmutableMap.of(
+            Map<String, Object> message = Map.of(
                     "status", "Error creating DSR Tx.",
                     "timestamp", TIMESTAMP_FORMATTER.format(LocalDateTime.now(UTC)),
                     "environment", environment,
@@ -49,7 +48,7 @@ class DsrNotificationsService {
     void sendReportFileNotFoundNotification(String partialReportName) {
         sendToSns(() -> {
             log.info("DSR file not found. Publishing message to sns topic.");
-            Map<String, Object> message = ImmutableMap.of(
+            Map<String, Object> message = Map.of(
                     "status", "DSR file not found.",
                     "timestamp", TIMESTAMP_FORMATTER.format(LocalDateTime.now(UTC)),
                     "environment", environment,
@@ -62,7 +61,7 @@ class DsrNotificationsService {
     void sendReportProcessedWithErrorsNotification(List<String> errors, String fullReportName) {
         sendToSns(() -> {
             log.info("Daily Sales Report processing ended with errors. Publishing message to sns topic.");
-            Map<String, Object> message = ImmutableMap.of(
+            Map<String, Object> message = Map.of(
                     "status", "Processing DSR file ended with errors.",
                     "timestamp", TIMESTAMP_FORMATTER.format(LocalDateTime.now(UTC)),
                     "environment", environment,
