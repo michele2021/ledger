@@ -1,9 +1,9 @@
 # ledger
 
 ### Requirements:
-+ Java 11
-+ Gradle 7.1.1
-+ Postgres 13 
++ Java 21
++ Gradle 8.12.1
++ Postgres 17.2
 + Docker and Docker-Compose
 + Terraform 1.1.8
 
@@ -24,6 +24,7 @@
   > * `PG_PORT`
   > * `ACC_DB_USERNAME`
   > * `ACC_DB_PASSWORD`
+  > * `ACC_OWNER_DB_PASSWORD`
 
 * Amazon AWS:
   > * `AWS_REGION`
@@ -36,10 +37,6 @@
   > * `AWS_SNS_SYSTEM_NOTIFICATIONS_ARN` (default - `arn:aws:sns:$AWS_REGION:000000000000:ledger-system-notifications-$ENVIRONMENT`)
   > * `AWS_SNS_FINANCIAL_NOTIFICATIONS_ARN` (default - `arn:aws:sns:$AWS_REGION:000000000000:ledger-financial-notifications-$ENVIRONMENT`)
   > * `AWS_ENDPOINT` (optional - `overrides the default AWS communication endpoint`)
-
-* Monavate Integration:
-  > * `MONAVATE_API_KEY`
-  > * `MONAVATE_URL`
 
 * Cognito:
   > * `COGNITO_KEY_N1`
