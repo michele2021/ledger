@@ -129,7 +129,7 @@ public class TokenCreateActive extends AbstractTemplate {
 
         // Debit/Credit 1
         addDebitLine(journalId, journalLines, Constants.RegisterType.TokenActivated, accountId, amount);
-        addCreditLine(journalId, journalLines, Constants.RegisterType.PhysicalTokenPurchases, accountId, amount);
+        addCreditLine(journalId, journalLines, Constants.RegisterType.Clearing, accountId, amount); // was physical token purchase
 
         // check if there is any fee to process associated with this journal.
         FeeTier feeTier = getFeeTier();

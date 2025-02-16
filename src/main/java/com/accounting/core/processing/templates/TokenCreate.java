@@ -112,7 +112,7 @@ public class TokenCreate extends AbstractTemplate {
 
         // Debit/Credit 1
         addDebitLine(journalId, journalLines, Constants.RegisterType.TokenCreated, accountId, amount);
-        addCreditLine(journalId, journalLines, Constants.RegisterType.PhysicalTokenPurchases, accountId, amount);
+        addCreditLine(journalId, journalLines, Constants.RegisterType.Clearing, accountId, amount); // was physical token purchase
 
         return journalLines;
     }

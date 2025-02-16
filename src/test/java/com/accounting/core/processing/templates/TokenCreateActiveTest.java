@@ -304,7 +304,7 @@ class TokenCreateActiveTest {
         when(issuerAccount.getAccountId()).thenReturn(issuerAccountId);
 
         when(repositoryHelper.getRegisterTypeRepo().get("TokenActivated")).thenReturn(RegisterType.builder().registerTypeId(registerTypeTokenActivatedId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get("PhysicalTokenPurchases")).thenReturn(RegisterType.builder().registerTypeId(registerTypePhysicalTokenPurchasesId).build());
+        when(repositoryHelper.getRegisterTypeRepo().get("Clearing")).thenReturn(RegisterType.builder().registerTypeId(registerTypePhysicalTokenPurchasesId).build());
         when(repositoryHelper.getRegisterTypeRepo().get("OpenBalance")).thenReturn(RegisterType.builder().registerTypeId(registerTypeOpenBalanceId).build());
         when(repositoryHelper.getRegisterTypeRepo().get("TokenReceivable")).thenReturn(RegisterType.builder().registerTypeId(registerTypeTokenReceivableId).build());
         when(repositoryHelper.getRegisterTypeRepo().get("IssuerPrefundAccount")).thenReturn(RegisterType.builder().registerTypeId(registerTypeIssuerPrefundAccountId).build());
