@@ -1,6 +1,5 @@
 package com.accounting.core.processing;
 
-import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.core.db.JournalDAO;
 import com.accounting.core.entities.*;
@@ -10,10 +9,7 @@ import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -22,8 +18,6 @@ import static java.lang.String.format;
 public class JournalMaker {
 
     private final JournalDAO dao;
-    private final LocalDate now = LocalDate.now();
-    private final LocalDate PERIOD_BEGIN_DEFAULT = LocalDate.of(now.getYear(), now.getMonth(), 1);
 
     @Inject
     public JournalMaker(JournalDAO dao) {
@@ -37,7 +31,7 @@ public class JournalMaker {
      */
     public JournalDb createJournal(JournalTemplateIf journalTemplateImpl) throws AccountingMakerException {
 
-        JournalType journalType = journalTemplateImpl.getJournalType();
+        var journalType = journalTemplateImpl.getJournalType();
         int journalTypeId = journalType.getJournalTypeId();
         boolean isTestAccount = journalTemplateImpl.isTestAccount();
 
@@ -45,40 +39,56 @@ public class JournalMaker {
 
         // Journal lines, initially created with a fictitious journalId in order to allow validation as a first step
         // (to avoid creating a journal in the db if the validation fails)
-        List<JournalLine> journalLines = journalTemplateImpl.buildJournalLines(1);
+        var journalLines = journalTemplateImpl.buildJournalLines(1);
         validateJL(journalLines);
 
         // journal
         long journalId = dao.createJournalAt(journalTypeId, journalTemplateImpl.getJournalBookingDate());
 
         // tx (create a new tx or add a journal to an existing one)
-        long txId;
-        if (journalTemplateImpl.addNewTx()) {
+        boolean addNewTx = journalTemplateImpl.addNewTx();
+        boolean addSpecializedTx = journalTemplateImpl.addSpecializedTx();
+        var linkedTxId = journalTemplateImpl.linkTx();
+
+        if(addSpecializedTx && !addNewTx) {
+            throw new AccountingMakerException("A specialized tx can only be added if there is a new tx");
+        }
+        if (!addNewTx) {
+            // TODO this should probably be catched and throw an AccountingMakerException
+            Objects.requireNonNull(linkedTxId,
+                    "txId cannot be null. Either a new tx is created or a reference to an existing one is added.");
+        }
+
+        long mainTxId = 0;
+        if (addNewTx) {
             Tx tx = journalTemplateImpl.buildTx();
-            txId = dao.createTx(tx);
+            mainTxId = dao.createTx(tx);
         } else {
-            txId = journalTemplateImpl.getTxId();
             journalTemplateImpl.updateSpecializedTx();
         }
-        if (journalTemplateImpl.addSpecializedTx()) {
-            List<SpecializedTx> specializedTxs = journalTemplateImpl.buildSpecializedTxs(txId);
+        if (addSpecializedTx) {
+            List<SpecializedTx> specializedTxs = journalTemplateImpl.buildSpecializedTxs(mainTxId);
             for(SpecializedTx specializedTx : specializedTxs) {
+                // TODO consider using pattern matching: "if (specializedTx instanceof Order order)"
                 if (specializedTx.isOrder()) {
                     // Order, strictly speaking, is not a specialized Tx, since no corresponding tx is created/linked.
                     // TODO possibly rename SpecializedTx to something else, since a corresponding tx is no longer always required.
                     dao.createOrder((Order) specializedTx);
                 } else if (specializedTx.isCCToken()) {
                     dao.createTokenTx((CCToken) specializedTx);
-                }  else if (specializedTx.isCard()) {
+                } else if (specializedTx.isCard()) {
                     dao.createCardTx((Card) specializedTx);
-                }else {
-                    throw new AccountingMakerException(format("Specialized Tx is of an unrecognized type, for txId: %s", txId));
+                } else {
+                    throw new AccountingMakerException(format("Specialized Tx is of an unrecognized type, for txId: %s", mainTxId));
                 }
             }
         }
 
         // journalTx
-        dao.createJournalTx(journalId, txId);
+        dao.createJournalTx(journalId, mainTxId);
+        if (linkedTxId != null) {
+            dao.createJournalTx(journalId, linkedTxId);
+        }
 
         // journalLines
         journalLines.forEach(jl -> jl.setJournalId(journalId));
@@ -86,16 +96,17 @@ public class JournalMaker {
 
         return JournalDb.builder()
                 .journalId(journalId)
-                .txId(txId)
+                .txId(mainTxId)
                 .build();
     }
 
     private long createBatch(int registerTypeId, long accountId) {
-        Batch batch = Batch.builder()
+        var periodBeginDate = LocalDate.now().withDayOfMonth(1);
+        var batch = Batch.builder()
                 .accountId(accountId)
                 .registerTypeId(registerTypeId)
                 .batchNumber(1) // TODO temp hardcoded
-                .periodBeginDate(PERIOD_BEGIN_DEFAULT)
+                .periodBeginDate(periodBeginDate)
                 .build();
 
         return dao.createBatch(batch);
@@ -106,7 +117,7 @@ public class JournalMaker {
     }
 
     public long getOrCreateAvailableBatch(int registerTypeId, long accountId) {
-        Batch batch = getAvailableBatch(registerTypeId, accountId);
+        var batch = getAvailableBatch(registerTypeId, accountId);
         long batchId;
         if (batch == null) {
             batchId = createBatch(registerTypeId, accountId);

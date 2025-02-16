@@ -35,7 +35,7 @@ public class BankPayment extends AbstractTemplate {
                        QueueMessage message,
                        RepositoryHelper repositoryHelper) throws AccountingMakerException {
         // message.getUuid() is the requestId coming from Monavate
-        super(txType, account, message.getUuid(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
+        super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         validateAndGetAdditionalData();
     }
 

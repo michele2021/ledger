@@ -86,7 +86,7 @@ class JournalMakerTest {
 
         when(tokenMatch.buildJournalLines(journalId)).thenReturn(expectedJournalLines);
         when(tokenMatch.getJournalType()).thenReturn(journalType);
-        when(tokenMatch.getTxId()).thenReturn(txId);
+        when(tokenMatch.linkTx()).thenReturn(txId);
         when(journalDAO.createJournalAt(anyInt(), any())).thenReturn(journalId);
 
         when(tokenMatch.addNewTx()).thenReturn(false);
@@ -103,7 +103,7 @@ class JournalMakerTest {
         verify(journalDAO, times(0)).createOrder(any(Order.class));
         verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
 
-        verify(tokenMatch).getTxId();
+        verify(tokenMatch).linkTx();
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).updateSpecializedTx();
 
@@ -160,7 +160,7 @@ class JournalMakerTest {
 
         when(tokenMatch.buildJournalLines(1L)).thenReturn(expectedJournalLines);
         when(tokenMatch.getJournalType()).thenReturn(journalType);
-        when(tokenMatch.getTxId()).thenReturn(txId);
+        when(tokenMatch.linkTx()).thenReturn(txId);
         when(tokenMatch.getJournalBookingDate()).thenReturn(bookingDate);
         when(journalDAO.createJournalAt(anyInt(), any(OffsetDateTime.class))).thenReturn(journalId);
 
@@ -178,7 +178,7 @@ class JournalMakerTest {
         verify(journalDAO, times(0)).createOrder(any(Order.class));
         verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
 
-        verify(tokenMatch).getTxId();
+        verify(tokenMatch).linkTx();
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).updateSpecializedTx();
 

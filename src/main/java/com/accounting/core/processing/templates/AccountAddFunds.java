@@ -44,7 +44,7 @@ public class AccountAddFunds extends AbstractTemplate {
                            TxType txType,
                            QueueMessage message,
                            RepositoryHelper repositoryHelper) throws AccountingMakerException {
-        super(txType, account, message.getUuid(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
+        super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         throwExceptionIf(amount.getQuantity() <= 0, "The amount should be greater than zero, but was " + Constants.fromMU(amount));
         bankAccountCode = getAdditionalData(Message.AdditionalData.bankAccountCode).getAsString();
         currencyId = amount.getCurrencyId();

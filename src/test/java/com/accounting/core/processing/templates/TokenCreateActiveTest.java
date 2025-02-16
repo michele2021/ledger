@@ -65,15 +65,15 @@ class TokenCreateActiveTest {
 
     @BeforeEach
     void init() {
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
     }
 
     @Test
     void shouldConstructorValidateIfNoIssuer() {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(null);
 
         //when
@@ -89,7 +89,7 @@ class TokenCreateActiveTest {
     @Test
     void shouldFailToCreateWithoutUUID() {
         //given
-        when(message.getUuid()).thenReturn(null);
+        when(message.uuid()).thenReturn(null);
 
 
         //when
@@ -107,9 +107,9 @@ class TokenCreateActiveTest {
     @Test
     void shouldProcessOK() throws Exception {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         TokenCreateActive subject = new TokenCreateActive(
@@ -129,9 +129,9 @@ class TokenCreateActiveTest {
     @Test
     void shouldCreateNewTx() throws Exception {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         TokenCreateActive subject = new TokenCreateActive(
@@ -146,9 +146,9 @@ class TokenCreateActiveTest {
     @Test
     void shouldNotUpdateSpecializedTx() throws Exception {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         TokenCreateActive subject = new TokenCreateActive(
@@ -166,12 +166,12 @@ class TokenCreateActiveTest {
     @Test
     void shouldBuildTx() throws Exception {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         when(account.getAccountId()).thenReturn(4587L);
         when(txType.getTxTypeId()).thenReturn(345);
 
@@ -206,7 +206,7 @@ class TokenCreateActiveTest {
         //given
         long txId = 34234L;
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
 
         JsonObject additionalData = new Gson().fromJson("{ " +
                 "\"publishableId\" : \"4587458\"," +
@@ -219,7 +219,7 @@ class TokenCreateActiveTest {
                 "\"activationTimezone\" : \"Europe/Warsaw\"," +
                 "\"activationTimestamp\" : \"2021-12-15T11:38:32Z\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         OffsetDateTime expectedActivationTimestamp = OffsetDateTime.ofInstant(Instant.parse("2021-12-15T11:38:32Z"), ZoneId.of("Europe/Warsaw"));
@@ -286,7 +286,7 @@ class TokenCreateActiveTest {
         final long registerTypeFeeBatch1Id = registerTypeFeeId * 100;
         final long registerTypeFeeBatch2Id = registerTypeFeeId * 100 + 10;
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         when(journalType.getJournalTypeId()).thenReturn(journalTypeId);
         when(txType.getTxTypeId()).thenReturn(txTypeId);
 
@@ -297,7 +297,7 @@ class TokenCreateActiveTest {
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
 
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\" }", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         when(account.getAccountId()).thenReturn(accountId);
@@ -395,7 +395,7 @@ class TokenCreateActiveTest {
         final long registerTypeIssuerPrefundAccountBatchId = registerTypeIssuerPrefundAccountId * 100;
         final long registerTypeCardsPayablePendingBatchId = registerTypeCardsPayablePendingId * 100;
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         when(journalType.getJournalTypeId()).thenReturn(journalTypeId);
 
         when(amount.getQuantity()).thenReturn(1000L);
@@ -405,7 +405,7 @@ class TokenCreateActiveTest {
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
 
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\" }", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         when(account.getAccountId()).thenReturn(accountId);
@@ -478,8 +478,8 @@ class TokenCreateActiveTest {
                 "\"expiryDate\" : \"2023-12-15\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
-        when(message.getUuid()).thenReturn("uuid1");
+        when(message.additionalData()).thenReturn(additionalData);
+        when(message.uuid()).thenReturn("uuid1");
         TxVariant txv = new TxVariant();
         txv.setTxVariantCode("BASE");
         txv.setTxVariantId(1);
@@ -509,8 +509,8 @@ class TokenCreateActiveTest {
                 "\"expiryDate\" : \"2023-12-15\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
-        when(message.getUuid()).thenReturn("uuid1");
+        when(message.additionalData()).thenReturn(additionalData);
+        when(message.uuid()).thenReturn("uuid1");
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         // when

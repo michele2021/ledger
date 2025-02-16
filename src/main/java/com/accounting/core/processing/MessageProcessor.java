@@ -68,8 +68,8 @@ public class MessageProcessor implements MessageProcessorIf {
 
     private JournalTemplate validateMessage(QueueMessage message) throws AccountingEventException {
         // N.B. Throws Illegal Argument Exception if enum not found.
-        Message.Source.valueOf(message.getSource());
-        Message.EventType type = Message.EventType.valueOf(message.getType());
+        Message.Source.valueOf(message.source());
+        Message.EventType type = Message.EventType.valueOf(message.type());
         return templateCache.get(type);
     }
 
@@ -89,13 +89,13 @@ public class MessageProcessor implements MessageProcessorIf {
             return;
         }
 
-        if (isNull(message.getAdditionalData())) {
+        if (isNull(message.additionalData())) {
             throw new AccountingTemplateException("No additionalData found in message.");
         }
 
         try {
             Set<ValidationMessage> errors = jsonSchemaFactory.getSchema(schemaContent)
-                    .validate(OBJECT_MAPPER.readTree(message.getAdditionalData().toString()));
+                    .validate(OBJECT_MAPPER.readTree(message.additionalData().toString()));
             if (!errors.isEmpty()) {
                 throw new AccountingTemplateException("Invalid message.additionalData:\n" + errors.stream()
                         .map(ValidationMessage::getMessage)
@@ -119,7 +119,7 @@ public class MessageProcessor implements MessageProcessorIf {
     // The account in the message can be switched to the corresponding "test" account (if there is the "test" field in additionalData)
     private Account validateAndGetAccount(QueueMessage message, JournalTemplate journalTemplate) throws AccountingTemplateException {
         // validate account (mandatory)
-        String accountCode = message.getAccountCode();
+        String accountCode = message.accountCode();
         throwExceptionIfNull(accountCode, "Missing mandatory field 'accountCode' in queue message.");
 
         List<Constants.AccountType> accountTypes = journalTemplate.getAccountTypes();
@@ -134,7 +134,7 @@ public class MessageProcessor implements MessageProcessorIf {
 
     private Amount validateAmount(QueueMessage message) throws AccountingTemplateException {
         // validate amount (optional)
-        Amount amount = message.getAmount();
+        Amount amount = message.amount();
         if (amount != null) {
             String currencyCode = amount.getCurrencyCode();
             throwExceptionIfNull(currencyCode, "Currency code not specified!");

@@ -36,8 +36,8 @@ public class TokenCreate extends AbstractTemplate {
                        QueueMessage message,
                        RepositoryHelper repositoryHelper) throws AccountingMakerException {
         // message.getUuid() is the "cardTokenId", unique identifier of the card token.
-        super(txType, account, message.getUuid(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
-        throwExceptionIfNull(message.getUuid(), "UUID is mandatory for TOKEN_CREATE");
+        super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
+        throwExceptionIfNull(message.uuid(), "UUID is mandatory for TOKEN_CREATE");
         pubId = getPublishableIdAdditionalData(account);
         bookingDateTime = getAdditionalData(bookingDate, this::toOffsetDateTime);
         validateBookingDateInThePast(bookingDateTime);

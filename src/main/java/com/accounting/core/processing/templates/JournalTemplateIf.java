@@ -28,20 +28,20 @@ public interface JournalTemplateIf {
         return true;
     }
 
+    default Long linkTx() {
+        return null;
+    }
+
     default Tx buildTx() {
-        throw new UnsupportedOperationException("Operation not supported for the current template");
+        throw new UnsupportedOperationException("Operation buildTx not supported for the current template");
     }
 
     default List<SpecializedTx> buildSpecializedTxs(long txId) throws AccountingMakerException {
-        throw new UnsupportedOperationException("Operation not supported for the current template");
+        throw new UnsupportedOperationException("Operation buildSpecializedTxs not supported for the current template");
     }
 
     default void updateSpecializedTx() throws AccountingMakerException {
         // nothing to do
-    }
-
-    default long getTxId() {
-        throw new UnsupportedOperationException("Operation not supported for the current template");
     }
 
     default boolean addSpecializedTx() {

@@ -36,8 +36,8 @@ public class TokenCreateActive extends AbstractTemplate {
                              QueueMessage message,
                              RepositoryHelper repositoryHelper) throws AccountingMakerException {
         // message.getUuid() is the "cardTokenId", unique identifier of the card token.
-        super(txType, account, message.getUuid(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
-        throwExceptionIfNull(message.getUuid(), "UUID is mandatory for TOKEN_CREATE_ACTIVE");
+        super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
+        throwExceptionIfNull(message.uuid(), "UUID is mandatory for TOKEN_CREATE_ACTIVE");
         // throws exception if not found
         issuerAccount = getIssuerAccount();
         pubId = getPublishableIdAdditionalData(account);

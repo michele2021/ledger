@@ -57,15 +57,15 @@ class TokenCreateTest {
 
     @BeforeEach
     void init() {
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
     }
 
     @Test
     void shouldFailToCreateWithoutUUID() {
         //given
-        when(message.getUuid()).thenReturn(null);
+        when(message.uuid()).thenReturn(null);
         JsonObject additionalData = new Gson().fromJson("{}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         //when
         AccountingMakerException exception = assertThrows(AccountingMakerException.class,
@@ -81,9 +81,9 @@ class TokenCreateTest {
     @Test
     void shouldProcessOK() throws Exception {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         TokenCreate subject = new TokenCreate(
                 journalMaker, account, amount,
@@ -101,9 +101,9 @@ class TokenCreateTest {
     @Test
     void shouldCreateNewTx() throws AccountingMakerException {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         TokenCreate subject = new TokenCreate(
                 journalMaker, account, amount,
@@ -117,9 +117,9 @@ class TokenCreateTest {
     @Test
     void shouldNotUpdateSpecializedTx() throws Exception {
         //given
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         TokenCreate subject = new TokenCreate(
                 journalMaker, account, amount,
@@ -137,7 +137,7 @@ class TokenCreateTest {
     void shouldBuildTx() throws AccountingMakerException {
         //given
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         when(account.getAccountId()).thenReturn(4587L);
         when(txType.getTxTypeId()).thenReturn(345);
 
@@ -154,7 +154,7 @@ class TokenCreateTest {
                 .build();
 
         JsonObject additionalData = new Gson().fromJson("{}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         TokenCreate subject = new TokenCreate(
                 journalMaker, account, amount,
@@ -175,7 +175,7 @@ class TokenCreateTest {
         //given
         long txId = 34234L;
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
 
         JsonObject additionalData = new Gson().fromJson("{ " +
                 "\"publishableId\" : \"4587458\"," +
@@ -184,7 +184,7 @@ class TokenCreateTest {
                 "\"orderRef\" : \"OrderRef1\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         SpecializedTx expectedTokenResult = CCToken.builder()
                 .txId(txId)
@@ -228,9 +228,9 @@ class TokenCreateTest {
         final long registerTypeTokenCreatedBatchId = registerTypeTokenCreatedId * 100;
         final long registerTypePhysicalTokenPurchasesBatchId = registerTypePhysicalTokenPurchasesId * 100;
 
-        when(message.getUuid()).thenReturn("TxReference");
+        when(message.uuid()).thenReturn("TxReference");
         JsonObject additionalData = new Gson().fromJson("{}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         when(amount.getQuantity()).thenReturn(1000L);
         when(amount.getCurrencyId()).thenReturn(currencyId);
@@ -281,8 +281,8 @@ class TokenCreateTest {
                 "\"bookingDate\" : \"" + bookingDateAsString + "\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
-        when(message.getUuid()).thenReturn("uuid1");
+        when(message.additionalData()).thenReturn(additionalData);
+        when(message.uuid()).thenReturn("uuid1");
         TxVariant txv = new TxVariant();
         txv.setTxVariantCode("BASE");
         txv.setTxVariantId(1);
@@ -309,8 +309,8 @@ class TokenCreateTest {
                 "\"bookingDate\" : \"2028-12-30T11:00:00.00Z\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
-        when(message.getUuid()).thenReturn("uuid1");
+        when(message.additionalData()).thenReturn(additionalData);
+        when(message.uuid()).thenReturn("uuid1");
 
         // when
         AccountingMakerException exception = assertThrows(AccountingMakerException.class,

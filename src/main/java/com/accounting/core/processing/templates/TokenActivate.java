@@ -41,7 +41,7 @@ public class TokenActivate extends AbstractTemplate {
                          QueueMessage message,
                          RepositoryHelper repositoryHelper) throws AccountingTemplateException, AccountingMakerException {
         // message.getTxReference() is the "cardTokenId".
-        super(txType, account, message.getTxReference(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
+        super(txType, account, message.txReference(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         validateIfTxReferencePresent();
         bookingDateTime = getAdditionalData(bookingDate, this::toOffsetDateTime);
         validateBookingDateInThePast(bookingDateTime);
@@ -72,7 +72,7 @@ public class TokenActivate extends AbstractTemplate {
     }
 
     @Override
-    public long getTxId() {
+    public Long linkTx() {
         return oriTx.getTxId();
     }
 

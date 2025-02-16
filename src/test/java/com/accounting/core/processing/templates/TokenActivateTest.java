@@ -64,13 +64,13 @@ class TokenActivateTest {
 
     @BeforeEach
     void init() {
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
     }
 
     @Test
     void shouldConstructorValidateIfTxReferencePresent() {
         //given
-        when(message.getTxReference()).thenReturn(null);
+        when(message.txReference()).thenReturn(null);
 
         //when
         AccountingTemplateException exception = assertThrows(AccountingTemplateException.class, () -> new TokenActivate(
@@ -85,7 +85,7 @@ class TokenActivateTest {
     @Test
     void shouldProcessOK() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
         when(txStatus.getJournalTypeCode()).thenReturn(Constants.JournalType.Created.toString());
@@ -93,7 +93,7 @@ class TokenActivateTest {
         when(txStatus.getTxId()).thenReturn(123456L);
 
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
 
@@ -111,13 +111,13 @@ class TokenActivateTest {
         verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("issuer"), eq(Constants.AccountType.Issuer.toString()));
         verify(journalMaker).createJournal(same(subject));
 
-        assertThat(subject.getTxId()).isEqualTo(123456L);
+        assertThat(subject.linkTx()).isEqualTo(123456L);
     }
 
     @Test
     void shouldProcessFailIfReferenceIsNotFound() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(null);
 
@@ -137,7 +137,7 @@ class TokenActivateTest {
     @Test
     void shouldProcessFailForActivatedJournelType() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
         when(txStatus.getJournalTypeCode()).thenReturn(Constants.JournalType.Activated.toString());
@@ -159,7 +159,7 @@ class TokenActivateTest {
     @Test
     void shouldProcessFailForAnyOtherThanCreatedJournalType() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
         when(txStatus.getJournalTypeCode()).thenReturn(Constants.JournalType.Cancelled.toString());
@@ -180,7 +180,7 @@ class TokenActivateTest {
     @Test
     void shouldProcessFailForInvalidAmount() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
         when(txStatus.getJournalTypeCode()).thenReturn(Constants.JournalType.Created.toString());
@@ -202,14 +202,14 @@ class TokenActivateTest {
     @Test
     void shouldProcessFailIfIssuerAccountNotFound() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
         when(txStatus.getJournalTypeCode()).thenReturn(Constants.JournalType.Created.toString());
         when(txStatus.getAmount()).thenReturn(amount);
 
         JsonObject additionalData = new Gson().fromJson("{ \"issuer\" : \"issuer\"}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(null);
 
 
@@ -229,7 +229,7 @@ class TokenActivateTest {
     @Test
     void shouldNotCreateNewTx() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
         TokenActivate subject = new TokenActivate(
                 journalMaker, account, amount,
                 journalType, txType, message, repositoryHelper
@@ -242,7 +242,7 @@ class TokenActivateTest {
     @Test
     void shouldUpdateSpecializedTx() throws Exception {
         //given
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
 
         when(repositoryHelper.getJournalDAO().getTxStatusByReferenceAndAccountId(anyString(), anyLong())).thenReturn(txStatus);
         when(txStatus.getJournalTypeCode()).thenReturn(Constants.JournalType.Created.toString());
@@ -256,7 +256,7 @@ class TokenActivateTest {
                 "\"activationTimezone\" : \"Europe/Warsaw\"," +
                 "\"activationTimestamp\" : \"2021-12-15T11:38:32Z\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         OffsetDateTime expectedActivationTimestamp = OffsetDateTime.ofInstant(Instant.parse("2021-12-15T11:38:32Z"), ZoneId.of("Europe/Warsaw"));
@@ -314,7 +314,7 @@ class TokenActivateTest {
         final long registerTypeFeeBatch1Id = registerTypeFeeId * 100;
         final long registerTypeFeeBatch2Id = registerTypeFeeId * 100 + 10;
 
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
         when(journalType.getJournalTypeId()).thenReturn(journalTypeId);
         when(txType.getTxTypeId()).thenReturn(txTypeId);
 
@@ -333,7 +333,7 @@ class TokenActivateTest {
                 "\"activationTimezone\" : \"Europe/Warsaw\"," +
                 "\"activationTimestamp\" : \"2021-12-15T11:38:32Z\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         when(account.getAccountId()).thenReturn(accountId);
@@ -431,7 +431,7 @@ class TokenActivateTest {
         final long registerTypeIssuerPrefundAccountBatchId = registerTypeIssuerPrefundAccountId * 100;
         final long registerTypeCardsPayablePendingBatchId = registerTypeCardsPayablePendingId * 100;
 
-        when(message.getTxReference()).thenReturn("TxReference");
+        when(message.txReference()).thenReturn("TxReference");
         when(journalType.getJournalTypeId()).thenReturn(journalTypeId);
 
         when(amount.getQuantity()).thenReturn(1000L);
@@ -448,7 +448,7 @@ class TokenActivateTest {
                 "\"activationTimezone\" : \"Europe/Warsaw\"," +
                 "\"activationTimestamp\" : \"2021-12-15T11:38:32Z\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), anyString())).thenReturn(issuerAccount);
 
         when(account.getAccountId()).thenReturn(accountId);
@@ -516,8 +516,8 @@ class TokenActivateTest {
                 "\"bookingDate\" : \"" + bookingDateAsString + "\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
-        when(message.getTxReference()).thenReturn("txRef1");
+        when(message.additionalData()).thenReturn(additionalData);
+        when(message.txReference()).thenReturn("txRef1");
         TxVariant txv = new TxVariant();
         txv.setTxVariantCode("BASE");
         txv.setTxVariantId(1);
@@ -542,8 +542,8 @@ class TokenActivateTest {
                 "\"bookingDate\" : \"2028-12-30T11:00:00.00Z\"," +
                 "\"activatingLocationRef\" : \"POS-LOC2\"" +
                 "}", JsonObject.class);
-        when(message.getAdditionalData()).thenReturn(additionalData);
-        when(message.getTxReference()).thenReturn("txRef1");
+        when(message.additionalData()).thenReturn(additionalData);
+        when(message.txReference()).thenReturn("txRef1");
 
         // when
         AccountingMakerException exception = assertThrows(AccountingMakerException.class,

@@ -36,7 +36,7 @@ public class TokenDeactivate extends AbstractTemplate {
                            QueueMessage message,
                            RepositoryHelper repositoryHelper) throws AccountingTemplateException {
         // message.getTxReference() is the "cardTokenId".
-        super(txType, account, message.getTxReference(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
+        super(txType, account, message.txReference(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         validateIfTxReferencePresent();
     }
 
@@ -107,7 +107,7 @@ public class TokenDeactivate extends AbstractTemplate {
     }
 
     @Override
-    public long getTxId() {
+    public Long linkTx() {
         return oriTx.getTxId();
     }
 }

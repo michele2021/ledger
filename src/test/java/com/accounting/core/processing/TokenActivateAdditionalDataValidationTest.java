@@ -47,8 +47,7 @@ class TokenActivateAdditionalDataValidationTest {
     @Test
     public void shouldFailIfNoAdditionalData() {
         //given
-        QueueMessage message = TestQueueMessage.tokenActivate();
-        message.setAdditionalData(null);
+        QueueMessage message = TestQueueMessage.tokenActivate(false);
         JournalTemplate journalTemplate = TestJournalTemplate.tokenActivate();
 
         //when

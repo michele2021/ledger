@@ -53,7 +53,7 @@ public class TokenMatch extends JournalLinesMaker {
     }
 
     @Override
-    public long getTxId() {
+    public Long linkTx() {
         return tokenReconciliationTx.getTxId();
     }
 

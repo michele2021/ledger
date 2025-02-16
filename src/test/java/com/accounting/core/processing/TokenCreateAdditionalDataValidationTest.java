@@ -42,8 +42,7 @@ class TokenCreateAdditionalDataValidationTest {
     @Test
     public void shouldFailIfNoAdditionalData() {
         //given
-        QueueMessage message = TestQueueMessage.tokenCreate();
-        message.setAdditionalData(null);
+        QueueMessage message = TestQueueMessage.tokenCreate(false);
         JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
 
         //when

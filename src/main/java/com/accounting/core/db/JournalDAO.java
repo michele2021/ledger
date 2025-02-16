@@ -107,7 +107,9 @@ public interface JournalDAO {
     @SqlQuery("select txId from tx where txReference = :txReference")
     Long getTxIdByReference(String txReference);
 
-    @SqlQuery("select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate from tx where txReference = :txReference")
+    @SqlQuery("select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate " +
+            "    from tx " +
+            "   where txReference = :txReference")
     @RegisterBeanMapper(Tx.class)
     Tx getTxByReference(String txReference);
 

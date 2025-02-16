@@ -30,7 +30,7 @@ public class OrderReceived extends AbstractTemplate {
                                TxType txType,
                                QueueMessage message,
                                RepositoryHelper repositoryHelper) throws AccountingTemplateException {
-        super(txType, account, message.getTxReference(), journalType, journalMaker, amount, message.getAdditionalData(), repositoryHelper);
+        super(txType, account, message.txReference(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         validateIfTxReferencePresent();
     }
 

@@ -64,7 +64,7 @@ public class AccountAddFundsCorrectionTest {
 
         when(amount.getQuantity()).thenReturn(-300L);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         //when
         AccountingMakerException exception = assertThrows(AccountingMakerException.class, () ->
@@ -96,7 +96,7 @@ public class AccountAddFundsCorrectionTest {
         //given
         when(amount.getQuantity()).thenReturn(300L);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
 
         //when
         AccountingMakerException exception = assertThrows(AccountingMakerException.class, () ->
@@ -126,7 +126,7 @@ public class AccountAddFundsCorrectionTest {
 
     private void shouldProcessOkInternal(JsonObject additionalData) throws AccountingMakerException {
         //given
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
         when(amount.getCurrencyId()).thenReturn(currencyId);
         when(amount.getQuantity()).thenReturn(1000L);
@@ -146,7 +146,7 @@ public class AccountAddFundsCorrectionTest {
         JsonObject additionalData = new Gson().fromJson("{ \"bankAccountCode\" : \"ItalyClients1\" }", JsonObject.class);
 
         //given
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
         when(amount.getCurrencyId()).thenReturn(currencyId);
         when(amount.getQuantity()).thenReturn(1000L);
@@ -178,7 +178,7 @@ public class AccountAddFundsCorrectionTest {
         final long registerTypeOpenBalanceBatchId = registerTypeOpenBalanceId * 100;
         final long registerTypePrefundGLBatchId = registerTypePrefundGLId * 100;
 
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
         when(amount.getCurrencyId()).thenReturn(currencyId);
         when(amount.getQuantity()).thenReturn(1000L);
@@ -256,7 +256,7 @@ public class AccountAddFundsCorrectionTest {
         final long fee = 10000L;
         final long vat = 2200L;
 
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
         when(amount.getCurrencyId()).thenReturn(currencyId);
         when(amount.getQuantity()).thenReturn(qty);
@@ -347,7 +347,7 @@ public class AccountAddFundsCorrectionTest {
         final long qty = 100000L;
         final long discount = 10000L;
 
-        when(message.getAdditionalData()).thenReturn(additionalData);
+        when(message.additionalData()).thenReturn(additionalData);
         when(amount.getCurrencyCode()).thenReturn(currencyCode);
         when(amount.getCurrencyId()).thenReturn(currencyId);
         when(amount.getQuantity()).thenReturn(qty);
