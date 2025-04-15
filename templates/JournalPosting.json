@@ -1,0 +1,54 @@
+{
+  "class": "JournalPost",
+  "eventType": "JOURNAL_POST",
+  "accountTypes": [
+    "Client"
+  ],
+  "journalType": "Manual",
+  "txType": "Manual",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "JournalPosting",
+    "type": "object",
+    "required": [
+      "bookingDate",
+      "journalLines"
+    ],
+    "properties": {
+      "bookingDate": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "description": {
+        "type": "string"
+      },
+      "journalLines": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "registerType",
+            "entryType",
+            "amount",
+            "currency"
+          ],
+          "properties": {
+            "registerType": {
+              "type": "string"
+            },
+            "entryType": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

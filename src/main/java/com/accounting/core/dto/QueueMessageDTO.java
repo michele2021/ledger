@@ -36,5 +36,4 @@ public class QueueMessageDTO {
 
     @Schema(description = "Timestamp, used only to circumvent SQS deduplication.", hidden = true)
     Long timestamp;
-
 }

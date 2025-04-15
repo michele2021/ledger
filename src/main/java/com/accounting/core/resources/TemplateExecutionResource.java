@@ -3,6 +3,7 @@ package com.accounting.core.resources;
 import com.accounting.commons.SystemConstants;
 import com.accounting.commons.resources.security.ApiKeyAuth;
 import com.accounting.commons.resources.security.PreProcess;
+import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.services.TemplateExecutionService;
 import com.accounting.core.swagger.ApiBadRequestResponse;
@@ -17,10 +18,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -33,7 +31,7 @@ import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;
 
 @Slf4j
 @Singleton
-@Path("/accounting/template")
+@Path("/accounting")
 @ApiDefaultResponses
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 @Tag(name = "TemplateExecutionResource", description = "Controller responsible for templates execution.")
@@ -97,9 +95,67 @@ public class TemplateExecutionResource {
                             @ExampleObject(name="CLIENT_FEE_PAYOUT", description = "Client fee payout", value = CLIENT_FEE_PAYOUT_EXAMPLE)
                     }
             ))
-    public Response executeTemplate(@Context HttpHeaders headers, @NotNull QueueMessageDTO message) {
+    public Response execute(@Context HttpHeaders headers, @NotNull QueueMessageDTO message) {
         templateExecutionService.executeTemplate(message);
         return Response.ok().build();
     }
+
+    @POST
+    @ApiKeyAuth
+    @PreProcess(role = SystemConstants.UserRole.SUPER_USER)
+    @Path("companies/{companyId}/journals")
+    @Operation(summary = "Post a custom journal")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiBadRequestResponse
+    @ApiResponse(
+            responseCode = HTTP_STATUS_OK,
+            description = OK_STATUS_DESCRIPTION,
+            content = @Content(mediaType = MediaType.TEXT_PLAIN)
+    )
+    @RequestBody(
+            description = "Journal data",
+            required = true,
+            content = @Content(
+                    schema = @Schema(implementation = JournalPostingDTO.class),
+                    mediaType = MediaType.APPLICATION_JSON,
+                    examples = {
+                            @ExampleObject(
+                                    name = "Journal Posting Example",
+                                    value = """
+                                            {
+                                              "bookingDate": "2023-11-15",
+                                              "journalLines": [
+                                                {
+                                                  "registerTypeCode": "BANK",
+                                                  "lineType": "DEBIT",
+                                                  "amount": 500.00,
+                                                  "currencyCode": "EUR"
+                                                },
+                                                {
+                                                  "registerTypeCode": "REVENUE",
+                                                  "lineType": "CREDIT",
+                                                  "amount": 500.00,
+                                                  "currencyCode": "EUR"
+                                                }
+                                              ]
+                                            }"""
+                            )
+                    }
+            ))
+    public Response postJournal(@Context HttpHeaders headers, @PathParam("companyId") int companyId, @NotNull JournalPostingDTO journalPosting) {
+        try {
+            templateExecutionService.postJournal(companyId, journalPosting);
+            return Response.ok()
+                    .entity("Journal successfully posted")
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing journal posting", e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Error processing journal: " + e.getMessage())
+                    .build();
+        }
+    }
+
 
 }

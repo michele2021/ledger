@@ -11,6 +11,7 @@ import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
 import com.accounting.commons.utils.MappingUtils;
+import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.entities.JournalTemplate;
@@ -74,10 +75,22 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         }
     }
 
-
+    @Override
     public void executeTemplate(QueueMessageDTO message) {
         log.debug("executeTemplate(): Start: {}", message);
         validate(message);
+        try {
+            sendMessageToQueue(message);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to send message to SQS", e);
+            throw new WebApplicationException("Failed to send message to SQS", e);
+        }
+        log.debug("executeTemplate(): Success");
+    }
+
+    @Override
+    public void postJournal(int companyId, JournalPostingDTO message) {
+        log.debug("Post a custom journal: Start: {}", message);
         try {
             sendMessageToQueue(message);
         } catch (JsonProcessingException e) {
@@ -95,6 +108,20 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         var m = OBJECT_MAPPER.writeValueAsString(message.toBuilder()
                         .timestamp(System.currentTimeMillis())
                         .build());
+
+        var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
+        var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
+        var response = kafkaMessageProducer.send(defaultQueueTopic, "MAIN", serializedMessage);
+        log.debug("Message sent: {}", response);
+    }
+
+    private void sendMessageToQueue(JournalPostingDTO message) throws JsonProcessingException {
+        if (!isEnabled) {
+            return;
+        }
+        log.debug("Message to send: {}", message);
+        var m = OBJECT_MAPPER.writeValueAsString(message.toBuilder()
+                .build());
 
         var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
         var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
@@ -138,48 +165,47 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         if (Objects.isNull(message)) {
             throw validationError(null, "No message");
         }
-        JournalTemplate journalTemplate = validateType(message);
-        validateSource(message);
-        validateAccount(message, journalTemplate);
+        JournalTemplate journalTemplate = validateType(message.getType());
+        validateSource(message.getSource());
+        validateAccount(message.getAccountCode(), journalTemplate.getAccountTypes());
         validateAmount(message);
 
         validateUuid(message);
         validateTxReference(message);
         validateAdditionalData(message, journalTemplate);
-
     }
 
-    private JournalTemplate validateType(QueueMessageDTO message) {
-        if (!ALLOWED_TYPES.contains(message.getType())) {
+    private JournalTemplate validateType(String type) {
+        if (!ALLOWED_TYPES.contains(type)) {
             throw validationError("type", "Field value must be one of (" + ALLOWED_TYPES_STRING + ").");
         }
         try {
-            return templateCache.get(Message.EventType.valueOf(message.getType()));
+            return templateCache.get(Message.EventType.valueOf(type));
         } catch (Exception e) {
-            throw new WebApplicationException(String.format("Template for %s not found!", message.getType()));
+            throw new WebApplicationException(String.format("Template for %s not found!", type));
         }
     }
 
-    private void validateSource(QueueMessageDTO message) {
-        if (!Message.Source.FRONT_END_APP.toString().equals(message.getSource())) {
+    private void validateSource(String source) {
+        if (!Message.Source.FRONT_END_APP.toString().equals(source)) {
             throw validationError("source", "Field value must be \"FRONT_END_APP\".");
         }
     }
 
-    private void validateAccount(QueueMessageDTO message, JournalTemplate journalTemplate) {
+    private void validateAccount(String accountCode, List<Constants.AccountType> accountTypes) {
         // validate account (mandatory)
-        validateIsNotEmpty("accountCode", message.getAccountCode());
+        validateIsNotEmpty("accountCode", accountCode);
 
         Account account = null;
-        for(Constants.AccountType accountType : journalTemplate.getAccountTypes()) {
-            String accountTypeCode = accountType.toString();
-            account = accountRepo.getByCodeAndType(message.getAccountCode(), accountTypeCode);
+        for(Constants.AccountType accountType : accountTypes) {
+            var accountTypeCode = accountType.toString();
+            account = accountRepo.getByCodeAndType(accountCode, accountTypeCode);
             if (nonNull(account)) {
                 break;
             }
         }
         if (Objects.isNull(account)) {
-            throw validationError("accountCode", format("Account not recognized: %s/%s", message.getAccountCode(), journalTemplate.getAccountTypes()));
+            throw validationError("accountCode", format("Account not recognized: %s/%s", accountCode, accountTypes));
         }
     }
 
