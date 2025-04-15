@@ -23,12 +23,12 @@ public class PaymentReceived extends AbstractTemplate {
     private final String oriTxReference;
 
     public PaymentReceived(JournalMaker journalMaker,
-                         Account account,
-                         Amount amount,
-                         JournalType journalType,
-                         TxType txType,
-                         QueueMessage message,
-                         RepositoryHelper repositoryHelper) throws AccountingTemplateException {
+                           Account account,
+                           Amount amount,
+                           JournalType journalType,
+                           TxType txType,
+                           QueueMessage message,
+                           RepositoryHelper repositoryHelper) throws AccountingMakerException, AccountingTemplateException {
         super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         this.oriTxReference = message.txReference();
         validateIfTxReferencePresent();
@@ -39,7 +39,7 @@ public class PaymentReceived extends AbstractTemplate {
         oriTx = journalDAO.getTxByReference(oriTxReference);
         throwExceptionIfNull(oriTx, format("Tx not found with oriTxReference '%s'.", oriTxReference));
 
-        journalMaker.createJournal( this);
+        journalMaker.createJournal(this);
     }
 
     @Override

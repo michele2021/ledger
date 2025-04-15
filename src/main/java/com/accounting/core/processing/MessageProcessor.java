@@ -131,7 +131,6 @@ public class MessageProcessor implements MessageProcessorIf {
         return account;
     }
 
-
     private Amount validateAmount(QueueMessage message) throws AccountingTemplateException {
         // validate amount (optional)
         Amount amount = message.amount();
