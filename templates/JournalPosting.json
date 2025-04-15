@@ -2,7 +2,7 @@
   "class": "JournalPost",
   "eventType": "JOURNAL_POST",
   "accountTypes": [
-    "Client"
+    "Company"
   ],
   "journalType": "Manual",
   "txType": "Manual",
@@ -29,7 +29,7 @@
           "type": "object",
           "required": [
             "registerType",
-            "entryType",
+            "lineType",
             "amount",
             "currency"
           ],
@@ -37,7 +37,7 @@
             "registerType": {
               "type": "string"
             },
-            "entryType": {
+            "lineType": {
               "type": "string"
             },
             "amount": {

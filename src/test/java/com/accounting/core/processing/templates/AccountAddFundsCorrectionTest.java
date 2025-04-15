@@ -185,7 +185,7 @@ public class AccountAddFundsCorrectionTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType("ItalyClients1", Constants.AccountType.BankAccount.toString()))
                 .thenReturn(bankAccount);
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.BusinessEntity.toString()))
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.Company.toString()))
                 .thenReturn(ccAccount);
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankBalance.toString()))
@@ -263,7 +263,7 @@ public class AccountAddFundsCorrectionTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType("ItalyClients1", Constants.AccountType.BankAccount.toString()))
                 .thenReturn(bankAccount);
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.BusinessEntity.toString()))
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.Company.toString()))
                 .thenReturn(ccAccount);
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankBalance.toString()))
@@ -354,7 +354,7 @@ public class AccountAddFundsCorrectionTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType("ItalyClients1", Constants.AccountType.BankAccount.toString()))
                 .thenReturn(bankAccount);
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.BusinessEntity.toString()))
+        when(repositoryHelper.getAccountRepo().getByCodeAndType(Constants.BusinessEntityAccount.rule30.toString(), Constants.AccountType.Company.toString()))
                 .thenReturn(ccAccount);
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankBalance.toString()))

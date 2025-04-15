@@ -58,7 +58,7 @@ public class JournalPost extends AbstractTemplate {
         for (var jl : journal.journalLines()) {
             var currency = currencyRepoIf.get(jl.currency().name());
             var amount = Amount.of(Constants.toMinorUnits(jl.currency(), jl.amount()), currency.getCurrencyId());
-            if (jl.entryType() == Constants.LineType.DEBIT) {
+            if (jl.lineType() == Constants.LineType.DEBIT) {
                 addDebitLine(journalId, journalLines, jl.registerType(), account.getAccountId(), amount);
             } else {
                 addCreditLine(journalId, journalLines, jl.registerType(), account.getAccountId(), amount);

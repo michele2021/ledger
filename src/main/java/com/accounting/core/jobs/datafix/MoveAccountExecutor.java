@@ -120,7 +120,7 @@ public class MoveAccountExecutor {
                     } else {
                         newAccountIdJL = newIssuerAccountId;
                     }
-                } else if (Constants.AccountType.BusinessEntity.toString().equals(accountTypeCode) || Constants.AccountType.BankAccount.toString().equals(accountTypeCode)) {
+                } else if (Constants.AccountType.Company.toString().equals(accountTypeCode) || Constants.AccountType.BankAccount.toString().equals(accountTypeCode)) {
                     Account testAccount = accountRepo.getByCodeAndType(accountCode + "_TEST", accountTypeCode);
                     if (isNull(testAccount)) {
                         throw new JobProcessingException("Corresponding _TEST account not found, while processing journal line: " + line.getJournalLineId() + ". Account: " + accountCode + " accountTypeCode: " + accountTypeCode);

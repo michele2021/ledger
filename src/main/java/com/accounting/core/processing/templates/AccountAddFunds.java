@@ -97,7 +97,7 @@ public class AccountAddFunds extends AbstractTemplate {
         long bankAccountId = bankAccount.getAccountId();
 
         String ccAccountCode = Constants.BusinessEntityAccount.rule30.toString();
-        Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.BusinessEntity.toString());
+        Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.Company.toString());
         throwExceptionIfNull(ccAccount, "Business Entity not found for account code: " + ccAccount);
         assert ccAccount != null;
         long ccAccountId = ccAccount.getAccountId();
@@ -134,7 +134,7 @@ public class AccountAddFunds extends AbstractTemplate {
         long bankAccountId = bankAccount.getAccountId();
 
         String ccAccountCode = Constants.BusinessEntityAccount.rule30.toString();
-        Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.BusinessEntity.toString());
+        Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.Company.toString());
         throwExceptionIfNull(ccAccount, "Business Entity not found for account code: " + ccAccount);
         assert ccAccount != null;
         long ccAccountId = ccAccount.getAccountId();

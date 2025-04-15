@@ -27,9 +27,11 @@ import jakarta.ws.rs.WebApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,7 +59,6 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
     @Inject
     public TemplateExecutionServiceImpl(
-            AWSConfig awsConfig,
             KafkaConfig kafkaConfig,
             TemplateCache templateCache,
             KafkaMessageProducer<String, String> kafkaMessageProducer,
@@ -89,15 +90,37 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     @Override
-    public void postJournal(int companyId, JournalPostingDTO message) {
-        log.debug("Post a custom journal: Start: {}", message);
+    public void postJournal(int companyId, JsonNode journalJson) {
+        log.debug("postJournal(): Start: {}", journalJson);
+        var account = validateAccountAndGet(companyId);
+        var message = prepareMessage(account, journalJson);
         try {
             sendMessageToQueue(message);
         } catch (JsonProcessingException e) {
             log.error("Failed to send message to SQS", e);
             throw new WebApplicationException("Failed to send message to SQS", e);
         }
-        log.debug("executeTemplate(): Success");
+        log.debug("postJournal(): Success");
+    }
+
+    private QueueMessageDTO prepareMessage(Account account, JsonNode journalInfo) {
+        var timestamp = System.currentTimeMillis();
+        var uuid = UUID.randomUUID().toString();
+        var amount = QueueMessageAmountDTO
+                .builder()
+                .quantity(BigDecimal.ZERO)
+                .currencyCode(Constants.Currencies.EUR.toString())
+                .build();
+        return QueueMessageDTO.builder()
+                .timestamp(timestamp)
+                .accountCode(account.getAccountCode())
+                .txReference(null)
+                .additionalData(journalInfo)
+                .uuid(uuid)
+                .amount(amount)
+                .source(Message.Source.FRONT_END_APP.toString())
+                .type(Message.EventType.JOURNAL_POST.toString())
+                .build();
     }
 
     private void sendMessageToQueue(QueueMessageDTO message) throws JsonProcessingException {
@@ -114,21 +137,6 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         var response = kafkaMessageProducer.send(defaultQueueTopic, "MAIN", serializedMessage);
         log.debug("Message sent: {}", response);
     }
-
-    private void sendMessageToQueue(JournalPostingDTO message) throws JsonProcessingException {
-        if (!isEnabled) {
-            return;
-        }
-        log.debug("Message to send: {}", message);
-        var m = OBJECT_MAPPER.writeValueAsString(message.toBuilder()
-                .build());
-
-        var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
-        var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
-        var response = kafkaMessageProducer.send(defaultQueueTopic, "MAIN", serializedMessage);
-        log.debug("Message sent: {}", response);
-    }
-
 
     private WebValidationException validationError(String fieldName, String validationMessage) {
         StringBuilder sb = new StringBuilder();
@@ -204,9 +212,20 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                 break;
             }
         }
-        if (Objects.isNull(account)) {
+        if (account == null) {
             throw validationError("accountCode", format("Account not recognized: %s/%s", accountCode, accountTypes));
         }
+    }
+
+    private Account validateAccountAndGet(long accountId) {
+        var account = accountRepo.get(accountId);
+        if (account == null) {
+            throw validationError("accountId", format("Account with id %s does not exists.", accountId));
+        }
+        if(!account.isCompany()) {
+            throw validationError("accountId", format("Account with id %s is not a company.", accountId));
+        }
+        return account;
     }
 
     private void validateAmount(QueueMessageDTO message) {

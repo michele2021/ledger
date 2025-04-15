@@ -8,6 +8,7 @@ import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.services.TemplateExecutionService;
 import com.accounting.core.swagger.ApiBadRequestResponse;
 import com.accounting.core.swagger.ApiDefaultResponses;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.swagger.v3.oas.annotations.Operation;
@@ -143,9 +144,9 @@ public class TemplateExecutionResource {
                             )
                     }
             ))
-    public Response postJournal(@Context HttpHeaders headers, @PathParam("companyId") int companyId, @NotNull JournalPostingDTO journalPosting) {
+    public Response postJournal(@Context HttpHeaders headers, @PathParam("companyId") int companyId, @NotNull JsonNode journalJson) {
         try {
-            templateExecutionService.postJournal(companyId, journalPosting);
+            templateExecutionService.postJournal(companyId, journalJson);
             return Response.ok()
                     .entity("Journal successfully posted")
                     .build();
