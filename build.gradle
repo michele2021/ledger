@@ -64,8 +64,7 @@ project.ext {
 }
 
 dependencies {
-    // TODO no longer compatible with more recent dropwizrd?
-    implementation 'in.vectorpro.dropwizard:dropwizard-swagger:2.0.28-3'
+    implementation 'com.smoketurner:dropwizard-swagger:4.0.5-1'
     implementation "com.accounting.commons:service-commons:${service_commons_version}"
 
     implementation "io.dropwizard:dropwizard-core:${dropwizard_version}"

@@ -2,8 +2,9 @@ package com.accounting.core.swagger;
 
 import com.accounting.commons.CCHTTPHeaders;
 import com.accounting.core.config.AccountingCoreAppConfig;
-import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.dropwizard.core.setup.Bootstrap;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -31,16 +32,15 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
 
     public static void addSwaggerBundle(Bootstrap<AccountingCoreAppConfig> bootstrap) {
         if (!PRODUCTION_ENV.equalsIgnoreCase(CURRENT_ENVIRONMENT)) {
-            // TODO temporarily removed due to incompatibility
-//            var swaggerBundle = new SwaggerBundle<AccountingCoreAppConfig>() {
-//                @Override
-//                protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AccountingCoreAppConfig configuration) {
-//                    SwaggerConfig swaggerConfig = configuration.swaggerConfig;
-//                    swaggerConfig.setUriPrefix(SWAGGER_URI_PREFIX);
-//                    return swaggerConfig;
-//                }
-//            };
-//            bootstrap.addBundle(swaggerBundle);
+            var swaggerBundle = new SwaggerBundle<AccountingCoreAppConfig>() {
+                @Override
+                protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AccountingCoreAppConfig configuration) {
+                    SwaggerConfig swaggerConfig = configuration.getSwaggerConfig();
+                    swaggerConfig.setUriPrefix(SWAGGER_URI_PREFIX);
+                    return swaggerConfig;
+                }
+            };
+            bootstrap.addBundle(swaggerBundle);
         }
     }
 
