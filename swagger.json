@@ -1,0 +1,635 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Ledger",
+    "description" : "Ledger execution API.",
+    "contact" : {
+      "name" : "Ledger",
+      "url" : "https://example.com",
+      "email" : "help@example.com"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Local development environment"
+  }, {
+    "url" : "https://ledger-gateway.ledger.link/ledger",
+    "description" : "Integration environment"
+  }, {
+    "url" : "https://ledger-gateway.ledger.works/ledger",
+    "description" : "Staging environment"
+  } ],
+  "security" : [ {
+    "API_KEY" : [ ],
+    "JWT_TOKEN" : [ ]
+  } ],
+  "tags" : [ {
+    "name" : "QueueAdminResource",
+    "description" : "Controller responsible for queue health check."
+  }, {
+    "name" : "AccountResource",
+    "description" : "Controller responsible for account (write) operations."
+  }, {
+    "name" : "AccountingQueuesResource",
+    "description" : "Controller responsible for queue messages management."
+  }, {
+    "name" : "TemplateExecutionResource",
+    "description" : "Controller responsible for templates execution."
+  } ],
+  "paths" : {
+    "/queue/health" : {
+      "get" : {
+        "tags" : [ "QueueAdminResource" ],
+        "summary" : "Check the queue status.",
+        "operationId" : "health",
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "application/json" : { }
+            }
+          }
+        },
+        "servers" : [ {
+          "url" : "https://ledger-gateway.ledger.works/ledger-admin/admin",
+          "description" : "Staging environment"
+        }, {
+          "url" : "https://ledger-gateway.ledger.link/ledger-admin/admin",
+          "description" : "Integration environment"
+        } ]
+      }
+    },
+    "/accounting/account/create" : {
+      "post" : {
+        "tags" : [ "AccountResource" ],
+        "summary" : "Create an account.",
+        "operationId" : "create",
+        "requestBody" : {
+          "description" : "Creation of an account. Optionally add account properties and client details. Optionally create a corresponding test account. Optionally request the opening of a corresponding Virtual Iban (with Monavate).",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AccountDTO"
+              },
+              "examples" : {
+                "DEFAULT" : {
+                  "description" : "Creation of DEFAULT Distributor account",
+                  "value" : {
+                    "accountCode" : "DEFAULT",
+                    "accountTypeCode" : "Client",
+                    "description" : "https://www.default.it/"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/amqueue/{messageId}/skip" : {
+      "post" : {
+        "tags" : [ "AccountingQueuesResource" ],
+        "summary" : "Skip message in the AMQ. MessageId should be passed as path param.",
+        "operationId" : "skipAMQMessage",
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/queue/skip/{messageId}/entry" : {
+      "put" : {
+        "tags" : [ "AccountingQueuesResource" ],
+        "summary" : "Skip message in SQS. MessageId should be passed as path param.",
+        "operationId" : "skipMessage",
+        "parameters" : [ {
+          "name" : "messageId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 409,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/execute" : {
+      "post" : {
+        "tags" : [ "TemplateExecutionResource" ],
+        "summary" : "Execute template. JSON should be passed as body.",
+        "operationId" : "execute",
+        "requestBody" : {
+          "description" : "Ledger JSON message to forward to the processing queue.",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/QueueMessageDTO"
+              },
+              "examples" : {
+                "PAYMENT_RECEIVED" : {
+                  "description" : "Client payment received",
+                  "value" : {
+                    "type" : "PAYMENT_RECEIVED",
+                    "accountCode" : "DEFAULT",
+                    "amount" : {
+                      "quantity" : 150.0,
+                      "currencyCode" : "EUR"
+                    },
+                    "additionalData" : {
+                      "bankAccountCode" : "ItalyClients1",
+                      "discountAmount" : 10,
+                      "description" : "Payment from DEFAULT, discount applied"
+                    },
+                    "source" : "FRONT_END_APP"
+                  }
+                },
+                "PAYMENT_RECEIVED_CORRECTION" : {
+                  "description" : "Posts a reverse journal of PAYMENT_RECEIVED",
+                  "value" : {
+                    "type" : "PAYMENT_RECEIVED_CORRECTION",
+                    "accountCode" : "DEFAULT",
+                    "amount" : {
+                      "quantity" : 150.0,
+                      "currencyCode" : "EUR"
+                    },
+                    "additionalData" : {
+                      "bankAccountCode" : "ItalyClients1",
+                      "discountAmount" : 10,
+                      "description" : "Correction previous erroneous posting."
+                    },
+                    "source" : "FRONT_END_APP"
+                  }
+                },
+                "CLIENT_FEE_PAYOUT" : {
+                  "description" : "Client fee payout",
+                  "value" : {
+                    "type" : "CLIENT_FEE_PAYOUT",
+                    "accountCode" : "DEFAULT",
+                    "amount" : {
+                      "quantity" : 150.0,
+                      "currencyCode" : "EUR"
+                    },
+                    "source" : "FRONT_END_APP"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounting/companies/{companyId}/journals" : {
+      "post" : {
+        "tags" : [ "TemplateExecutionResource" ],
+        "summary" : "Post a custom journal",
+        "operationId" : "postJournal",
+        "parameters" : [ {
+          "name" : "companyId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Journal data",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JournalPostingDTO"
+              },
+              "examples" : {
+                "Journal Posting Example" : {
+                  "description" : "Journal Posting Example",
+                  "value" : {
+                    "bookingDate" : "2023-11-15",
+                    "journalLines" : [ {
+                      "registerTypeCode" : "BANK",
+                      "lineType" : "DEBIT",
+                      "amount" : 500.0,
+                      "currencyCode" : "EUR"
+                    }, {
+                      "registerTypeCode" : "REVENUE",
+                      "lineType" : "CREDIT",
+                      "amount" : 500.0,
+                      "currencyCode" : "EUR"
+                    } ]
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "AccountDTO" : {
+        "required" : [ "accountCode", "accountTypeCode", "description" ],
+        "type" : "object",
+        "properties" : {
+          "accountCode" : {
+            "type" : "string",
+            "description" : "Account code (alphanumeric)"
+          },
+          "accountTypeCode" : {
+            "type" : "string",
+            "description" : "Account type code",
+            "enum" : [ "Client", "Company", "BankAccount", "Issuer", "VirtualIban" ]
+          },
+          "parentAccountCode" : {
+            "type" : "string",
+            "description" : "Parent account code"
+          },
+          "parentAccountTypeCode" : {
+            "type" : "string",
+            "description" : "Parent account type code",
+            "enum" : [ "Client", "Company", "BankAccount", "Issuer", "VirtualIban" ]
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Account description"
+          },
+          "accountProperties" : {
+            "type" : "array",
+            "description" : "Account properties",
+            "items" : {
+              "$ref" : "#/components/schemas/AccountPropertyDTO"
+            }
+          },
+          "clientDetails" : {
+            "$ref" : "#/components/schemas/ClientDetailsDTO"
+          },
+          "testAccount" : {
+            "type" : "boolean",
+            "description" : "Is this account a test account"
+          },
+          "createTestAccount" : {
+            "type" : "boolean",
+            "description" : "Create also a corresponding _TEST account (only if this account is not a test account)"
+          },
+          "userName" : {
+            "type" : "string",
+            "description" : "User that is creating the account"
+          }
+        }
+      },
+      "AccountPropertyDTO" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "enum" : [ "TimeZone", "ExpiryMonths", "LowBalanceNotificationThresholdEUR", "LowBalanceNotificationThresholdGBP", "LowBalanceNotificationThresholdUSD", "AccountCurrency", "ScheduledReports", "ExpiryMode", "IsSale" ]
+          },
+          "value" : {
+            "type" : "string"
+          }
+        },
+        "description" : "Account properties"
+      },
+      "ClientDetailsDTO" : {
+        "required" : [ "cityName", "contactRef", "country", "email", "postalCode", "streetAddress", "telephoneNumber" ],
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "description" : "Client email"
+          },
+          "streetAddress" : {
+            "type" : "string",
+            "description" : "Street address"
+          },
+          "telephoneNumber" : {
+            "type" : "string",
+            "description" : "Telephone Number"
+          },
+          "cityName" : {
+            "type" : "string",
+            "description" : "City name"
+          },
+          "country" : {
+            "type" : "string",
+            "description" : "Country"
+          },
+          "contactRef" : {
+            "type" : "string",
+            "description" : "Contact reference"
+          },
+          "postalCode" : {
+            "type" : "string",
+            "description" : "Postal code"
+          }
+        },
+        "description" : "Client Account details"
+      },
+      "JsonNode" : {
+        "type" : "object"
+      },
+      "QueueMessageAmountDTO" : {
+        "required" : [ "currencyCode", "quantity" ],
+        "type" : "object",
+        "properties" : {
+          "quantity" : {
+            "minimum" : 0,
+            "type" : "number",
+            "description" : "Amount to be booked.",
+            "example" : 123.45
+          },
+          "currencyCode" : {
+            "minLength" : 3,
+            "type" : "string",
+            "description" : "Currency ISO code.",
+            "example" : "EUR"
+          }
+        },
+        "description" : "Amount to be booked."
+      },
+      "QueueMessageDTO" : {
+        "required" : [ "accountCode", "source", "type" ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "Message type, determine how some other fields are handled.",
+            "enum" : [ "PAYMENT_RECEIVED", "PAYMENT_RECEIVED_CORRECTION", "CLIENT_FEE_PAYOUT", "JOURNAL_POST" ]
+          },
+          "accountCode" : {
+            "type" : "string",
+            "description" : "Code of account, account must exist in database."
+          },
+          "amount" : {
+            "$ref" : "#/components/schemas/QueueMessageAmountDTO"
+          },
+          "uuid" : {
+            "type" : "string",
+            "description" : "The unique identifier of the card token. This can be any string but must be globally unique in the API Client systems. Our recommended and preferred format is UUID V4."
+          },
+          "txReference" : {
+            "type" : "string",
+            "description" : "Transaction reference, ex. card token id."
+          },
+          "additionalData" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "source" : {
+            "type" : "string",
+            "description" : "Source of message, must be FRONT_END_APP",
+            "enum" : [ "FRONT_END_APP" ]
+          }
+        }
+      },
+      "JournalLinePostingDTO" : {
+        "type" : "object",
+        "properties" : {
+          "registerType" : {
+            "type" : "string",
+            "enum" : [ "OrderProcessed", "TokenCreated", "TokenActivated", "TokenReceivable", "OpenBalance", "Payable", "BankAccount", "BankBalance", "BankReceived", "PrefundGL", "Fee", "VAT", "Clearing", "Receivable", "Revenue" ]
+          },
+          "lineType" : {
+            "type" : "string",
+            "enum" : [ "DEBIT", "CREDIT" ]
+          },
+          "amount" : {
+            "type" : "number"
+          },
+          "currency" : {
+            "type" : "string",
+            "enum" : [ "EUR", "GBP", "USD" ]
+          }
+        }
+      },
+      "JournalPostingDTO" : {
+        "type" : "object",
+        "properties" : {
+          "bookingDate" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "journalLines" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JournalLinePostingDTO"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "API_KEY" : {
+        "type" : "apiKey",
+        "name" : "X-API-KEY",
+        "in" : "header"
+      },
+      "JWT_TOKEN" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header"
+      }
+    }
+  }
+}
