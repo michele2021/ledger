@@ -148,7 +148,6 @@ public class TemplateExecutionResource {
         try {
             templateExecutionService.postJournal(companyId, journalJson);
             return Response.ok()
-                    .entity("Journal successfully posted")
                     .build();
         } catch (Exception e) {
             log.error("Error processing journal posting", e);
