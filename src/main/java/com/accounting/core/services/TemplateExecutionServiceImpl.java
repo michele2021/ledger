@@ -2,7 +2,6 @@ package com.accounting.core.services;
 
 import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
-import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.exceptions.WebValidationException;
@@ -11,7 +10,6 @@ import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
 import com.accounting.commons.utils.MappingUtils;
-import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.entities.JournalTemplate;
@@ -222,7 +220,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         if (account == null) {
             throw validationError("accountId", format("Account with id %s does not exists.", accountId));
         }
-        if(!account.isCompany()) {
+        if(!Constants.isCompany(account.getAccountTypeCode())) {
             throw validationError("accountId", format("Account with id %s is not a company.", accountId));
         }
         return account;
