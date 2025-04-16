@@ -137,6 +137,14 @@ publishing {
     }
 }
 
+    tasks.register('generateOpenAPI', JavaExec) {
+    description = 'Generate OpenAPI specification'
+    group = 'documentation'
+
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.accounting.core.swagger.OpenApiGenerator'
+}
+
 /*publishing {
     repositories {
         maven {

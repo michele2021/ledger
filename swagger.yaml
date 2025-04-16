@@ -1,364 +1,659 @@
-openapi: 3.0.1
+---
+openapi: "3.0.1"
 info:
-  title: Accounting core
-  version: 1.0.0
+  title: "Ledger"
+  description: "Ledger execution API."
+  contact:
+    name: "Ledger"
+    url: "https://example.com"
+    email: "help@example.com"
+  version: "1.0.0"
+servers:
+- url: "http://localhost:8080"
+  description: "Local development environment"
+- url: "https://ledger-gateway.ledger.link/ledger"
+  description: "Integration environment"
+- url: "https://ledger-gateway.ledger.works/ledger"
+  description: "Staging environment"
+security:
+- API_KEY: []
+  JWT_TOKEN: []
+tags:
+- name: "QueueAdminResource"
+  description: "Controller responsible for queue health check."
+- name: "AccountResource"
+  description: "Controller responsible for account (write) operations."
+- name: "AccountingQueuesResource"
+  description: "Controller responsible for queue messages management."
+- name: "TemplateExecutionResource"
+  description: "Controller responsible for templates execution."
 paths:
+  /queue/health:
+    get:
+      tags:
+      - "QueueAdminResource"
+      summary: "Check the queue status."
+      operationId: "health"
+      responses:
+        "500":
+          description: "Internal server error or unhandled error"
+          content:
+            application/json:
+              example:
+                code: 500
+                message: "Detailed message."
+              exampleSetFlag: true
+        "401":
+          description: "Unauthorized - missing or invalid API KEY"
+          content:
+            application/json:
+              example:
+                code: 401
+                message: "User must be authenticated to perform this action."
+              exampleSetFlag: true
+        "200":
+          description: "OK - successful response"
+          content:
+            application/json:
+              exampleSetFlag: false
+      servers:
+      - url: "https://ledger-gateway.ledger.works/ledger-admin/admin"
+        description: "Staging environment"
+      - url: "https://ledger-gateway.ledger.link/ledger-admin/admin"
+        description: "Integration environment"
+  /accounting/account/create:
+    post:
+      tags:
+      - "AccountResource"
+      summary: "Create an account."
+      operationId: "create"
+      requestBody:
+        description: "Creation of an account. Optionally add account properties and\
+          \ client details. Optionally create a corresponding test account. Optionally\
+          \ request the opening of a corresponding Virtual Iban (with Monavate)."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountDTO"
+              exampleSetFlag: false
+            examples:
+              DEFAULT:
+                description: "Creation of DEFAULT Distributor account"
+                value:
+                  accountCode: "DEFAULT"
+                  accountTypeCode: "Client"
+                  description: "https://www.default.it/"
+                valueSetFlag: true
+            exampleSetFlag: false
+        required: true
+      responses:
+        "500":
+          description: "Internal server error or unhandled error"
+          content:
+            application/json:
+              example:
+                code: 500
+                message: "Detailed message."
+              exampleSetFlag: true
+        "401":
+          description: "Unauthorized - missing or invalid API KEY"
+          content:
+            application/json:
+              example:
+                code: 401
+                message: "User must be authenticated to perform this action."
+              exampleSetFlag: true
+        "200":
+          description: "OK - successful response"
+          content:
+            text/plain:
+              exampleSetFlag: false
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "Detailed message."
+              exampleSetFlag: true
   /accounting/amqueue/{messageId}/skip:
     post:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Check whether the message is in the list of items to skip and mark as skipped if it is (Active MQ).
-      description: Check whether the message is in the list of items to skip and mark as skipped if it is.
-      operationId: skipAMQMessage
       tags:
-        - accounting
+      - "AccountingQueuesResource"
+      summary: "Skip message in the AMQ. MessageId should be passed as path param."
+      operationId: "skipAMQMessage"
       parameters:
-        - name: messageId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: "messageId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
       responses:
-        '200':
-          description: result of skip action
+        "200":
+          description: "OK - successful response"
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/SkipResult'
-        '401':
-          description: Missing or invalid API Key
-        '500':
-          description: Internal server error while processing the request
-  /accounting/account/program/{accountCode}/balance:
-    get:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Returns the balances of the given Program account for the given register type (can be more than one in case of multiple currencies)
-      operationId: getProgramAccountBalances
+              exampleSetFlag: false
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "Detailed message."
+              exampleSetFlag: true
+  /accounting/queue/skip/{messageId}/entry:
+    put:
       tags:
-        - balance APIs
+      - "AccountingQueuesResource"
+      summary: "Skip message in SQS. MessageId should be passed as path param."
+      operationId: "skipMessage"
       parameters:
-        - in: path
-          name: accountCode
-          required: true
-          schema:
-            type: integer
-          description: the program account code
-        - in: query
-          name: registerTypeCode
-          required: true
-          schema:
-            type: string
-          description: the register type (ledger name)
-        - in: query
-          name: currencyCode
-          required: false
-          schema:
-            type: string
-          description: the currency code
+      - name: "messageId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
       responses:
-        200:
-          description: OK
+        "201":
+          description: "Created"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/TxFullView"
-        401:
-          description: Missing or invalid API key
-        400:
-          description: Parameters validation failed
-        404:
-          description: Account not found
-        500:
-          description: Unhandled error
-  /accounting/account/client/{accountCode}/balance:
-    get:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Returns the balances of the given Client account for the given register type (can be more than one in case of multiple currencies)
-      operationId: getClientAccountBalances
+              exampleSetFlag: false
+        "409":
+          description: "Conflict"
+          content:
+            application/json:
+              example:
+                code: 409
+                message: "Detailed message."
+              exampleSetFlag: true
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "Detailed message."
+              exampleSetFlag: true
+  /accounting/execute:
+    post:
       tags:
-        - balance APIs
+      - "TemplateExecutionResource"
+      summary: "Execute template. JSON should be passed as body."
+      operationId: "execute"
+      requestBody:
+        description: "Ledger JSON message to forward to the processing queue."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueueMessageDTO"
+              exampleSetFlag: false
+            examples:
+              PAYMENT_RECEIVED:
+                description: "Client payment received"
+                value:
+                  type: "PAYMENT_RECEIVED"
+                  accountCode: "DEFAULT"
+                  amount:
+                    quantity: 150.0
+                    currencyCode: "EUR"
+                  additionalData:
+                    bankAccountCode: "ItalyClients1"
+                    discountAmount: 10
+                    description: "Payment from DEFAULT, discount applied"
+                  source: "FRONT_END_APP"
+                valueSetFlag: true
+              PAYMENT_RECEIVED_CORRECTION:
+                description: "Posts a reverse journal of PAYMENT_RECEIVED"
+                value:
+                  type: "PAYMENT_RECEIVED_CORRECTION"
+                  accountCode: "DEFAULT"
+                  amount:
+                    quantity: 150.0
+                    currencyCode: "EUR"
+                  additionalData:
+                    bankAccountCode: "ItalyClients1"
+                    discountAmount: 10
+                    description: "Correction previous erroneous posting."
+                  source: "FRONT_END_APP"
+                valueSetFlag: true
+              CLIENT_FEE_PAYOUT:
+                description: "Client fee payout"
+                value:
+                  type: "CLIENT_FEE_PAYOUT"
+                  accountCode: "DEFAULT"
+                  amount:
+                    quantity: 150.0
+                    currencyCode: "EUR"
+                  source: "FRONT_END_APP"
+                valueSetFlag: true
+            exampleSetFlag: false
+        required: true
+      responses:
+        "500":
+          description: "Internal server error or unhandled error"
+          content:
+            application/json:
+              example:
+                code: 500
+                message: "Detailed message."
+              exampleSetFlag: true
+        "401":
+          description: "Unauthorized - missing or invalid API KEY"
+          content:
+            application/json:
+              example:
+                code: 401
+                message: "User must be authenticated to perform this action."
+              exampleSetFlag: true
+        "200":
+          description: "OK - successful response"
+          content:
+            text/plain:
+              exampleSetFlag: false
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "Detailed message."
+              exampleSetFlag: true
+  /accounting/companies/{companyId}/journals:
+    post:
+      tags:
+      - "TemplateExecutionResource"
+      summary: "Post a custom journal"
+      operationId: "postJournal"
       parameters:
-        - in: path
-          name: accountCode
-          required: true
-          schema:
-            type: integer
-          description: the client account code
-        - in: query
-          name: registerTypeCode
-          required: true
-          schema:
-            type: string
-          description: the register type (ledger name)
-        - in: query
-          name: currencyCode
-          required: false
-          schema:
-            type: string
-          description: the currency code
+      - name: "companyId"
+        in: "path"
+        required: true
+        schema:
+          type: "integer"
+          format: "int32"
+          exampleSetFlag: false
+          types:
+          - "integer"
+      requestBody:
+        description: "Journal data"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JournalPostingDTO"
+              exampleSetFlag: false
+            examples:
+              Journal Posting Example:
+                description: "Journal Posting Example"
+                value:
+                  bookingDate: "2023-11-15"
+                  journalLines:
+                  - registerTypeCode: "BANK"
+                    lineType: "DEBIT"
+                    amount: 500.0
+                    currencyCode: "EUR"
+                  - registerTypeCode: "REVENUE"
+                    lineType: "CREDIT"
+                    amount: 500.0
+                    currencyCode: "EUR"
+                valueSetFlag: true
+            exampleSetFlag: false
+        required: true
       responses:
-        200:
-          description: OK
+        "500":
+          description: "Internal server error or unhandled error"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/TxFullView"
-        401:
-          description: Missing or invalid API key
-        400:
-          description: Parameters validation failed
-        404:
-          description: Account not found
-        500:
-          description: Unhandled error
-  /accounting/tx/{id}:
-    get:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Returns the detail of a tx
-      operationId: getTxById
-      tags:
-        - reporting APIs
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: the identifier of the tx
-      responses:
-        200:
-          description: OK
+              example:
+                code: 500
+                message: "Detailed message."
+              exampleSetFlag: true
+        "401":
+          description: "Unauthorized - missing or invalid API KEY"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/TxFullView"
-        401:
-          description: Missing or invalid API key
-        404:
-          description: Tx not found
-        500:
-          description: Unhandled error
-  /accounting/journal/{id}:
-    get:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Returns the detail of a journal
-      operationId: getJournalById
-      tags:
-        - reporting APIs
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: the identifier of the journal
-      responses:
-        200:
-          description: OK
+              example:
+                code: 401
+                message: "User must be authenticated to perform this action."
+              exampleSetFlag: true
+        "200":
+          description: "OK - successful response"
+          content:
+            text/plain:
+              exampleSetFlag: false
+        "400":
+          description: "Bad request"
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/JournalFullView"
-        401:
-          description: Missing or invalid API key
-        404:
-          description: Tx not found
-        500:
-          description: Unhandled error
-  /accounting/batch/{id}:
-    get:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Returns the detail of a batch
-      operationId: getBatchById
-      tags:
-        - reporting APIs
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-          description: the identifier of the batch
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BatchView"
-        401:
-          description: Missing or invalid API key
-        404:
-          description: Tx not found
-        500:
-          description: Unhandled error
-  /accounting/tokens:
-    get:
-      security:
-        - ApiKeyAuth: [ ]
-      summary: Returns all tokens with the current status
-      operationId: getTokens
-      tags:
-        - reporting APIs
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TokenFullView"
-        401:
-          description: Missing or invalid API key
-        404:
-          description: Tokens not found
-        500:
-          description: Unhandled error
+              example:
+                code: 400
+                message: "Detailed message."
+              exampleSetFlag: true
 components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-KEY
   schemas:
-    SkipResult:
-      type: object
+    AccountDTO:
+      required:
+      - "accountCode"
+      - "accountTypeCode"
+      - "description"
+      type: "object"
       properties:
-        result:
-          type: boolean
-    TxFullView:
-      allOf:
-        - $ref: '#/components/schemas/TxView'
-        - type: object
-          properties:
-            journals:
-              type: array
-              items:
-                $ref: '#/components/schemas/JournalView'
-    TokenFullView:
-      allOf:
-        - $ref: '#/components/schemas/TokenView'
-        - type: object
-          properties:
-            quantity:
-              type: integer
-            currencyId:
-              type: integer
-            accountId:
-              type: integer
-            accountCode:
-              type: string
-            creationDate:
-              type: string
-              format: date-time
-            currencyCode:
-              type: string
-            txReference:
-              type: string
-            status:
-              type: string
-    JournalFullView:
-      allOf:
-        - $ref: '#/components/schemas/JournalView'
-        - type: object
-          properties:
-            journalLines:
-              type: array
-              items:
-                $ref: '#/components/schemas/JournalLineView'
-            txs:
-              type: array
-              items:
-                $ref: '#/components/schemas/TxView'
-    TxView:
-      type: object
-      properties:
-        txId:
-          type: integer
         accountCode:
-          type: string
-        txTypeCode:
-          type: string
-        quantity:
-          type: integer
-        currencyCode:
-          type: string
-        parentTxId:
-          type: integer
-        creationDate:
-          type: string
-          format: date-time
-    TokenView:
-      type: object
-      properties:
-        txId:
-          type: integer
-        publishableId:
-          type: integer
-        expiryDate:
-          type: string
-        locationRef:
-          type: string
-        activatingLocationRef:
-          type: string
-    JournalView:
-      type: object
-      properties:
-        journalId:
-          type: integer
-        journalTypeCode:
-          type: string
-        bookingDate:
-          type: string
-          format: date-time
-    JournalLineView:
-      type: object
-      properties:
-        journalId:
-          type: integer
-        journalLineId:
-          type: integer
-        batchId:
-          type: integer
-        accountCode:
-          type: string
-        registerTypeCode:
-          type: string
-        journalTypeCode:
-          type: string
-        quantity:
-          type: integer
-        currencyCode:
-          type: string
-        currencyId:
-          type: integer
-        bookingDate:
-          type: string
-          format: date-time
-    BatchView:
-      type: object
-      properties:
-        batchId:
-          type: integer
-        accountCode:
-          type: string
-        registerTypeCode:
-          type: string
-        batchNumber:
-          type: integer
-        currencyCode:
-          type: string
-        periodBeginDate:
-          type: string
-          format: date
-        periodEndDate:
-          type: string
-          format: date
-        journalLines:
-          type: array
+          type: "string"
+          description: "Account code (alphanumeric)"
+          exampleSetFlag: false
+          types:
+          - "string"
+        accountTypeCode:
+          type: "string"
+          description: "Account type code"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "Client"
+          - "Company"
+          - "BankAccount"
+          - "Issuer"
+          - "VirtualIban"
+        parentAccountCode:
+          type: "string"
+          description: "Parent account code"
+          exampleSetFlag: false
+          types:
+          - "string"
+        parentAccountTypeCode:
+          type: "string"
+          description: "Parent account type code"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "Client"
+          - "Company"
+          - "BankAccount"
+          - "Issuer"
+          - "VirtualIban"
+        description:
+          type: "string"
+          description: "Account description"
+          exampleSetFlag: false
+          types:
+          - "string"
+        accountProperties:
+          type: "array"
+          description: "Account properties"
+          exampleSetFlag: false
           items:
-            $ref: '#/components/schemas/JournalLineView'
+            $ref: "#/components/schemas/AccountPropertyDTO"
+            exampleSetFlag: false
+          types:
+          - "array"
+        clientDetails:
+          $ref: "#/components/schemas/ClientDetailsDTO"
+          exampleSetFlag: false
+        testAccount:
+          type: "boolean"
+          description: "Is this account a test account"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+        createTestAccount:
+          type: "boolean"
+          description: "Create also a corresponding _TEST account (only if this account\
+            \ is not a test account)"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+        userName:
+          type: "string"
+          description: "User that is creating the account"
+          exampleSetFlag: false
+          types:
+          - "string"
+      exampleSetFlag: false
+    AccountPropertyDTO:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "TimeZone"
+          - "ExpiryMonths"
+          - "LowBalanceNotificationThresholdEUR"
+          - "LowBalanceNotificationThresholdGBP"
+          - "LowBalanceNotificationThresholdUSD"
+          - "AccountCurrency"
+          - "ScheduledReports"
+          - "ExpiryMode"
+          - "IsSale"
+        value:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+      description: "Account properties"
+      exampleSetFlag: false
+    ClientDetailsDTO:
+      required:
+      - "cityName"
+      - "contactRef"
+      - "country"
+      - "email"
+      - "postalCode"
+      - "streetAddress"
+      - "telephoneNumber"
+      type: "object"
+      properties:
+        email:
+          type: "string"
+          description: "Client email"
+          exampleSetFlag: false
+          types:
+          - "string"
+        streetAddress:
+          type: "string"
+          description: "Street address"
+          exampleSetFlag: false
+          types:
+          - "string"
+        telephoneNumber:
+          type: "string"
+          description: "Telephone Number"
+          exampleSetFlag: false
+          types:
+          - "string"
+        cityName:
+          type: "string"
+          description: "City name"
+          exampleSetFlag: false
+          types:
+          - "string"
+        country:
+          type: "string"
+          description: "Country"
+          exampleSetFlag: false
+          types:
+          - "string"
+        contactRef:
+          type: "string"
+          description: "Contact reference"
+          exampleSetFlag: false
+          types:
+          - "string"
+        postalCode:
+          type: "string"
+          description: "Postal code"
+          exampleSetFlag: false
+          types:
+          - "string"
+      description: "Client Account details"
+      exampleSetFlag: false
+    JsonNode:
+      type: "object"
+      exampleSetFlag: false
+    QueueMessageAmountDTO:
+      required:
+      - "currencyCode"
+      - "quantity"
+      type: "object"
+      properties:
+        quantity:
+          minimum: 0
+          type: "number"
+          description: "Amount to be booked."
+          example: 123.45
+          exampleSetFlag: true
+          types:
+          - "number"
+        currencyCode:
+          minLength: 3
+          type: "string"
+          description: "Currency ISO code."
+          example: "EUR"
+          exampleSetFlag: true
+          types:
+          - "string"
+      description: "Amount to be booked."
+      exampleSetFlag: false
+    QueueMessageDTO:
+      required:
+      - "accountCode"
+      - "source"
+      - "type"
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          description: "Message type, determine how some other fields are handled."
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "PAYMENT_RECEIVED"
+          - "PAYMENT_RECEIVED_CORRECTION"
+          - "CLIENT_FEE_PAYOUT"
+          - "JOURNAL_POST"
+        accountCode:
+          type: "string"
+          description: "Code of account, account must exist in database."
+          exampleSetFlag: false
+          types:
+          - "string"
+        amount:
+          $ref: "#/components/schemas/QueueMessageAmountDTO"
+          exampleSetFlag: false
+        uuid:
+          type: "string"
+          description: "The unique identifier of the card token. This can be any string\
+            \ but must be globally unique in the API Client systems. Our recommended\
+            \ and preferred format is UUID V4."
+          exampleSetFlag: false
+          types:
+          - "string"
+        txReference:
+          type: "string"
+          description: "Transaction reference, ex. card token id."
+          exampleSetFlag: false
+          types:
+          - "string"
+        additionalData:
+          $ref: "#/components/schemas/JsonNode"
+          exampleSetFlag: false
+        source:
+          type: "string"
+          description: "Source of message, must be FRONT_END_APP"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "FRONT_END_APP"
+      exampleSetFlag: false
+    JournalLinePostingDTO:
+      type: "object"
+      properties:
+        registerType:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "OrderProcessed"
+          - "TokenCreated"
+          - "TokenActivated"
+          - "TokenReceivable"
+          - "OpenBalance"
+          - "Payable"
+          - "BankAccount"
+          - "BankBalance"
+          - "BankReceived"
+          - "PrefundGL"
+          - "Fee"
+          - "VAT"
+          - "Clearing"
+          - "Receivable"
+          - "Revenue"
+        lineType:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "DEBIT"
+          - "CREDIT"
+        amount:
+          type: "number"
+          exampleSetFlag: false
+          types:
+          - "number"
+        currency:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+          enum:
+          - "EUR"
+          - "GBP"
+          - "USD"
+      exampleSetFlag: false
+    JournalPostingDTO:
+      type: "object"
+      properties:
+        bookingDate:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        description:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        journalLines:
+          type: "array"
+          exampleSetFlag: false
+          items:
+            $ref: "#/components/schemas/JournalLinePostingDTO"
+            exampleSetFlag: false
+          types:
+          - "array"
+      exampleSetFlag: false
+  securitySchemes:
+    API_KEY:
+      type: "APIKEY"
+      name: "X-API-KEY"
+      in: "HEADER"
+    JWT_TOKEN:
+      type: "APIKEY"
+      name: "Authorization"
+      in: "HEADER"

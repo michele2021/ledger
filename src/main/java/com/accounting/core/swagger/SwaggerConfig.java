@@ -35,8 +35,8 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
             var swaggerBundle = new SwaggerBundle<AccountingCoreAppConfig>() {
                 @Override
                 protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AccountingCoreAppConfig configuration) {
-                    SwaggerConfig swaggerConfig = configuration.getSwaggerConfig();
-                    swaggerConfig.setUriPrefix(SWAGGER_URI_PREFIX);
+                    var swaggerConfig = configuration.getSwaggerConfig();
+                    swaggerConfig.setUriPrefix("");
                     return swaggerConfig;
                 }
             };
