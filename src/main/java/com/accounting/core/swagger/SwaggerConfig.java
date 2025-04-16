@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
                 @Override
                 protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AccountingCoreAppConfig configuration) {
                     var swaggerConfig = configuration.getSwaggerConfig();
-                    swaggerConfig.setUriPrefix("");
+                    swaggerConfig.setUriPrefix(StringUtils.EMPTY);
                     return swaggerConfig;
                 }
             };

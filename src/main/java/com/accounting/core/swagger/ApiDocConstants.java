@@ -7,7 +7,6 @@ public class ApiDocConstants {
     public static final String API_KEY = "API_KEY";
     public static final String SWAGGER_ENDPOINT = "/swagger";
     public static final String JWT_TOKEN = "JWT_TOKEN";
-    public static final String SWAGGER_URI_PREFIX = "/accounting-docs";
     public static final Set<String> RESOURCE_PACKAGES = Set.of("com.accounting.core.resources", "com.accounting.core.admin");
 
     public static final String HTTP_STATUS_OK = "200";

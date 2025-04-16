@@ -18,7 +18,7 @@ public class SwaggerResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MEDIA_TYPE_APPLICATION_YAML})
-    @Path(ApiDocConstants.SWAGGER_URI_PREFIX + "/swagger.{type:json|yaml}")
+    @Path("/swagger.{type:json|yaml}")
     public Response redirectSwaggerDoc(@PathParam("type") String type) {
         return Response.seeOther(URI.create(format("/swagger.%s", type))).build();
     }
