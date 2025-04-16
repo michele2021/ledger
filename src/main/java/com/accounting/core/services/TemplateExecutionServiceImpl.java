@@ -220,7 +220,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         if (account == null) {
             throw validationError("accountId", format("Account with id %s does not exists.", accountId));
         }
-        if(!Constants.isCompany(account.getAccountTypeCode())) {
+        if(!account.isCompany()) {
             throw validationError("accountId", format("Account with id %s is not a company.", accountId));
         }
         return account;
