@@ -5,7 +5,8 @@ import com.google.inject.Singleton;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
+
+import java.io.File;
 
 import static java.lang.String.format;
 
@@ -18,9 +19,10 @@ public class SwaggerResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MEDIA_TYPE_APPLICATION_YAML})
-    @Path("/swagger.{type:json|yaml}")
+    @Path(ApiDocConstants.SWAGGER_URI_PREFIX + "/swagger.{type:json|yaml}")
     public Response redirectSwaggerDoc(@PathParam("type") String type) {
-        return Response.seeOther(URI.create(format("/swagger.%s", type))).build();
+        //return Response.seeOther(URI.create(format("/swagger.%s", type))).build();
+        File file = new File(format("./swagger.%s", type));
+        return Response.ok(file).build();
     }
-
 }
