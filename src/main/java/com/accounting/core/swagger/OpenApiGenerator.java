@@ -28,7 +28,7 @@ public class OpenApiGenerator {
         System.out.println("Generated swagger.yaml");
     }
 
-    public static OpenAPI getOpenAPI() throws OpenApiConfigurationException {
+    private static OpenAPI getOpenAPI() throws OpenApiConfigurationException {
         // Create a minimal configuration similar to what would happen in the app
         SwaggerConfig swaggerConfig = new SwaggerConfig();
 
@@ -42,14 +42,14 @@ public class OpenApiGenerator {
                 .read();
     }
 
-    public static String getSwaggerYamlOutput(OpenAPI openAPI) throws IOException {
+    private static String getSwaggerYamlOutput(OpenAPI openAPI) throws IOException {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         yamlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return yamlMapper.writeValueAsString(openAPI);
 
     }
 
-    public static String getSwaggerJsonOutput(OpenAPI openAPI) throws IOException {
+    private static String getSwaggerJsonOutput(OpenAPI openAPI) throws IOException {
         ObjectMapper jsonMapper = Json.mapper();
         jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
