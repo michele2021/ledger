@@ -5,15 +5,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class OpenApiGenerator {
     public static void main(String[] args) throws Exception {
+        OpenAPI openAPI = getOpenAPI();
+
+        // Save as JSON
+        String jsonOutput = getSwaggerJsonOutput(openAPI);
+        Files.writeString(Paths.get("swagger.json"), jsonOutput);
+        System.out.println("Generated swagger.json");
+
+        // Save as YAML
+        String yamlOutput = getSwaggerYamlOutput(openAPI);
+        Files.writeString(Paths.get("swagger.yaml"), yamlOutput);
+        System.out.println("Generated swagger.yaml");
+    }
+
+    public static OpenAPI getOpenAPI() throws OpenApiConfigurationException {
         // Create a minimal configuration similar to what would happen in the app
         SwaggerConfig swaggerConfig = new SwaggerConfig();
 
@@ -21,22 +36,22 @@ public class OpenApiGenerator {
         SwaggerConfiguration config = swaggerConfig.build();
 
         // Create the context builder
-        OpenAPI openAPI = new JaxrsOpenApiContextBuilder<>()
+        return new JaxrsOpenApiContextBuilder<>()
                 .openApiConfiguration(config)
                 .buildContext(true)
                 .read();
+    }
 
-        // Save as JSON
-        ObjectMapper jsonMapper = Json.mapper();
-        jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        String jsonOutput = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
-        Files.writeString(Paths.get("swagger.json"), jsonOutput);
-
-
-        // Save as YAML
+    public static String getSwaggerYamlOutput(OpenAPI openAPI) throws IOException {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         yamlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        yamlMapper.writeValue(new File("swagger.yaml"), openAPI);
-        System.out.println("Generated swagger.yaml");
+        return yamlMapper.writeValueAsString(openAPI);
+
+    }
+
+    public static String getSwaggerJsonOutput(OpenAPI openAPI) throws IOException {
+        ObjectMapper jsonMapper = Json.mapper();
+        jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
     }
 }
