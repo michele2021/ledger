@@ -58,7 +58,8 @@ public class AuthResourceMock {
                     mediaType = MediaType.APPLICATION_JSON
             ))
     public Response login(@Context HttpHeaders headers, @NotNull JsonNode jsonNode) {
-        var authResult = authServiceMock.login("mic");
+        log.info("login headers: {}, jsonNode {}", headers, jsonNode);
+        var authResult = authServiceMock.login(jsonNode);
         return Response
                 .ok()
                 .entity(gson.toJson(authResult))
