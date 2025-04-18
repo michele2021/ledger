@@ -65,6 +65,7 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         environment.jersey().register(injector.getInstance(AccountingQueuesResource.class));
         environment.jersey().register(injector.getInstance(TemplateExecutionResource.class));
         environment.jersey().register(injector.getInstance(AccountResource.class));
+        environment.jersey().register(injector.getInstance(AuthResourceMock.class));
 
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
         environment.healthChecks().register("app", injector.getInstance(AppHealthCheck.class));

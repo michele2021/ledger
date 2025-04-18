@@ -20,10 +20,7 @@ import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
 import com.accounting.core.queue.KafkaAccountingMessagesQueue;
-import com.accounting.core.services.AccountService;
-import com.accounting.core.services.AccountServiceImpl;
-import com.accounting.core.services.TemplateExecutionService;
-import com.accounting.core.services.TemplateExecutionServiceImpl;
+import com.accounting.core.services.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -207,6 +204,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(MessagesSkipperService.class).to(MessagesSkipperServiceImpl.class);
         bind(TemplateExecutionService.class).to(TemplateExecutionServiceImpl.class);
         bind(AccountService.class).to(AccountServiceImpl.class);
+        bind(AuthServiceMock.class).to(AuthServiceMockImpl.class);
     }
 
     private void bindRepositoriesToDAO() {

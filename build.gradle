@@ -7,7 +7,7 @@ plugins {
 
 apply plugin: 'maven-publish'
 
-group 'com.accounting.core'
+group = 'com.accounting.core'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
