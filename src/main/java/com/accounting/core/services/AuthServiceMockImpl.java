@@ -27,15 +27,15 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         var clientId = jsonNode.get("clientId").asText();
         var role = userRoles.get(userName) == null ? "DEFAULT" : userRoles.get(userName);
         log.info("AuthServiceMockImpl username: {}, clientId {}, role {}.", userName, clientId, role);
-        var accessToken = authUtils.token(userName, role);
-        this.refreshToken = authUtils.refreshToken(userName);
+        var accessToken = authUtils.createHMACAccessToken(userName, role);
+        this.refreshToken = authUtils.createHMACRefreshToken(userName);
         return new AuthenticationResult(accessToken, "dummy-refresh-token-123", accessToken);
     }
 
     @Override
     public AuthenticationResult refreshToken(String userId) {
         log.info("mock refresh-token!");
-        var accessToken = authUtils.token(userId, "DEFAULT");
+        var accessToken = authUtils.createHMACAccessToken(userId, "DEFAULT");
         return new AuthenticationResult(accessToken, refreshToken, "dummy-id-token-789");
     }
 
