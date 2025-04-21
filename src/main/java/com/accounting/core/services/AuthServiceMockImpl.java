@@ -1,6 +1,6 @@
 package com.accounting.core.services;
 
-import com.accounting.commons.resources.security.AuthUtils;
+import com.accounting.commons.resources.security.HMACAuthUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 @Slf4j
 public class AuthServiceMockImpl implements AuthServiceMock {
 
-    private final AuthUtils authUtils;
+    private final HMACAuthUtil hmacAuthUtil;
     private String refreshToken;
     private Map<String, String> userRoles;
 
@@ -17,7 +17,7 @@ public class AuthServiceMockImpl implements AuthServiceMock {
     }
 
     public AuthServiceMockImpl() {
-        this.authUtils = new AuthUtils();
+        this.hmacAuthUtil = HMACAuthUtil.getInstance();
         this.userRoles = Map.of("mic", "SUPER_USER", "pradipta", "SUPER_USER");
     }
 
@@ -27,15 +27,15 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         var clientId = jsonNode.get("clientId").asText();
         var role = userRoles.get(userName) == null ? "DEFAULT" : userRoles.get(userName);
         log.info("AuthServiceMockImpl username: {}, clientId {}, role {}.", userName, clientId, role);
-        var accessToken = authUtils.createHMACAccessToken(userName, role);
-        this.refreshToken = authUtils.createHMACRefreshToken(userName);
+        var accessToken = hmacAuthUtil.createHMACAccessToken(userName, role);
+        this.refreshToken = hmacAuthUtil.createHMACRefreshToken(userName);
         return new AuthenticationResult(accessToken, "dummy-refresh-token-123", accessToken);
     }
 
     @Override
     public AuthenticationResult refreshToken(String userId) {
         log.info("mock refresh-token!");
-        var accessToken = authUtils.createHMACAccessToken(userId, "DEFAULT");
+        var accessToken = hmacAuthUtil.createHMACAccessToken(userId, "DEFAULT");
         return new AuthenticationResult(accessToken, refreshToken, "dummy-id-token-789");
     }
 
