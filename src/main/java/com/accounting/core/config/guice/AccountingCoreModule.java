@@ -4,6 +4,7 @@ import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.conf.DebugToolsConfig;
 import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.db.QueueDAO;
+import com.accounting.commons.infra.EnvVarsRepo;
 import com.accounting.commons.infra.cache.*;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
@@ -21,6 +22,8 @@ import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
 import com.accounting.core.queue.KafkaAccountingMessagesQueue;
 import com.accounting.core.services.*;
+import com.accounting.core.services.security.AuthServiceMock;
+import com.accounting.core.services.security.AuthServiceMockImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -164,6 +167,7 @@ public class AccountingCoreModule extends AbstractModule {
         } else {
             bindRepositoriesToDAO();
         }
+        bindEnvVarRepo();
     }
 
     private void configureRepositories() {
@@ -229,5 +233,9 @@ public class AccountingCoreModule extends AbstractModule {
         bind(AccountTypeRepoIf.class).toInstance(new AccountTypeCache(jdbi.onDemand(AccountTypeDAO.class)));
         bind(TxVariantRepoIf.class).toInstance(new TxVariantCache(jdbi.onDemand(TxVariantDAO.class)));
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseCache(jdbi.onDemand(FeeBaseDAO.class)));
+    }
+
+    private void bindEnvVarRepo() {
+        bind(EnvVarsRepo.class).toInstance(new EnvVarsRepo());
     }
 }

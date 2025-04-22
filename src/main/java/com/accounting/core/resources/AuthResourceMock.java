@@ -1,7 +1,7 @@
 package com.accounting.core.resources;
 
 import com.accounting.commons.resources.security.ApiKeyAuth;
-import com.accounting.core.services.AuthServiceMock;
+import com.accounting.core.services.security.AuthServiceMock;
 import com.accounting.core.swagger.ApiBadRequestResponse;
 import com.accounting.core.swagger.ApiDefaultResponses;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -4,6 +4,7 @@ import com.accounting.commons.Constants;
 import com.accounting.commons.SystemConstants;
 import com.accounting.commons.entities.AccountingEntity;
 import com.accounting.commons.entities.FeeBase;
+import com.accounting.commons.infra.EnvVarsRepo;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
 import com.accounting.commons.repository.*;
@@ -21,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -42,6 +42,7 @@ public class RepositoryHelper {
     private final TxTypeRepoIf txTypeRepo;
     private final TxVariantRepoIf txVariantRepo;
     private final FeeBaseRepoIf feeBaseRepo;
+    private final EnvVarsRepo envVarsRepo;
     private final AccountDAO accountDAO;
     private final AccountWriteDAO accountWriteDAO;
     private final CacheActionDAO cacheActionDAO;
@@ -59,6 +60,10 @@ public class RepositoryHelper {
         subsystemRepo.init();
         txVariantRepo.init();
         feeBaseRepo.init();
+    }
+
+    private void loadAndValidateEnvVars() {
+        envVarsRepo.init();
     }
 
     // Checks that all the constants defined in Java are also present in the database.
@@ -109,17 +114,7 @@ public class RepositoryHelper {
     public void initAccountingConfig() {
         loadCaches();
         validateConstants();
-    }
-
-    public void validateEnvVars() {
-        for (Constants.EnvVar envVar : Constants.EnvVar.values()) {
-            if (!envVar.mandatory) {
-                continue;
-            }
-            if(Objects.isNull(System.getenv(envVar.toString()))) {
-                throw new WebApplicationException("Mandatory environment variable " + envVar + " is not set.");
-            }
-        }
+        loadAndValidateEnvVars();
     }
 
     public void refreshAccountCaches(long accountId) {
