@@ -1,6 +1,6 @@
 package com.accounting.core.services;
 
-import com.accounting.commons.resources.security.HMACAuthUtil;
+import com.accounting.commons.resources.security.HMACAuthEncoder;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 @Slf4j
 public class AuthServiceMockImpl implements AuthServiceMock {
 
-    private final HMACAuthUtil hmacAuthUtil;
+    private final HMACAuthEncoder hmacAuthUtil;
     private String refreshToken;
     private Map<String, String> userRoles;
 
@@ -17,7 +17,7 @@ public class AuthServiceMockImpl implements AuthServiceMock {
     }
 
     public AuthServiceMockImpl() {
-        this.hmacAuthUtil = HMACAuthUtil.getInstance();
+        this.hmacAuthUtil = HMACAuthEncoder.getInstance();
         this.userRoles = Map.of("mic", "SUPER_USER", "pradipta", "SUPER_USER");
     }
 
