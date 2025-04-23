@@ -15,9 +15,9 @@ public class AuthServiceMockImpl implements AuthServiceMock {
     private final Map<String, String> userRoles;
 
     @Inject
-    public AuthServiceMockImpl(RSAAuthEncoder rsaAuthEncoder) {
+    public AuthServiceMockImpl(RSAAuthEncoder rsaAuthEncoder, RSAAuthDecoder rsaAuthDecoder) {
         this.rsaAuthEncoder = rsaAuthEncoder;
-        this.rsaAuthDecoder = RSAAuthDecoder.getInstance();
+        this.rsaAuthDecoder = rsaAuthDecoder;
         this.userRoles = Map.of("mic", "SUPER_USER", "pradipta", "SUPER_USER");
     }
 

@@ -9,7 +9,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.matcher.Matchers;
 
 public class SecurityModule extends AbstractModule {
-
     private final ApiKeyAuthInterceptor apiKeyAuthInterceptor;
     private final ApiPreProcessInterceptor apiPreProcessInterceptor;
 
@@ -20,6 +19,8 @@ public class SecurityModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        bind(ApiPreProcessInterceptor.class).toInstance(apiPreProcessInterceptor);
+        requestInjection(apiPreProcessInterceptor);
         bindInterceptor(Matchers.any(),
                 Matchers.annotatedWith(ApiKeyAuth.class),
                 apiKeyAuthInterceptor);
@@ -28,4 +29,3 @@ public class SecurityModule extends AbstractModule {
                 apiPreProcessInterceptor);
     }
 }
-
