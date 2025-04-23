@@ -85,7 +85,14 @@ public class AuthResourceMock {
                     mediaType = MediaType.APPLICATION_JSON
             ))
     public Response refreshToken(@Context HttpHeaders headers, @NotNull JsonNode jsonNode) {
-        var authResult = authServiceMock.refreshToken("mic");
+        String authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        var authResult = authServiceMock.refreshToken(authHeader);
+        if (authResult == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    //.header("WWW-Authenticate", "Bearer realm=\"ledger\"")
+                    .entity("Refresh token is missing or invalid.")
+                    .build();
+        }
         return Response
                 .ok()
                 .entity(gson.toJson(authResult))
