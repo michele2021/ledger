@@ -1,6 +1,6 @@
 package com.accounting.core.swagger;
 
-import com.accounting.commons.CCHTTPHeaders;
+import com.accounting.commons.MPHTTPHeaders;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import io.dropwizard.core.setup.Bootstrap;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
@@ -53,12 +53,12 @@ public final class SwaggerConfig extends SwaggerBundleConfiguration {
         securityRequirement.addList(JWT_TOKEN, new ArrayList<>());
 
         SecurityScheme apiKeySecurityScheme = new SecurityScheme()
-                .name(CCHTTPHeaders.API_KEY)
+                .name(MPHTTPHeaders.API_KEY)
                 .in(SecurityScheme.In.HEADER)
                 .type(SecurityScheme.Type.APIKEY);
 
         SecurityScheme jwtSecurityScheme = new SecurityScheme()
-                .name(CCHTTPHeaders.AUTHORIZATION)
+                .name(MPHTTPHeaders.AUTHORIZATION)
                 .in(SecurityScheme.In.HEADER)
                 .type(SecurityScheme.Type.APIKEY);
 
