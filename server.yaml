@@ -71,8 +71,8 @@ aws:
   dataBucket: ${AWS_LEDGER_DATA_BUCKET:-ledger-${ENVIRONMENT:-development}-ledger-data}
   epayIncomingDailySalesReportsDirectory: ${AWS_DSR_DIRECTORY:-in/epay_it/dsr/}
 
-  # cognito authorization for users
-  userAuthorizationEnabled: false
+  # authorization for users
+  userAuthorizationEnabled: true
 
   systemNotificationsArn: ${AWS_SNS_SYSTEM_NOTIFICATIONS_ARN:-arn:aws:sns:${AWS_REGION:-eu-west-1}:099720403855:ledger-system-notifications-${ENVIRONMENT:-development}}
   financialNotificationsArn: ${AWS_SNS_FINANCIAL_NOTIFICATIONS_ARN:-arn:aws:sns:${AWS_REGION:-eu-west-1}:099720403855:ledger-financial-notifications-${ENVIRONMENT:-development}}

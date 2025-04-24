@@ -8,6 +8,6 @@ public interface AuthServiceMock {
     void revokeToken();
     void changePassword();
 
-    record AuthenticationResult(String accessToken, String refreshToken) {
+    record AuthenticationResult(String idToken, String refreshToken) {
     }
 }
