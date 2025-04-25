@@ -17,6 +17,7 @@ import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
 import com.accounting.commons.repository.*;
 import com.accounting.commons.repository.database.*;
+import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
@@ -24,6 +25,7 @@ import com.accounting.core.queue.KafkaAccountingMessagesQueue;
 import com.accounting.core.services.*;
 import com.accounting.core.services.security.AuthServiceMock;
 import com.accounting.core.services.security.AuthServiceMockImpl;
+import com.google.gson.Gson;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -151,6 +153,9 @@ public class AccountingCoreModule extends AbstractModule {
     public JobsDAO provideJobDAO() {
         return jdbi.onDemand(JobsDAO.class);
     }
+
+    @Provides
+    public Gson provideGson() { return SerializationUtil.getGson(); }
 
     @Override
     protected void configure() {

@@ -1,6 +1,7 @@
 package com.accounting.core.admin;
 
 import com.accounting.commons.queue.MessageQueueClient;
+import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.swagger.ApiDefaultResponses;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -31,7 +32,7 @@ import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;
 public class QueueAdminResource {
 
     private final MessageQueueClient messageQueueClient;
-    private final Gson gson = new Gson();
+    private final Gson gson = SerializationUtil.getGson();
 
     @GET
     @Path("/health")

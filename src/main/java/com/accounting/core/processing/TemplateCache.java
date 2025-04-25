@@ -2,6 +2,7 @@ package com.accounting.core.processing;
 
 import com.accounting.commons.Message;
 import com.accounting.commons.exceptions.AccountingEventException;
+import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.entities.JournalTemplate;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -34,7 +35,7 @@ public class TemplateCache {
         if (files == null) {
             throw new RuntimeException(format("No json files found in %s", inputDir.getAbsolutePath()));
         }
-        final Gson gson = new Gson();
+        final Gson gson = SerializationUtil.getGson();
         for (File file : files) {
             log.info("Parsing file: {}", file);
             JournalTemplate.JournalTemplateBuilder templateBuilder;

@@ -19,7 +19,6 @@ public class SecurityModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(ApiPreProcessInterceptor.class).toInstance(apiPreProcessInterceptor);
         requestInjection(apiPreProcessInterceptor);
         bindInterceptor(Matchers.any(),
                 Matchers.annotatedWith(ApiKeyAuth.class),

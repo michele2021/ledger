@@ -1,6 +1,7 @@
 package com.accounting.core.resources;
 
 import com.accounting.commons.resources.security.ApiKeyAuth;
+import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.services.security.AuthServiceMock;
 import com.accounting.core.swagger.ApiBadRequestResponse;
 import com.accounting.core.swagger.ApiDefaultResponses;
@@ -37,7 +38,7 @@ import static com.accounting.core.swagger.ApiDocConstants.OK_STATUS_DESCRIPTION;
 @Tag(name = "MockLoginResource", description = "Controller responsible for mocking an authentication service.")
 public class AuthResourceMock {
     private final AuthServiceMock authServiceMock;
-    private final Gson gson = new Gson();
+    private final Gson gson = SerializationUtil.getGson();
 
     @POST
     @ApiKeyAuth
