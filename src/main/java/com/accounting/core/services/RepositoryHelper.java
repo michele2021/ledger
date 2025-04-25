@@ -4,7 +4,6 @@ import com.accounting.commons.Constants;
 import com.accounting.commons.SystemConstants;
 import com.accounting.commons.entities.AccountingEntity;
 import com.accounting.commons.entities.FeeBase;
-import com.accounting.commons.infra.EnvVarsRepo;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
 import com.accounting.commons.repository.*;
@@ -42,7 +41,6 @@ public class RepositoryHelper {
     private final TxTypeRepoIf txTypeRepo;
     private final TxVariantRepoIf txVariantRepo;
     private final FeeBaseRepoIf feeBaseRepo;
-    private final EnvVarsRepo envVarsRepo;
     private final AccountDAO accountDAO;
     private final AccountWriteDAO accountWriteDAO;
     private final CacheActionDAO cacheActionDAO;
@@ -60,10 +58,6 @@ public class RepositoryHelper {
         subsystemRepo.init();
         txVariantRepo.init();
         feeBaseRepo.init();
-    }
-
-    private void loadAndValidateEnvVars() {
-        envVarsRepo.init();
     }
 
     // Checks that all the constants defined in Java are also present in the database.
@@ -114,7 +108,6 @@ public class RepositoryHelper {
     public void initAccountingConfig() {
         loadCaches();
         validateConstants();
-        loadAndValidateEnvVars();
     }
 
     public void refreshAccountCaches(long accountId) {

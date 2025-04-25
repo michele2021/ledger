@@ -5,8 +5,6 @@ import com.accounting.commons.kafka.KafkaMessageConsumer;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.queue.MessageQueueClient;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
-import com.accounting.commons.resources.security.RSAAuthDecoder;
-import com.accounting.commons.resources.security.RSAAuthEncoder;
 import com.accounting.commons.services.SystemNotificationsService;
 import com.accounting.commons.tasks.TasksNames;
 import com.accounting.core.admin.AdminResourceBundle;
@@ -78,11 +76,6 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         log.info("Initialising accounting config caches and running config validations...");
         RepositoryHelper repositoryHelper = injector.getInstance(RepositoryHelper.class);
         repositoryHelper.initAccountingConfig();
-
-        var rsaAuthEncoder = injector.getInstance(RSAAuthEncoder.class);
-        var rsaAuthDecoder = injector.getInstance(RSAAuthDecoder.class);
-        rsaAuthEncoder.init();
-        rsaAuthDecoder.init();
 
         // MessageQueueClient
         registerMessagesQueueClient(environment, injector, config);

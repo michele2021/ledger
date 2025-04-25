@@ -5,6 +5,7 @@ import com.accounting.commons.conf.DebugToolsConfig;
 import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.db.QueueDAO;
 import com.accounting.commons.infra.EnvVarsRepo;
+import com.accounting.commons.infra.EnvVarsRepoImpl;
 import com.accounting.commons.infra.cache.*;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
@@ -241,6 +242,6 @@ public class AccountingCoreModule extends AbstractModule {
     }
 
     private void bindEnvVarRepo() {
-        bind(EnvVarsRepo.class).toInstance(new EnvVarsRepo());
+        bind(EnvVarsRepo.class).toInstance(new EnvVarsRepoImpl());
     }
 }
