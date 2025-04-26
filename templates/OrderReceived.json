@@ -1,7 +1,7 @@
 {
   "class": "OrderReceived",
   "eventType": "ORDER_RECEIVED",
-  "accountTypes": ["Client"],
+  "accountTypes": ["Client","Company"],
   "journalType": "Received",
   "txType": "Order",
   "additionalDataSchema": {
