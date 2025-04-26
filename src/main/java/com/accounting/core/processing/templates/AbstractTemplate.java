@@ -152,7 +152,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         String issuer = getAdditionalData(Message.AdditionalData.issuer).getAsString();
         account = accountRepo.getByCodeAndType(issuer, Constants.AccountType.Issuer.toString());
         if (account == null) {
-            String mappedIssuer = AccountingUtils.mapIssuer(issuer);
+            String mappedIssuer = issuer;
             if (mappedIssuer != null) {
                 account = accountRepo.getByCodeAndType(mappedIssuer, Constants.AccountType.Issuer.toString());
             }
