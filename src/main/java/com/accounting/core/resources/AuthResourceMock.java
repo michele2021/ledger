@@ -87,9 +87,8 @@ public class AuthResourceMock {
                     mediaType = MediaType.APPLICATION_JSON
             ))
     public Response refreshToken(@Context HttpHeaders headers, @NotNull JsonNode jsonNode) {
-        // TODO get the refresh token from the jsonNode payload
-        String authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
-        var authResult = authServiceMock.refreshToken(authHeader);
+        var refreshToken = jsonNode.get("refreshToken").asText();
+        var authResult = authServiceMock.refreshToken(refreshToken);
         if (authResult == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
                     //.header("WWW-Authenticate", "Bearer realm=\"ledger\"")

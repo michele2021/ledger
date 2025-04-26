@@ -42,8 +42,8 @@ public class AuthServiceMockImpl implements AuthServiceMock {
             return null;
         }
         log.info("mock refresh-token!!!!! userId {}", user.userId());
+        // N.B. for now we hardcode "DEFAULT" as a role since this claim of the token is not used anyway.
         var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.userId()), "DEFAULT");
-        log.info("mock refresh-token!!!!! new access token created {}", user.userId());
         return new AuthenticationResult(accessToken, refreshToken);
     }
 
