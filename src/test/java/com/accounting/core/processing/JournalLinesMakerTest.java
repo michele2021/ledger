@@ -71,7 +71,7 @@ class JournalLinesMakerTest {
         // then
         assertThat(journalLines).hasSize(1);
         assertThat(journalLines).contains(expectedJournalLine);
-        assertThat(journalLines.get(0).getQuantity()).isPositive();
+        assertThat(journalLines.getFirst().getQuantity()).isPositive();
 
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeId, accountId);
         verifyNoMoreInteractions(registerTypeRepo, journalMaker);
@@ -110,7 +110,7 @@ class JournalLinesMakerTest {
         // then
         assertThat(journalLines).hasSize(1);
         assertThat(journalLines).contains(expectedJournalLine);
-        assertThat(journalLines.get(0).getQuantity()).isPositive();
+        assertThat(journalLines.getFirst().getQuantity()).isPositive();
 
         verify(registerTypeRepo).get(registerTypeCode);
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeId, accountId);
@@ -141,7 +141,7 @@ class JournalLinesMakerTest {
         // then
         assertThat(journalLines).hasSize(1);
         assertThat(journalLines).contains(expectedJournalLine);
-        assertThat(journalLines.get(0).getQuantity()).isNegative();
+        assertThat(journalLines.getFirst().getQuantity()).isNegative();
 
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeId, accountId);
         verifyNoMoreInteractions(registerTypeRepo, journalMaker);
@@ -180,7 +180,7 @@ class JournalLinesMakerTest {
         // then
         assertThat(journalLines).hasSize(1);
         assertThat(journalLines).contains(expectedJournalLine);
-        assertThat(journalLines.get(0).getQuantity()).isNegative();
+        assertThat(journalLines.getFirst().getQuantity()).isNegative();
 
         verify(registerTypeRepo).get(registerTypeCode);
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeId, accountId);

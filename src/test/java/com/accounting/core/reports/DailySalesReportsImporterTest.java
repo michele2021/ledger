@@ -104,7 +104,7 @@ class DailySalesReportsImporterTest {
         assertThat(errors).isEmpty();
         assertThat(reportRows).hasSize(1);
         assertThat(expectedRow.getRowNumber()).isEqualTo(1L);
-        assertThat(reportRows.get(0)).isEqualTo(expectedRow);
+        assertThat(reportRows.getFirst()).isEqualTo(expectedRow);
         assertThat(report.getFileName()).isEqualTo(TEST_REPORT_FULL_NAME);
 
         verify(csvMapper).map(anyString(), eq(rowNumber));
@@ -131,7 +131,7 @@ class DailySalesReportsImporterTest {
         assertThat(report.getFileName()).isEqualTo(TEST_REPORT_FULL_NAME);
 
         assertThat(errors).hasSize(1);
-        assertThat(errors.get(0)).contains(format("Error - csv file '%s' contains only header row.", TEST_REPORT_FULL_NAME));
+        assertThat(errors.getFirst()).contains(format("Error - csv file '%s' contains only header row.", TEST_REPORT_FULL_NAME));
 
         verify(s3TransferManager).downloadFileByPartialKey(TEST_REPORT_PARTIAL_NAME);
         verifyNoInteractions(csvMapper);
@@ -173,7 +173,7 @@ class DailySalesReportsImporterTest {
 
         assertNotNull(actualReport.getReportRows());
         assertThat(actualReport.getReportRows()).hasSize(1);
-        assertThat(actualReport.getReportRows().get(0)).isEqualTo(expectedRow);
+        assertThat(actualReport.getReportRows().getFirst()).isEqualTo(expectedRow);
         assertEquals(TEST_REPORT_FULL_NAME, actualReport.getFileName());
 
         verify(s3TransferManager).downloadFileByPartialKey(TEST_REPORT_PARTIAL_NAME);

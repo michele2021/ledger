@@ -192,7 +192,7 @@ class JournalMakerTest {
 
 
     @Test
-    void testCreateJournalLinesNotBalanced() throws AccountingMakerException {
+    void testCreateJournalLinesNotBalanced() {
         // given
         int currencyId = 1;
         long journalId = 1L;

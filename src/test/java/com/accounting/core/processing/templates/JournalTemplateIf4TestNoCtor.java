@@ -7,12 +7,11 @@ import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class JournalTemplateIf4TestNoCtor implements JournalTemplateIf {
 
-    @Getter
     public JournalType journalType;
 
-    @Getter
     public JournalMaker journalMaker;
 
     @Override

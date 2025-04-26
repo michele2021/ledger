@@ -28,7 +28,7 @@ public class PaymentReceived extends AbstractTemplate {
                            JournalType journalType,
                            TxType txType,
                            QueueMessage message,
-                           RepositoryHelper repositoryHelper) throws AccountingMakerException, AccountingTemplateException {
+                           RepositoryHelper repositoryHelper) throws AccountingTemplateException {
         super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         this.oriTxReference = message.txReference();
         validateIfTxReferencePresent();

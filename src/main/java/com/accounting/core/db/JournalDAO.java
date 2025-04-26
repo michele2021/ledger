@@ -77,30 +77,31 @@ public interface JournalDAO {
             " ON CONFLICT DO NOTHING")
     void createOrder(@BindBean Order order);
 
-    @SqlQuery("  select t.txId\n" +
-            "        ,t.accountId\n" +
-            "        ,a.accountCode\n" +
-            "        ,txTypeCode\n" +
-            "        ,t.parentTxId\n" +
-            "        ,txReference\n" +
-            "        ,t.creationDate\n" +
-            "        ,t.quantity\n" +
-            "        ,t.currencyId\n" +
-            "        ,c.currencyCode\n" +
-            "        ,jt.journalTypeCode\n" +
-            "        ,j.journalId\n" +
-            "        ,j.bookingDate\n" +
-            "    from orders o" +
-            "    join tx t using (txId)" +
-            "    join config.account a using (accountId)" +
-            "    join config.currency c using (currencyId)" +
-            "    join config.txType txt using (txTypeId)" +
-            "    join journalTx jtx using (txId) " +
-            "    join journal j using (journalId) " +
-            "    join config.journalType jt using (journalTypeId) " +
-            "   where o.externalId = :orderId " +
-            "order by j.bookingDate desc " +
-            " limit 1;")
+    @SqlQuery("""
+              select t.txId
+                    ,t.accountId
+                    ,a.accountCode
+                    ,txTypeCode
+                    ,t.parentTxId
+                    ,txReference
+                    ,t.creationDate
+                    ,t.quantity
+                    ,t.currencyId
+                    ,c.currencyCode
+                    ,jt.journalTypeCode
+                    ,j.journalId
+                    ,j.bookingDate
+                from orders o\
+                join tx t using (txId)\
+                join config.account a using (accountId)\
+                join config.currency c using (currencyId)\
+                join config.txType txt using (txTypeId)\
+                join journalTx jtx using (txId) \
+                join journal j using (journalId) \
+                join config.journalType jt using (journalTypeId) \
+               where o.externalId = :orderId \
+            order by j.bookingDate desc \
+             limit 1;""")
     @RegisterRowMapper(TxRowMapper.class)
     TxJournal getTxJournalByOrderId(long orderId);
 
@@ -182,30 +183,31 @@ public interface JournalDAO {
     @RegisterBeanMapper(TxStatus.class)
     TxStatus getTxStatusWithIssuerAccountByReferenceAndAccountId(String txReference, long accountId);
 
-    @SqlQuery("SELECT j.journalId j_journalId\n" +
-            "        ,j.journalTypeId j_journalTypeId\n" +
-            "        ,j.bookingDate j_bookingDate\n" +
-            "        ,jl.journalId jl_journalId \n" +
-            "        ,jl.journalLineId jl_journalLineId \n" +
-            "        ,jl.batchId jl_batchId \n" +
-            "        ,jl.quantity jl_quantity \n" +
-            "        ,jl.currencyId jl_currencyId \n" +
-            "        ,b.registerTypeId jl_registerTypeId \n" +
-            "        ,rt.registerTypeCode jl_registerTypeCode \n" +
-            "        ,b.accountId jl_accountId \n" +
-            "    FROM journal j \n" +
-            "    JOIN journalLine jl USING (journalId)\n" +
-            "    JOIN batch b USING (batchId)\n" +
-            "    JOIN config.registerType rt using (registerTypeId)\n" +
-            "   WHERE j.journalId = (SELECT j.journalId\n" +
-            "                          FROM tx t\n" +
-            "                          JOIN journalTx jtx USING (txId) \n" +
-            "                          JOIN journal j USING (journalId) \n" +
-            "                          JOIN config.journalType jt USING (journalTypeId) \n" +
-            "                         WHERE t.txReference = :txReference \n" +
-            "                           AND jt.journalTypeCode = :journalTypeCode \n" +
-            "                      ORDER BY j.bookingDate DESC\n" +
-            "                         LIMIT 1)")
+    @SqlQuery("""
+            SELECT j.journalId j_journalId
+                    ,j.journalTypeId j_journalTypeId
+                    ,j.bookingDate j_bookingDate
+                    ,jl.journalId jl_journalId\s
+                    ,jl.journalLineId jl_journalLineId\s
+                    ,jl.batchId jl_batchId\s
+                    ,jl.quantity jl_quantity\s
+                    ,jl.currencyId jl_currencyId\s
+                    ,b.registerTypeId jl_registerTypeId\s
+                    ,rt.registerTypeCode jl_registerTypeCode\s
+                    ,b.accountId jl_accountId\s
+                FROM journal j\s
+                JOIN journalLine jl USING (journalId)
+                JOIN batch b USING (batchId)
+                JOIN config.registerType rt using (registerTypeId)
+               WHERE j.journalId = (SELECT j.journalId
+                                      FROM tx t
+                                      JOIN journalTx jtx USING (txId)\s
+                                      JOIN journal j USING (journalId)\s
+                                      JOIN config.journalType jt USING (journalTypeId)\s
+                                     WHERE t.txReference = :txReference\s
+                                       AND jt.journalTypeCode = :journalTypeCode\s
+                                  ORDER BY j.bookingDate DESC
+                                     LIMIT 1)""")
     @UseRowReducer(JournalDTOReducer.class)
     JournalDTO getLatestJournalByTxReferenceAndJournalTypeCode(String txReference, String journalTypeCode);
 
@@ -286,23 +288,25 @@ public interface JournalDAO {
 
     // N.B. The parameter 'id' is a String, but we are always passing a numeric. Because the numeric can be 19 digits we
     // do not convert to java long (it would not fit).
-    @SqlQuery("   select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate, \n" +
-            "          j.journalId, j.bookingDate, jt.journalTypeCode \n" +
-            "     from tx t \n" +
-            "     join journalTx jtx using (txId) \n" +
-            "     join journal j using (journalId) \n" +
-            "     join config.journalType jt using (journalTypeId) \n" +
-            "    where " +
-            "    accountId = :accountId " +
-            "    and t.txId = (select txId \n" +
-            "                      from tx t1 \n" +
-            "                     where t1.txReference = :id \n" +
-            "                     union \n" +
-            "                    select txId \n" +
-            "                      from token \n" +
-            "                     where publishableId = (:id)::bigint) \n" +
-            " order by j.bookingDate desc \n" +
-            "    limit 1;")
+    @SqlQuery("""
+               select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate,\s
+                      j.journalId, j.bookingDate, jt.journalTypeCode\s
+                 from tx t\s
+                 join journalTx jtx using (txId)\s
+                 join journal j using (journalId)\s
+                 join config.journalType jt using (journalTypeId)\s
+                where \
+                accountId = :accountId \
+                and t.txId = (select txId\s
+                                  from tx t1\s
+                                 where t1.txReference = :id\s
+                                 union\s
+                                select txId\s
+                                  from token\s
+                                 where publishableId = (:id)::bigint)\s
+             order by j.bookingDate desc\s
+                limit 1;\
+            """)
     @RegisterBeanMapper(TxStatus.class)
     TxStatus getTxStatusByReferenceOrTokenSerialNumber(String id, long accountId);
 

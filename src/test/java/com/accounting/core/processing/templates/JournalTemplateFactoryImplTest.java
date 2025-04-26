@@ -94,7 +94,7 @@ class JournalTemplateFactoryImplTest {
 
     }
     @Test
-    void shouldFailMakeJournalTemplateInstanceIfNoCtor() throws Exception {
+    void shouldFailMakeJournalTemplateInstanceIfNoCtor() {
         //given
 
         final QueueMessage message = TestQueueMessage.tokenCreate();

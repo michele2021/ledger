@@ -183,7 +183,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         if (fees.size() > 1) {
             throw new AccountingMakerException("Could not uniquely identify the fee to apply. Applicable fees: " + fees);
         }
-        FeeBase fee = fees.get(0);
+        FeeBase fee = fees.getFirst();
         // N.B. a basic validation of the fee record fetched from the DB is already done at application startup.
 
         if (ObjectUtils.isEmpty(fee.getFeeTiers())) {
