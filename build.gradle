@@ -56,7 +56,7 @@ project.ext {
 
     dropwizard_version = "4.0.12"
     lombok_version = '1.18.36'
-    jdbi3_version = '3.47.0'
+    jdbi3_version = '3.49.1'
     awssdk_version = '2.18.6'
 
     junit_jupiter_version = '5.11.3'
