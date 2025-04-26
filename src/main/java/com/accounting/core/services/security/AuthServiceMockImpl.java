@@ -26,7 +26,7 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         var userId = String.valueOf(user.getUserId());
         // N.B. initially we assume 1 user - 1 company
         var companyRole = user.getCompanyRoles().getFirst();
-        log.info("AuthServiceMockImpl user retrieved from db {}", user);
+        log.info("login - user retrieved from db {}", user);
         // N.B. we could also store the Company accountId in the token (we do not do it for now in case we want in the
         // future this AuthService to be isolated and do not have knowledge about companies/clients).
         var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRole.role().name());
@@ -37,13 +37,15 @@ public class AuthServiceMockImpl implements AuthServiceMock {
     @Override
     public AuthenticationResult refreshToken(String refreshToken) {
         log.info("mock refresh-token!!!!! {}", refreshToken);
-        var user = rsaAuthDecoder.getUser(refreshToken);
-        if (user == null) {
+        var authUser = rsaAuthDecoder.getUser(refreshToken);
+        if (authUser == null) {
             return null;
         }
-        log.info("mock refresh-token!!!!! userId {}", user.userId());
-        // N.B. for now we hardcode "DEFAULT" as a role since this claim of the token is not used anyway.
-        var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.userId()), "DEFAULT");
+        User user = userRepo.get(authUser.userId());
+        log.info("refresh-token - user retrieved from db {}", user);
+        // N.B. initially we assume 1 user - 1 company
+        var companyRole = user.getCompanyRoles().getFirst();
+        var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.getUserId()), companyRole.role().name());
         return new AuthenticationResult(accessToken, refreshToken);
     }
 

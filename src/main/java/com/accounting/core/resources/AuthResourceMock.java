@@ -91,7 +91,6 @@ public class AuthResourceMock {
         var authResult = authServiceMock.refreshToken(refreshToken);
         if (authResult == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
-                    //.header("WWW-Authenticate", "Bearer realm=\"ledger\"")
                     .entity("Refresh token is missing or invalid.")
                     .build();
         }
