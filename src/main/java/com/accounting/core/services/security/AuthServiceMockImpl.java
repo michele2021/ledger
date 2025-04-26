@@ -29,7 +29,7 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         log.info("AuthServiceMockImpl user retrieved from db {}", user);
         // N.B. we could also store the Company accountId in the token (we do not do it for now in case we want in the
         // future this AuthService to be isolated and do not have knowledge about companies/clients).
-        var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRole.role());
+        var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRole.role().name());
         var refreshToken = rsaAuthEncoder.createRefreshToken(userId); // TO be modified (not JWT)
         return new AuthenticationResult(accessToken, refreshToken);
     }
