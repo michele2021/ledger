@@ -41,6 +41,7 @@ public class RepositoryHelper {
     private final TxTypeRepoIf txTypeRepo;
     private final TxVariantRepoIf txVariantRepo;
     private final FeeBaseRepoIf feeBaseRepo;
+    private final UserRepoIf userRepoIf;
     private final AccountDAO accountDAO;
     private final AccountWriteDAO accountWriteDAO;
     private final CacheActionDAO cacheActionDAO;
@@ -58,6 +59,7 @@ public class RepositoryHelper {
         subsystemRepo.init();
         txVariantRepo.init();
         feeBaseRepo.init();
+        userRepoIf.init();
     }
 
     // Checks that all the constants defined in Java are also present in the database.

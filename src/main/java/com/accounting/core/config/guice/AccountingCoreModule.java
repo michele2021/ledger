@@ -23,7 +23,10 @@ import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.db.*;
 import com.accounting.core.processing.TemplateCache;
 import com.accounting.core.queue.KafkaAccountingMessagesQueue;
-import com.accounting.core.services.*;
+import com.accounting.core.services.AccountService;
+import com.accounting.core.services.AccountServiceImpl;
+import com.accounting.core.services.TemplateExecutionService;
+import com.accounting.core.services.TemplateExecutionServiceImpl;
 import com.accounting.core.services.security.AuthServiceMock;
 import com.accounting.core.services.security.AuthServiceMockImpl;
 import com.google.gson.Gson;
@@ -186,6 +189,7 @@ public class AccountingCoreModule extends AbstractModule {
         var subsystemDAO = jdbi.onDemand(SubsystemDAO.class);
         var txVariantDAO = jdbi.onDemand(TxVariantDAO.class);
         var feeBaseDAO = jdbi.onDemand(FeeBaseDAO.class);
+        var userDAO = jdbi.onDemand(UserDAO.class);
 
         bind(AccountCache.class).toInstance(new AccountCache(accountDAO));
         bind(AccountTypeCache.class).toInstance(new AccountTypeCache(accountTypeDAO));
@@ -196,6 +200,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(SubsystemCache.class).toInstance(new SubsystemCache(subsystemDAO));
         bind(TxVariantCache.class).toInstance(new TxVariantCache(txVariantDAO));
         bind(FeeBaseCache.class).toInstance(new FeeBaseCache(feeBaseDAO));
+        bind(UserCache.class).toInstance(new UserCache(userDAO));
     }
 
     private void configureKafka() {
@@ -227,6 +232,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(AccountTypeRepoIf.class).toInstance(new AccountTypeRepoDAO(jdbi.onDemand(AccountTypeDAO.class)));
         bind(TxVariantRepoIf.class).toInstance(new TxVariantRepoDAO(jdbi.onDemand(TxVariantDAO.class)));
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseRepoDAO(jdbi.onDemand(FeeBaseDAO.class)));
+        bind(UserRepoIf.class).toInstance(new UserRepoDAO(jdbi.onDemand(UserDAO.class)));
     }
 
     private void bindRepositoriesToCache() {
@@ -239,6 +245,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(AccountTypeRepoIf.class).toInstance(new AccountTypeCache(jdbi.onDemand(AccountTypeDAO.class)));
         bind(TxVariantRepoIf.class).toInstance(new TxVariantCache(jdbi.onDemand(TxVariantDAO.class)));
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseCache(jdbi.onDemand(FeeBaseDAO.class)));
+        bind(UserRepoIf.class).toInstance(new UserCache(jdbi.onDemand(UserDAO.class)));
     }
 
     private void bindEnvVarRepo() {

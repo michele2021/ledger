@@ -1,45 +1,49 @@
 package com.accounting.core.services.security;
 
+import com.accounting.commons.entities.User;
+import com.accounting.commons.repository.UserRepoIf;
 import com.accounting.commons.resources.security.RSAAuthDecoder;
 import com.accounting.commons.resources.security.RSAAuthEncoder;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
-
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class AuthServiceMockImpl implements AuthServiceMock {
+    private final UserRepoIf userRepo;
     private final RSAAuthEncoder rsaAuthEncoder;
     private final RSAAuthDecoder rsaAuthDecoder;
-    private final Map<String, String> userRoles;
-
-    @Inject
-    public AuthServiceMockImpl(RSAAuthEncoder rsaAuthEncoder, RSAAuthDecoder rsaAuthDecoder) {
-        this.rsaAuthEncoder = rsaAuthEncoder;
-        this.rsaAuthDecoder = rsaAuthDecoder;
-        this.userRoles = Map.of("mic", "SUPER_USER", "pradipta", "SUPER_USER");
-    }
 
     @Override
-    public AuthenticationResult login(JsonNode loginInfo) {
-        var userName = loginInfo.get("username").asText();
-        var clientId = loginInfo.get("clientId").asText();
-        var role = userRoles.get(userName) == null ? "DEFAULT" : userRoles.get(userName);
-        log.info("AuthServiceMockImpl username: {}, clientId {}, role {}.", userName, clientId, role);
-        var accessToken = rsaAuthEncoder.createAccessToken(userName, role);
-        var refreshToken = rsaAuthEncoder.createRefreshToken(userName); // TO be modified (not JWT)
+    public AuthenticationResult login(String username) {
+        User user = userRepo.get(username);
+        if(user == null) {
+            throw new WebApplicationException("User not found.", Response.Status.BAD_REQUEST);
+        }
+        var userId = String.valueOf(user.getUserId());
+        // N.B. initially we assume 1 user - 1 company
+        var companyRole = user.getCompanyRoles().getFirst();
+        log.info("AuthServiceMockImpl user retrieved from db {}", user);
+        // N.B. we could also store the Company accountId in the token (we do not do it for now in case we want in the
+        // future this AuthService to be isolated and do not have knowledge about companies/clients).
+        var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRole.role());
+        var refreshToken = rsaAuthEncoder.createRefreshToken(userId); // TO be modified (not JWT)
         return new AuthenticationResult(accessToken, refreshToken);
     }
 
     @Override
     public AuthenticationResult refreshToken(String refreshToken) {
-        log.info("mock refresh-token!");
-        String userId = rsaAuthDecoder.getAuthUserName(refreshToken);
-        if (userId == null) {
+        log.info("mock refresh-token!!!!! {}", refreshToken);
+        var user = rsaAuthDecoder.getUser(refreshToken);
+        if (user == null) {
             return null;
         }
-        var accessToken = rsaAuthEncoder.createAccessToken(userId, "DEFAULT");
+        log.info("mock refresh-token!!!!! userId {}", user.userId());
+        var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.userId()), "DEFAULT");
+        log.info("mock refresh-token!!!!! new access token created {}", user.userId());
         return new AuthenticationResult(accessToken, refreshToken);
     }
 

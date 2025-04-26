@@ -59,8 +59,9 @@ public class AuthResourceMock {
                     mediaType = MediaType.APPLICATION_JSON
             ))
     public Response login(@Context HttpHeaders headers, @NotNull JsonNode jsonNode) {
-        log.info("login headers: {}, jsonNode {}", headers, jsonNode);
-        var authResult = authServiceMock.login(jsonNode);
+        log.info("Login headers: {}, jsonNode {}", headers, jsonNode);
+        var username = jsonNode.get("username").asText();
+        var authResult = authServiceMock.login(username);
         return Response
                 .ok()
                 .entity(gson.toJson(authResult))
@@ -86,6 +87,7 @@ public class AuthResourceMock {
                     mediaType = MediaType.APPLICATION_JSON
             ))
     public Response refreshToken(@Context HttpHeaders headers, @NotNull JsonNode jsonNode) {
+        // TODO get the refresh token from the jsonNode payload
         String authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
         var authResult = authServiceMock.refreshToken(authHeader);
         if (authResult == null) {
