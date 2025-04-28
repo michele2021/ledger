@@ -10,6 +10,8 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.stream.Collectors;
+
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class AuthServiceMockImpl implements AuthServiceMock {
@@ -25,11 +27,13 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         }
         var userId = String.valueOf(user.getUserId());
         // N.B. initially we assume 1 user - 1 company
-        var companyRole = user.getCompanyRoles().getFirst();
+        var companyRoles = user.getCompanyRoles().stream()
+                .map(companyRole -> companyRole.role().name())
+                .collect(Collectors.toSet());
         log.info("login - user retrieved from db {}", user);
         // N.B. we could also store the Company accountId in the token (we do not do it for now in case we want in the
         // future this AuthService to be isolated and do not have knowledge about companies/clients).
-        var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRole.role().name());
+        var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRoles);
         var refreshToken = rsaAuthEncoder.createRefreshToken(userId); // TO be modified (not JWT)
         return new AuthenticationResult(accessToken, refreshToken);
     }
@@ -44,8 +48,10 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         User user = userRepo.get(authUser.userId());
         log.info("refresh-token - user retrieved from db {}", user);
         // N.B. initially we assume 1 user - 1 company
-        var companyRole = user.getCompanyRoles().getFirst();
-        var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.getUserId()), companyRole.role().name());
+        var companyRoles = user.getCompanyRoles().stream()
+                .map(companyRole -> companyRole.role().name())
+                .collect(Collectors.toSet());
+        var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.getUserId()), companyRoles);
         return new AuthenticationResult(accessToken, refreshToken);
     }
 
