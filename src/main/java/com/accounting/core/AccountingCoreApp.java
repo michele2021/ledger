@@ -5,6 +5,10 @@ import com.accounting.commons.kafka.KafkaMessageConsumer;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.queue.MessageQueueClient;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
+import com.accounting.commons.resources.security.JWTAuthenticationHandler;
+import com.accounting.commons.resources.security.RSAAuthDecoder;
+import com.accounting.commons.resources.security.UserAuthorizer;
+import com.accounting.commons.resources.security.entities.AuthUser;
 import com.accounting.commons.services.SystemNotificationsService;
 import com.accounting.commons.tasks.TasksNames;
 import com.accounting.core.admin.AdminResourceBundle;
@@ -25,12 +29,17 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.DefaultUnauthorizedHandler;
+import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import java.util.Objects;
 
@@ -76,6 +85,21 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         log.info("Initialising accounting config caches and running config validations...");
         RepositoryHelper repositoryHelper = injector.getInstance(RepositoryHelper.class);
         repositoryHelper.initAccountingConfig();
+
+
+        // Authentication
+        var rsaAuthDecoder = injector.getInstance(RSAAuthDecoder.class);
+        var authorizer = injector.getInstance(UserAuthorizer.class);
+        var jwtAuthHandler = new JWTAuthenticationHandler(rsaAuthDecoder);
+        var authFilter = new OAuthCredentialAuthFilter.Builder<AuthUser>()
+                .setAuthenticator(jwtAuthHandler)
+                .setPrefix("Bearer")
+                .setAuthorizer(authorizer) //@RolesAllowed
+                .setUnauthorizedHandler(new DefaultUnauthorizedHandler())
+                .buildAuthFilter();
+        environment.jersey().register(new AuthDynamicFeature(authFilter));
+        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(AuthUser.class));
+        environment.jersey().register(RolesAllowedDynamicFeature.class);
 
         // MessageQueueClient
         registerMessagesQueueClient(environment, injector, config);

@@ -9,6 +9,7 @@ import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
+import com.accounting.commons.repository.UserRepoIf;
 import com.accounting.commons.utils.MappingUtils;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
@@ -44,16 +45,14 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     private static final List<String> ALLOWED_TYPES = List.of(Message.EventType.PAYMENT_RECEIVED.toString(),
             Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString(), Message.EventType.CLIENT_FEE_PAYOUT.toString());
     private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", ALLOWED_TYPES) + "\"";
-
-
     private KafkaMessageProducer<String, String> kafkaMessageProducer;
     private final TemplateCache templateCache;
     private final AccountRepoIf accountRepo;
     private final CurrencyRepoIf currencyRepo;
-
-    private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+    private final UserRepoIf userRepo;
     private final boolean isEnabled;
     private final String defaultQueueTopic;
+    private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
 
     @Inject
     public TemplateExecutionServiceImpl(
@@ -65,6 +64,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         this.templateCache = templateCache;
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
         this.accountRepo = repositoryHelper.getAccountRepo();
+        this.userRepo = repositoryHelper.getUserRepoIf();
         this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
         this.isEnabled = kafkaConfig.isQueueWriteEnabled();
         if (isEnabled) {
@@ -88,9 +88,9 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     @Override
-    public void postJournal(int companyId, JsonNode journalJson) {
+    public void postJournal(long userId, JsonNode journalJson) {
         log.debug("postJournal(): Start: {}", journalJson);
-        var account = validateAccountAndGet(companyId);
+        var account = validateAccountAndGet(userId);
         var message = prepareMessage(account, journalJson);
         try {
             sendMessageToQueue(message);
@@ -215,7 +215,11 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         }
     }
 
-    private Account validateAccountAndGet(long accountId) {
+    private Account validateAccountAndGet(long userId) {
+        Long accountId = userRepo.getUserCompanyAccountId(userId);
+        if (accountId == null) {
+            throw validationError("userId", format("User with id %s does not exists.", userId));
+        }
         var account = accountRepo.get(accountId);
         if (account == null) {
             throw validationError("accountId", format("Account with id %s does not exists.", accountId));

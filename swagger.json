@@ -34,6 +34,9 @@
     "name" : "AccountingQueuesResource",
     "description" : "Controller responsible for queue messages management."
   }, {
+    "name" : "MockLoginResource",
+    "description" : "Controller responsible for mocking an authentication service."
+  }, {
     "name" : "TemplateExecutionResource",
     "description" : "Controller responsible for templates execution."
   } ],
@@ -230,6 +233,238 @@
         }
       }
     },
+    "/auth/change-password" : {
+      "post" : {
+        "tags" : [ "MockLoginResource" ],
+        "summary" : "Simulates a successful password change.",
+        "operationId" : "changePassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login" : {
+      "post" : {
+        "tags" : [ "MockLoginResource" ],
+        "summary" : "Simulates a successful login.",
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh-token" : {
+      "post" : {
+        "tags" : [ "MockLoginResource" ],
+        "summary" : "Simulates a successful token refresh.",
+        "operationId" : "refreshToken",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/revoke-token" : {
+      "post" : {
+        "tags" : [ "MockLoginResource" ],
+        "summary" : "Simulates a successful token revocation.",
+        "operationId" : "revokeToken",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized - missing or invalid API KEY",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 401,
+                  "message" : "User must be authenticated to perform this action."
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "OK - successful response",
+            "content" : {
+              "text/plain" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 400,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/accounting/execute" : {
       "post" : {
         "tags" : [ "TemplateExecutionResource" ],
@@ -337,20 +572,11 @@
         }
       }
     },
-    "/accounting/companies/{companyId}/journals" : {
+    "/accounting/companies/journals" : {
       "post" : {
         "tags" : [ "TemplateExecutionResource" ],
         "summary" : "Post a custom journal",
         "operationId" : "postJournal",
-        "parameters" : [ {
-          "name" : "companyId",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        } ],
         "requestBody" : {
           "description" : "Journal data",
           "content" : {

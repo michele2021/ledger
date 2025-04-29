@@ -3,6 +3,7 @@ package com.accounting.core.resources;
 import com.accounting.commons.SystemConstants;
 import com.accounting.commons.resources.security.ApiKeyAuth;
 import com.accounting.commons.resources.security.PreProcess;
+import com.accounting.commons.resources.security.entities.AuthUser;
 import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.services.TemplateExecutionService;
@@ -11,6 +12,7 @@ import com.accounting.core.swagger.ApiDefaultResponses;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.dropwizard.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -19,7 +21,10 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -101,10 +106,10 @@ public class TemplateExecutionResource {
         return Response.ok().build();
     }
 
+    // @PreProcess(role = SystemConstants.UserRole.SUPER_USER)
     @POST
     @ApiKeyAuth
-    @PreProcess(role = SystemConstants.UserRole.SUPER_USER)
-    @Path("companies/{companyId}/journals")
+    @Path("companies/journals")
     @Operation(summary = "Post a custom journal")
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Consumes(MediaType.APPLICATION_JSON)
@@ -144,9 +149,9 @@ public class TemplateExecutionResource {
                             )
                     }
             ))
-    public Response postJournal(@Context HttpHeaders headers, @PathParam("companyId") int companyId, @NotNull JsonNode journalJson) {
+    public Response postJournal(@Context HttpHeaders headers, @NotNull JsonNode journalJson, @Auth AuthUser user) {
         try {
-            templateExecutionService.postJournal(companyId, journalJson);
+            templateExecutionService.postJournal(user.userId(), journalJson);
             return Response.ok()
                     .build();
         } catch (Exception e) {
@@ -156,6 +161,4 @@ public class TemplateExecutionResource {
                     .build();
         }
     }
-
-
 }
