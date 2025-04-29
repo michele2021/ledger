@@ -38,12 +38,8 @@
   > * `AWS_SNS_FINANCIAL_NOTIFICATIONS_ARN` (default - `arn:aws:sns:$AWS_REGION:000000000000:ledger-financial-notifications-$ENVIRONMENT`)
   > * `AWS_ENDPOINT` (optional - `overrides the default AWS communication endpoint`)
 
-* Cognito:
-  > * `COGNITO_KEY_N1`
-  > * `COGNITO_KEY_N2`
-  > * `COGNITO_KEY_KID1`
-  > * `COGNITO_KEY_KID2`
-  > * `COGNITO_KEY_E`
+* Authentication service:
+  > * `AUTH_JWKS_ENCODE`
 
 * CORS config:
   > * `ALLOWED_ORIGINS_APP` &nbsp;&nbsp;default - `"*"`
@@ -97,6 +93,23 @@ Please make sure all following ports used by docker are available, or simply adj
     </tr>
   </tbody>
 </table>
+
+### Open API
+
++ http://localhost:8086/swagger.json  (display)
++ http://localhost:8086/swagger.yaml  (download)
+
+
+### Gradle Tasks
+
+This project defines custom Gradle tasks to assist with development and documentation.
+
+#### Available Tasks
+
+| Task Name         | Description                                         |
+|-------------------|-----------------------------------------------------|
+| `generateOpenAPI` | Generates `swagger.json` and `swagger.yaml` files for the application's APIs. |
+
 
 ### Run the app
 First, initialize the gradle wrapper. This is required to execute run.sh.

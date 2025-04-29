@@ -81,7 +81,6 @@ dependencies {
 
     implementation 'org.postgresql:postgresql:42.7.4'
     implementation "org.jdbi:jdbi3-sqlobject:${jdbi3_version}"
-    // TODO not available on maven repo?
     implementation "org.jdbi:jdbi3-gson2:${jdbi3_version}"
     implementation "org.jdbi:jdbi3-postgres:${jdbi3_version}"
 
@@ -137,7 +136,7 @@ publishing {
     }
 }
 
-    tasks.register('generateOpenAPI', JavaExec) {
+tasks.register('generateOpenAPI', JavaExec) {
     description = 'Generate OpenAPI specification'
     group = 'documentation'
 
