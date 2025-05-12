@@ -12,26 +12,26 @@ import lombok.Value;
 public class QueueMessageDTO {
 
     @Schema(description = "Message type, determine how some other fields are handled.",
-            allowableValues = {"PAYMENT_RECEIVED", "PAYMENT_RECEIVED_CORRECTION", "CLIENT_FEE_PAYOUT", "JOURNAL_POST"}, required = true)
+            allowableValues = {"PAYMENT_RECEIVED", "PAYMENT_RECEIVED_CORRECTION", "CLIENT_FEE_PAYOUT", "JOURNAL_POST"}, requiredMode = Schema.RequiredMode.REQUIRED)
     String type;
 
-    @Schema(description = "Code of account, account must exist in database.", required = true)
+    @Schema(description = "Code of account, account must exist in database.", requiredMode = Schema.RequiredMode.REQUIRED)
     String accountCode;
 
     @Schema(description = "Amount to be booked.")
     QueueMessageAmountDTO amount;
 
-    @Schema(description = "The unique identifier of the card token. This can be any string but must be globally unique in the API Client systems. Our recommended and preferred format is UUID V4.")
+    @Schema(description = "A unique identifier. Our recommended and preferred format is UUID V4.")
     String uuid;
 
-    @Schema(description = "Transaction reference, ex. card token id.")
+    @Schema(description = "Transaction reference")
     String txReference;
 
     @Schema(description = "Additional data, exact format depends on the message type.")
     JsonNode additionalData;
 
     @Schema(description = "Source of message, must be FRONT_END_APP",
-            allowableValues = "FRONT_END_APP", required = true)
+            allowableValues = "FRONT_END_APP", requiredMode = Schema.RequiredMode.REQUIRED)
     String source;
 
     @Schema(description = "Timestamp, used only to circumvent SQS deduplication.", hidden = true)

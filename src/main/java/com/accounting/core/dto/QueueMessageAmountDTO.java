@@ -11,12 +11,12 @@ import java.math.BigDecimal;
 public class QueueMessageAmountDTO {
 
     @Schema(description = "Amount to be booked.",
-            minimum = "0", required = true,
+            minimum = "0", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "123.45")
     BigDecimal quantity;
 
     @Schema(description = "Currency ISO code.",
-            minLength = 3, required = true,
+            minLength = 3, requiredMode = Schema.RequiredMode.REQUIRED ,
             example = "EUR")
     String currencyCode;
 

@@ -98,7 +98,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
 
     final void validateIfTxReferencePresent() throws AccountingTemplateException {
         if (txReference == null) {
-            throw new AccountingTemplateException("Mandatory original txReference (cardTokenId) not found in the queue message.");
+            throw new AccountingTemplateException("Mandatory original txReference not found in the queue message.");
         }
     }
 
