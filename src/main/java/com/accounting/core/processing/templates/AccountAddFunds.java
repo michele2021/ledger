@@ -109,7 +109,7 @@ public class AccountAddFunds extends AbstractTemplate {
         // Handling Fee + VAT
         if (Objects.nonNull(handlingFeeAmount)) {
             addDebitLine(journalId, journalLines, Constants.RegisterType.Fee, ccAccountId, handlingFeeAmount);
-            addDebitLine(journalId, journalLines, Constants.RegisterType.VAT, ccAccountId, vatAmount);
+            addDebitLine(journalId, journalLines, Constants.RegisterType.VAT_OUT, ccAccountId, vatAmount);
         }
         // Discount
 //        if (Objects.nonNull(discountAmount)) {
@@ -145,7 +145,7 @@ public class AccountAddFunds extends AbstractTemplate {
         // Handling Fee + VAT
         if (Objects.nonNull(handlingFeeAmount)) {
             addCreditLine(journalId, journalLines, Constants.RegisterType.Fee, ccAccountId, handlingFeeAmount);
-            addCreditLine(journalId, journalLines, Constants.RegisterType.VAT, ccAccountId, vatAmount);
+            addCreditLine(journalId, journalLines, Constants.RegisterType.VAT_OUT, ccAccountId, vatAmount);
         }
         // Discount
 //        if (Objects.nonNull(discountAmount)) {

@@ -273,7 +273,7 @@ public class AccountAddFundsCorrectionTest {
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Fee.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeFeeId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.VAT.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.VAT_OUT.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeVATId).build());
 
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.OpenBalance.toString()))

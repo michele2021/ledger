@@ -8,12 +8,45 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
-      "vat-rate": {
-        "description": "VAT percentage",
-        "type": "integer",
-        "exclusiveMinimum": 0
+      "lineItems": {
+        "description": "Array of tokens to process",
+        "type": "array",
+        "minItems": 1,
+        "item": {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "type": "integer",
+              "exclusiveMinimum": 0
+            },
+            "price": {
+              "type": "string"
+            },
+            "sku": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "sku",
+            "price",
+            "quantity"
+          ]
+        }
+      },
+      "orderNumber": {
+        "type": "integer"
+      },
+      "totalTax": {
+        "type": "string"
+      },
+      "billingAddress": {
+        "type": "string"
       }
     },
-    "required": []
+    "required": [
+      "lineItems",
+      "orderNumber",
+      "billingAddress"
+    ]
   }
 }
