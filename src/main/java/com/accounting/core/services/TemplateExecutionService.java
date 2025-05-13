@@ -6,5 +6,5 @@ import com.fasterxml.jackson.databind.JsonNode;
 public interface TemplateExecutionService {
 
     void executeTemplate(QueueMessageDTO message);
-    void postJournal(long userId, JsonNode journalJson);
+    void postJournal(long accountId, JsonNode journalJson);
 }

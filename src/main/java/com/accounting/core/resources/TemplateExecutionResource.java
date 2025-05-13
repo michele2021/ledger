@@ -149,9 +149,9 @@ public class TemplateExecutionResource {
                             )
                     }
             ))
-    public Response postJournal(@Context HttpHeaders headers, @NotNull JsonNode journalJson, @Auth AuthUser user) {
+    public Response postJournal(@Context HttpHeaders headers, @Auth AuthUser user, @NotNull JsonNode journalJson) {
         try {
-            templateExecutionService.postJournal(user.userId(), journalJson);
+            templateExecutionService.postJournal(user.companyAccountId(), journalJson);
             return Response.ok()
                     .build();
         } catch (Exception e) {
