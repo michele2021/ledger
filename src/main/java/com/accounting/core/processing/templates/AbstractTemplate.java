@@ -135,7 +135,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
     }
 
     final JsonElement getAdditionalData(Message.AdditionalData additionalDataType) throws AccountingMakerException {
-        return AccountingUtils.getAdditionalData(additionalData, additionalDataType);
+        return AccountingUtils.getMandatoryAdditionalData(additionalData, additionalDataType);
     }
 
     @Nullable
