@@ -90,7 +90,7 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         // Authentication
         var rsaAuthDecoder = injector.getInstance(RSAAuthDecoder.class);
         var authorizer = injector.getInstance(UserAuthorizer.class);
-        var jwtAuthHandler = new JWTAuthenticationHandler(rsaAuthDecoder);
+        var jwtAuthHandler = new JWTAuthenticationHandler(rsaAuthDecoder, repositoryHelper.getUserRepoIf());
         var authFilter = new OAuthCredentialAuthFilter.Builder<AuthUser>()
                 .setAuthenticator(jwtAuthHandler)
                 .setPrefix("Bearer")

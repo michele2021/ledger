@@ -41,11 +41,11 @@ public class AuthServiceMockImpl implements AuthServiceMock {
     @Override
     public AuthenticationResult refreshToken(String refreshToken) {
         log.info("mock refresh-token!!!!! {}", refreshToken);
-        var authUser = rsaAuthDecoder.getUser(refreshToken);
-        if (authUser == null) {
+        var jwtToken = rsaAuthDecoder.getUserToken(refreshToken);
+        if (jwtToken == null) {
             return null;
         }
-        User user = userRepo.get(authUser.userId());
+        User user = userRepo.get(jwtToken.userId());
         log.info("refresh-token - user retrieved from db {}", user);
         // N.B. initially we assume 1 user - 1 company
         var companyRoles = user.getCompanyRoles().stream()
