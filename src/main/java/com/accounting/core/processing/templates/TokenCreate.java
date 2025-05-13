@@ -74,7 +74,7 @@ public class TokenCreate extends AbstractTemplate {
     @Override
     public List<SpecializedTx> buildSpecializedTxs(long txId) {
         List<SpecializedTx> ret = new ArrayList<>();
-        String lr = getAdditionalData(activatingLocationRef, JsonElement::getAsString); // we define "locationRef" as the "activatingLocationRef" passed in the TOKEN_CREATE message.
+        String lr = "activatingLocationRel";
         String oiId = getAdditionalData(orderItemId, JsonElement::getAsString);
         // TODO oId should possibly be configured as mandatory in the JSON Schema
         Long oId = getAdditionalData(orderId, JsonElement::getAsLong);

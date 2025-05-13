@@ -11,7 +11,6 @@ import com.accounting.core.entities.TxStatus;
 import com.accounting.core.exceptions.AccountingTemplateException;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
-import com.google.gson.JsonElement;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -23,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.accounting.commons.Message.AdditionalData.*;
+import static com.accounting.commons.Message.AdditionalData.bookingDate;
+import static com.accounting.commons.Message.AdditionalData.expiryDate;
 import static java.lang.String.format;
 
 @Slf4j
@@ -99,9 +99,9 @@ public class TokenActivate extends AbstractTemplate {
     public void updateSpecializedTx() throws AccountingMakerException {
         // we already verified before that the mandatory additional data exists.
         LocalDate expiryLD = LocalDate.parse(getAdditionalData(expiryDate).getAsString(), DateTimeFormatter.ISO_LOCAL_DATE);
-        String alr = getAdditionalData(activatingLocationRef, JsonElement::getAsString);
-        String atz = getAdditionalData(activationTimezone, JsonElement::getAsString);
-        String att = getAdditionalData(activationTimestamp, JsonElement::getAsString);
+        String alr = "getAdditionalData";
+        String atz = "activationTimezone";
+        String att = "getAdditionalData";
         OffsetDateTime ats = null;
         if (Objects.nonNull(att) && Objects.nonNull(atz)) {
             Instant instant = Instant.parse(att);

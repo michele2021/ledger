@@ -78,9 +78,9 @@ public class TokenCreateActive extends AbstractTemplate {
         List<SpecializedTx> ret = new ArrayList<>();
 
         LocalDate expiryLD = LocalDate.parse(getAdditionalData(expiryDate).getAsString(), DateTimeFormatter.ISO_LOCAL_DATE);
-        String alr = getAdditionalData(activatingLocationRef, JsonElement::getAsString);
-        String atz = getAdditionalData(activationTimezone, JsonElement::getAsString);
-        String att = getAdditionalData(activationTimestamp, JsonElement::getAsString);
+        String alr = "getAdditionalData";
+        String atz = "getAdditionalData";
+        String att = "getAdditionalData";
         OffsetDateTime ats = null;
         if(Objects.nonNull(att) && Objects.nonNull(atz)) {
             Instant instant = Instant.parse(att);
