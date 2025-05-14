@@ -8,6 +8,7 @@ import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
+import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.TaxLine;
 import com.accounting.core.entities.Tx;
@@ -71,12 +72,7 @@ public class OrderReceived extends AbstractTemplate {
     public List<JournalLine> buildJournalLines(long journalId) {
         var journalLines = new ArrayList<JournalLine>();
 
-        // tax lines not mandatory for now
-        long vatQuantity = taxLines.stream()
-                .map(TaxLine::price)
-                .map(BigDecimal::new)
-                .map(p -> Constants.toMinorUnits(amount.getCurrencyCode(), p))
-                .reduce(Long::sum).orElse(0L);
+        long vatQuantity = getVatQuantity();
         var revenueAmount = amount.subtract(vatQuantity);
 
         // Debit
@@ -91,5 +87,17 @@ public class OrderReceived extends AbstractTemplate {
         }
 
         return journalLines;
+    }
+
+    // tax lines not mandatory for now
+    private long getVatQuantity() {
+        if(AccountingUtils.isEmptyOrNull(taxLines)) {
+            return 0L;
+        }
+        return taxLines.stream()
+                .map(TaxLine::price)
+                .map(BigDecimal::new)
+                .map(p -> Constants.toMinorUnits(amount.getCurrencyCode(), p))
+                .reduce(Long::sum).orElse(0L);
     }
 }
