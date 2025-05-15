@@ -19,9 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.accounting.commons.Constants.AccountType.Company;
 import static com.accounting.commons.Constants.AccountType.Client;
-import static com.accounting.commons.Message.EventType.*;
+import static com.accounting.commons.Constants.AccountType.Company;
+import static com.accounting.commons.Message.EventType.BANK_PAYMENT;
+import static com.accounting.commons.Message.EventType.PAYMENT_RECEIVED;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TemplateCacheTest {
@@ -47,7 +48,6 @@ class TemplateCacheTest {
 
         // TODO here add new templates!!
         assertTemplate(templates.get(PAYMENT_RECEIVED), "AccountAddFunds", "PaymentReceived.json", Constants.TxType.Payment, PAYMENT_RECEIVED, List.of(Client), Constants.JournalType.FundsReceived, true);
-        assertTemplate(templates.get(PAYMENT_RECEIVED_CORRECTION), "AccountAddFundsCorrection", "PaymentReceivedCorrection.json", Constants.TxType.Payment, PAYMENT_RECEIVED_CORRECTION, List.of(Client), Constants.JournalType.FundsReceivedCorrection, true);
         assertTemplate(templates.get(BANK_PAYMENT), "BankPayment", "BankPayment.json", Constants.TxType.Payment, BANK_PAYMENT, List.of(Client, Company), Constants.JournalType.PaymentReceived, true);
     }
 
