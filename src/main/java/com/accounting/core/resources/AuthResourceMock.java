@@ -63,8 +63,7 @@ public class AuthResourceMock {
         var username = jsonNode.get("username").asText();
         var authResult = authServiceMock.login(username);
         return Response
-                .ok()
-                .entity(gson.toJson(authResult))
+                .ok(authResult)
                 .build();
     }
 

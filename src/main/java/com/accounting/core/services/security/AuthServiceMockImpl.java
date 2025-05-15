@@ -35,7 +35,7 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         // future this AuthService to be isolated and do not have knowledge about companies/clients).
         var accessToken = rsaAuthEncoder.createAccessToken(userId, companyRoles);
         var refreshToken = rsaAuthEncoder.createRefreshToken(userId); // TO be modified (not JWT)
-        return new AuthenticationResult(accessToken, refreshToken);
+        return new AuthenticationResult(accessToken, refreshToken, user.userDTO());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AuthServiceMockImpl implements AuthServiceMock {
                 .map(companyRole -> companyRole.role().name())
                 .collect(Collectors.toSet());
         var accessToken = rsaAuthEncoder.createAccessToken(String.valueOf(user.getUserId()), companyRoles);
-        return new AuthenticationResult(accessToken, refreshToken);
+        return new AuthenticationResult(accessToken, refreshToken, user.userDTO());
     }
 
     @Override
