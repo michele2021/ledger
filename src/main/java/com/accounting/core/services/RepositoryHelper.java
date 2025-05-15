@@ -103,7 +103,7 @@ public class RepositoryHelper {
         validateConstantTypes("TxType", txTypeRepo, Stream.of(Constants.TxType.values()).map(Enum::name).toArray(String[]::new));
         validateConstantTypes("Currency", currencyRepo, Stream.of(Constants.Currencies.values()).map(Enum::name).toArray(String[]::new));
         validateConstantTypes("TxVariant", txVariantRepo, Stream.of(Constants.TxVariant.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("Platform", platformRepo, Stream.of(Constants.Platforms.values()).map(Enum::name).toArray(String[]::new));
+        validateConstantTypes("Platform", platformRepo, Stream.of(Constants.Platform.values()).map(Enum::name).toArray(String[]::new));
         validateFeeBase();
     }
 
