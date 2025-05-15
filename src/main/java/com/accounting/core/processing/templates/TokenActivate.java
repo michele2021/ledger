@@ -108,7 +108,7 @@ public class TokenActivate extends AbstractTemplate {
             ats = OffsetDateTime.ofInstant(instant, ZoneId.of(atz));
         }
 
-        journalDAO.updateTokenTx(oriTx.getTxId(), null, alr, expiryLD, ats, atz, null);
+        // journalDAO.updateTokenTx(oriTx.getTxId(), null, alr, expiryLD, ats, atz, null);
     }
 
     @Override

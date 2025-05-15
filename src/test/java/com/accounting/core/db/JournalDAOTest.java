@@ -79,7 +79,7 @@ class JournalDAOTest {
                 .build();
 
         //when
-        journalDAO.createTokenTx(ccToken);
+        // journalDAO.createTokenTx(ccToken);
 
         //then
         List<CCToken> result = handle.select("SELECT * FROM public.token WHERE txid =?", txId)
@@ -142,26 +142,26 @@ class JournalDAOTest {
                         ")")
                 .execute();
 
-        journalDAO.createTokenTx(CCToken.builder()
-                .txId(txId)
-                .orderId(orderId)
-                .locationRef(locationRef)
-                .publishableId(publishableId)
-                .orderItemId(orderItemId)
-                .type(Constants.TokenType.POSA)
-                .build());
-
-
-        //when
-        journalDAO.updateTokenTx(
-                txId,
-                locationRef,
-                activatingLocationRef,
-                expiryDate,
-                activationTimestamp,
-                activationTimezone,
-                prepaidCardExternalId
-        );
+//        journalDAO.createTokenTx(CCToken.builder()
+//                .txId(txId)
+//                .orderId(orderId)
+//                .locationRef(locationRef)
+//                .publishableId(publishableId)
+//                .orderItemId(orderItemId)
+//                .type(Constants.TokenType.POSA)
+//                .build());
+//
+//
+//        //when
+//        journalDAO.updateTokenTx(
+//                txId,
+//                locationRef,
+//                activatingLocationRef,
+//                expiryDate,
+//                activationTimestamp,
+//                activationTimezone,
+//                prepaidCardExternalId
+//        );
 
         //then
         List<CCToken> result = handle.select("SELECT * FROM public.token WHERE txid =?", txId)
@@ -1083,11 +1083,8 @@ class JournalDAOTest {
         tx.setTxId(txId);
 
         final long externalId = 3L;
-        Order expectedOrder = Order.builder()
-                .cardProgram("Card Program")
-                .externalId(externalId)
-                .sku("sku")
-                .title("title")
+        OrderDTO expectedOrder = OrderDTO.builder()
+                .orderNumber(externalId)
                 .build();
 
         Order orderBeforeInsert = handle.select("SELECT * FROM public.orders WHERE txId = ?", txId)

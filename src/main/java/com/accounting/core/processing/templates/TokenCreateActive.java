@@ -109,10 +109,8 @@ public class TokenCreateActive extends AbstractTemplate {
         ret.add(token);
 
         if(oId != null) {
-            SpecializedTx order = Order.builder()
-                    .orderId(oId)
-                    .orderRef(oRef)
-                    .orderType(oType)
+            SpecializedTx order = OrderDTO.builder()
+                    .orderNumber(oId)
                     .build();
             ret.add(order);
         }

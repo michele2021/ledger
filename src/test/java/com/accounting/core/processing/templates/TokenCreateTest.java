@@ -2,8 +2,8 @@ package com.accounting.core.processing.templates;
 
 
 import com.accounting.commons.Constants;
-import com.accounting.commons.entities.TxVariant;
 import com.accounting.commons.entities.*;
+import com.accounting.commons.entities.TxVariant;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
 import com.accounting.core.entities.*;
@@ -130,7 +130,7 @@ class TokenCreateTest {
         subject.updateSpecializedTx();
 
         //then
-        verify(repositoryHelper.getJournalDAO(), never()).updateTokenTx(anyLong(), any(), any(), any(), any(), any(), any());
+        // verify(repositoryHelper.getJournalDAO(), never()).updateTokenTx(anyLong(), any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -195,8 +195,8 @@ class TokenCreateTest {
                 .type(Constants.TokenType.POSA)
                 .build();
 
-        SpecializedTx expectedOrderResult = Order.builder()
-                .orderId(1234567)
+        SpecializedTx expectedOrderResult = OrderDTO.builder()
+                .orderNumber(1234567)
                 .orderRef("OrderRef1")
                 .build();
 

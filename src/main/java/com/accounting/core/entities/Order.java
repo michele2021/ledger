@@ -1,26 +1,20 @@
 package com.accounting.core.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.accounting.commons.Constants;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Order implements SpecializedTx {
+import java.util.List;
 
-    private long orderId;
-    private Long externalId;
-    private String orderType;
-    private String orderRef;
-    private String sku;
-    private String title;
-    private String cardProgram;
+public record Order(
+        Constants.Platform platform,
+        long orderNumber,
+        String totalTax,
+        String billingAddressCountry,
+        String shippingAddressCountry,
+        String createdAt,
+        List<OrderItem> orderItems,
+        List<TaxLine> taxLines) {
 
-    @Override
-    public boolean isOrder() {
-        return true;
+    public OrderDTO orderDTO(long txId, long platformId) {
+        return new OrderDTO(platformId, txId, orderNumber, totalTax, billingAddressCountry, shippingAddressCountry, createdAt, orderItems, taxLines);
     }
 }

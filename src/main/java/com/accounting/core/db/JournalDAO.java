@@ -2,15 +2,16 @@ package com.accounting.core.db;
 
 import com.accounting.commons.Constants;
 import com.accounting.commons.entities.Amount;
+import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.core.db.reducers.JournalDTOReducer;
 import com.accounting.core.entities.*;
 import com.accounting.core.entities.composite.TxJournal;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.BindMethods;
 import org.jdbi.v3.sqlobject.statement.*;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -72,10 +73,23 @@ public interface JournalDAO {
     Batch getAvailableBatch(int registerTypeId, long accountId);
     // Batch management end.
 
-    @SqlUpdate("insert into orders(orderId, orderType, orderRef, externalId, title, sku, cardProgram) values (\n" +
-            " :orderId, :orderType, :orderRef, :externalId, :title, :sku, :cardProgram)" +
-            " ON CONFLICT DO NOTHING")
-    void createOrder(@BindBean Order order);
+    @SqlUpdate("""
+               insert into orders(txId, platformId, orderNumber, billingAddressCountry, shippingAddressCountry)
+                values (:txId, :platformId, :orderNumber, :billingAddressCountry, :shippingAddressCountry)""")
+    void createOrders(@BindMethods OrderDTO order);
+
+    @SqlBatch("""
+             insert into orderLine(orderId, price, quantity, id, name, sku)
+                values (:orderId, :price, :quantity, :id, :name, :sku)""")
+    void createOrderItems(@BindMethods OrderItem... items);
+
+    default void createOrder(OrderDTO order) {
+        createOrders(order);
+        var items = order.orderItems();
+        if(!AccountingUtils.isEmptyOrNull(items)) {
+            createOrderItems(items.toArray(OrderItem[]::new));
+        }
+    }
 
     @SqlQuery("""
               select t.txId
@@ -244,47 +258,12 @@ public interface JournalDAO {
     @RegisterBeanMapper(Journal.class)
     Journal getJournalByTxIdAndType(long txId, Constants.JournalType journalType);
 
-    // Tokens
-    @SqlUpdate("insert into token(" +
-            " txId, publishableId, expiryDate, locationRef, activatingLocationRef, " +
-            " activationTimestamp, activationTimezone, orderId, type, orderItemId, clientMetadata, client, prepaidCardExternalId" +
-            ") values ( " +
-            " :txId, :publishableId::numeric, :expiryDate, :locationRef, :activatingLocationRef, " +
-            " :activationTimestamp, :activationTimezone, :orderId, :type, :orderItemId, :clientMetadata, :client, :prepaidCardExternalId" +
-            ")")
-    void createTokenTx(@BindBean CCToken token);
-
-    @SqlUpdate("update token" +
-            "   set expiryDate = coalesce(:expiryDate, expiryDate)" +
-            "      ,locationRef = coalesce(:locationRef, locationRef)" +
-            "      ,activatingLocationRef = coalesce(:activatingLocationRef, activatingLocationRef)" +
-            "      ,activationTimestamp = coalesce(:activationTimestamp, activationTimestamp)" +
-            "      ,activationTimezone = coalesce(:activationTimezone, activationTimezone)" +
-            "      ,prepaidCardExternalId = coalesce(:prepaidCardExternalId, prepaidCardExternalId)" +
-            "      ,updated = now()" +
-            " where txId = :txId")
-    void updateTokenTx(
-            long txId,
-            String locationRef,
-            String activatingLocationRef,
-            LocalDate expiryDate,
-            OffsetDateTime activationTimestamp,
-            String activationTimezone,
-            String prepaidCardExternalId);
-
     @SqlQuery("select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate " +
             "  from token " +
             "   join tx using (txId) " +
             "  where publishableId = :serialNumber")
     @RegisterBeanMapper(Tx.class)
     Tx getTxByTokenSerialNumber(long serialNumber);
-
-    // Cards
-    @SqlUpdate("insert into card(" +
-            " txId, prepaidCardExternalId, expiryDate " +
-            ") values ( " +
-            " :txId, :prepaidCardExternalId, :expiryDate)")
-    void createCardTx(@BindBean Card card);
 
     // N.B. The parameter 'id' is a String, but we are always passing a numeric. Because the numeric can be 19 digits we
     // do not convert to java long (it would not fit).

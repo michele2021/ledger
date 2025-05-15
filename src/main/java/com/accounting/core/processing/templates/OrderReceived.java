@@ -1,27 +1,21 @@
 package com.accounting.core.processing.templates;
 
 import com.accounting.commons.Constants;
-import com.accounting.commons.Message;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.entities.Amount;
 import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
+import com.accounting.commons.repository.database.PlatformRepoIf;
 import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.commons.utils.SerializationUtil;
-import com.accounting.core.entities.JournalLine;
-import com.accounting.core.entities.TaxLine;
-import com.accounting.core.entities.Tx;
+import com.accounting.core.entities.*;
 import com.accounting.core.exceptions.AccountingTemplateException;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +25,8 @@ import static java.lang.String.format;
 
 @Slf4j
 public class OrderReceived extends AbstractTemplate {
-
-    private JsonArray lineItems;
-    private final List<TaxLine> taxLines;
+    private final Order order;
+    private final PlatformRepoIf platformRepo;
 
     public OrderReceived(JournalMaker journalMaker,
                                Account account,
@@ -44,13 +37,10 @@ public class OrderReceived extends AbstractTemplate {
                                RepositoryHelper repositoryHelper) throws AccountingTemplateException {
         super(txType, account, message.txReference(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
 
+        this.platformRepo = repositoryHelper.getPlatformRepo();
         // TODO store the order and the line items.
-        this.lineItems = getAdditionalData(Message.AdditionalData.lineItems, JsonElement::getAsJsonArray);
-        var taxLinesAsJson = getAdditionalData(Message.AdditionalData.taxLines, JsonElement::getAsJsonArray);
-        Type type = new TypeToken<List<TaxLine>>(){}.getType();
         var gson = SerializationUtil.getGson();
-        this.taxLines = gson.fromJson(taxLinesAsJson, type);
-
+        this.order = gson.fromJson(additionalData, Order.class);
         validateIfTxReferencePresent();
     }
 
@@ -65,6 +55,18 @@ public class OrderReceived extends AbstractTemplate {
     @Override
     public Tx buildTx() {
         return buildBaseTx();
+    }
+
+    @Override
+    public boolean addSpecializedTx() {
+        return true;
+    }
+
+    @Override
+    public List<SpecializedTx> buildSpecializedTxs(long txId) {
+        var platform = platformRepo.get(order.platform().toString());
+        var orderDTO = order.orderDTO(txId, platform.getID());
+        return List.of(orderDTO);
     }
 
     @Override
@@ -90,6 +92,7 @@ public class OrderReceived extends AbstractTemplate {
 
     // tax lines not mandatory for now
     private long getVatQuantity() {
+        var taxLines = order.taxLines();
         if(AccountingUtils.isEmptyOrNull(taxLines)) {
             return 0L;
         }

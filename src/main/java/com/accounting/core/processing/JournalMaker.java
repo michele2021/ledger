@@ -68,18 +68,13 @@ public class JournalMaker {
         }
         if (addSpecializedTx) {
             List<SpecializedTx> specializedTxs = journalTemplateImpl.buildSpecializedTxs(mainTxId);
-            for(SpecializedTx specializedTx : specializedTxs) {
-                // TODO consider using pattern matching: "if (specializedTx instanceof Order order)"
-                if (specializedTx.isOrder()) {
-                    // Order, strictly speaking, is not a specialized Tx, since no corresponding tx is created/linked.
-                    // TODO possibly rename SpecializedTx to something else, since a corresponding tx is no longer always required.
-                    dao.createOrder((Order) specializedTx);
-                } else if (specializedTx.isCCToken()) {
-                    dao.createTokenTx((CCToken) specializedTx);
-                } else if (specializedTx.isCard()) {
-                    dao.createCardTx((Card) specializedTx);
-                } else {
-                    throw new AccountingMakerException(format("Specialized Tx is of an unrecognized type, for txId: %s", mainTxId));
+            for (SpecializedTx tx : specializedTxs) {
+                switch (tx) {
+                    case OrderDTO order -> dao.createOrder(order);
+                    // case CCToken token -> dao.createTokenTx(token);
+                    default -> throw new AccountingMakerException(
+                            String.format("Unrecognized SpecializedTx type for txId: %s", mainTxId)
+                    );
                 }
             }
         }

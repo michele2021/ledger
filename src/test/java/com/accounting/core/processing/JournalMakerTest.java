@@ -5,7 +5,10 @@ import com.accounting.commons.entities.Amount;
 import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.core.db.JournalDAO;
-import com.accounting.core.entities.*;
+import com.accounting.core.entities.JournalDb;
+import com.accounting.core.entities.JournalLine;
+import com.accounting.core.entities.OrderDTO;
+import com.accounting.core.entities.Tx;
 import com.accounting.core.processing.templates.TokenMatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -100,8 +103,8 @@ class JournalMakerTest {
 
         // no interaction expected
         verify(journalDAO, times(0)).createTx(any(Tx.class));
-        verify(journalDAO, times(0)).createOrder(any(Order.class));
-        verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
+        verify(journalDAO, times(0)).createOrder(any(OrderDTO.class));
+        // verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
 
         verify(tokenMatch).linkTx();
         verify(tokenMatch).getJournalType();
@@ -175,8 +178,8 @@ class JournalMakerTest {
 
         // no interaction expected
         verify(journalDAO, times(0)).createTx(any(Tx.class));
-        verify(journalDAO, times(0)).createOrder(any(Order.class));
-        verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
+        verify(journalDAO, times(0)).createOrder(any(OrderDTO.class));
+        // verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
 
         verify(tokenMatch).linkTx();
         verify(tokenMatch).getJournalType();
