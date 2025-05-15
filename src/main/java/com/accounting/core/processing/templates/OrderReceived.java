@@ -9,13 +9,13 @@ import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
 import com.accounting.commons.utils.AccountingUtils;
+import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.TaxLine;
 import com.accounting.core.entities.Tx;
 import com.accounting.core.exceptions.AccountingTemplateException;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
@@ -34,7 +34,6 @@ public class OrderReceived extends AbstractTemplate {
 
     private JsonArray lineItems;
     private final List<TaxLine> taxLines;
-    private final Gson gson;
 
     public OrderReceived(JournalMaker journalMaker,
                                Account account,
@@ -45,12 +44,12 @@ public class OrderReceived extends AbstractTemplate {
                                RepositoryHelper repositoryHelper) throws AccountingTemplateException {
         super(txType, account, message.txReference(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
 
-        this.gson = new Gson();
         // TODO store the order and the line items.
         this.lineItems = getAdditionalData(Message.AdditionalData.lineItems, JsonElement::getAsJsonArray);
         var taxLinesAsJson = getAdditionalData(Message.AdditionalData.taxLines, JsonElement::getAsJsonArray);
         Type type = new TypeToken<List<TaxLine>>(){}.getType();
-        this.taxLines = new Gson().fromJson(taxLinesAsJson, type);
+        var gson = SerializationUtil.getGson();
+        this.taxLines = gson.fromJson(taxLinesAsJson, type);
 
         validateIfTxReferencePresent();
     }
