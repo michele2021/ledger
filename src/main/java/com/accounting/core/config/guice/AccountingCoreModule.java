@@ -188,6 +188,7 @@ public class AccountingCoreModule extends AbstractModule {
         var currencyDAO = jdbi.onDemand(CurrencyDAO.class);
         var subsystemDAO = jdbi.onDemand(SubsystemDAO.class);
         var txVariantDAO = jdbi.onDemand(TxVariantDAO.class);
+        var platformDAO = jdbi.onDemand(PlatformDAO.class);
         var feeBaseDAO = jdbi.onDemand(FeeBaseDAO.class);
         var userDAO = jdbi.onDemand(UserDAO.class);
 
@@ -199,6 +200,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(CurrencyCache.class).toInstance(new CurrencyCache(currencyDAO));
         bind(SubsystemCache.class).toInstance(new SubsystemCache(subsystemDAO));
         bind(TxVariantCache.class).toInstance(new TxVariantCache(txVariantDAO));
+        bind(PlatformCache.class).toInstance(new PlatformCache(platformDAO));
         bind(FeeBaseCache.class).toInstance(new FeeBaseCache(feeBaseDAO));
         bind(UserCache.class).toInstance(new UserCache(userDAO));
     }
@@ -231,6 +233,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(AccountRepoIf.class).toInstance(new AccountRepoDAO(jdbi.onDemand(AccountDAO.class)));
         bind(AccountTypeRepoIf.class).toInstance(new AccountTypeRepoDAO(jdbi.onDemand(AccountTypeDAO.class)));
         bind(TxVariantRepoIf.class).toInstance(new TxVariantRepoDAO(jdbi.onDemand(TxVariantDAO.class)));
+        bind(PlatformRepoIf.class).toInstance(new PlatformRepoDAO(jdbi.onDemand(PlatformDAO.class)));
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseRepoDAO(jdbi.onDemand(FeeBaseDAO.class)));
         bind(UserRepoIf.class).toInstance(new UserRepoDAO(jdbi.onDemand(UserDAO.class)));
     }
@@ -244,6 +247,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(AccountRepoIf.class).toInstance(new AccountCache(jdbi.onDemand(AccountDAO.class)));
         bind(AccountTypeRepoIf.class).toInstance(new AccountTypeCache(jdbi.onDemand(AccountTypeDAO.class)));
         bind(TxVariantRepoIf.class).toInstance(new TxVariantCache(jdbi.onDemand(TxVariantDAO.class)));
+        bind(PlatformRepoIf.class).toInstance(new PlatformCache(jdbi.onDemand(PlatformDAO.class)));
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseCache(jdbi.onDemand(FeeBaseDAO.class)));
         bind(UserRepoIf.class).toInstance(new UserCache(jdbi.onDemand(UserDAO.class)));
     }

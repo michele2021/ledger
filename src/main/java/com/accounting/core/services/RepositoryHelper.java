@@ -8,6 +8,7 @@ import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
 import com.accounting.commons.repository.*;
 import com.accounting.commons.repository.database.AccountDAO;
+import com.accounting.commons.repository.database.PlatformRepoIf;
 import com.accounting.core.db.AccountWriteDAO;
 import com.accounting.core.db.JournalDAO;
 import com.accounting.core.db.MismatchedTokensDAO;
@@ -40,6 +41,7 @@ public class RepositoryHelper {
     private final SubsystemRepoIf subsystemRepo;
     private final TxTypeRepoIf txTypeRepo;
     private final TxVariantRepoIf txVariantRepo;
+    private final PlatformRepoIf platformRepo;
     private final FeeBaseRepoIf feeBaseRepo;
     private final UserRepoIf userRepoIf;
     private final AccountDAO accountDAO;
@@ -58,6 +60,7 @@ public class RepositoryHelper {
         txTypeRepo.init();
         subsystemRepo.init();
         txVariantRepo.init();
+        platformRepo.init();
         feeBaseRepo.init();
         userRepoIf.init();
     }
@@ -100,6 +103,7 @@ public class RepositoryHelper {
         validateConstantTypes("TxType", txTypeRepo, Stream.of(Constants.TxType.values()).map(Enum::name).toArray(String[]::new));
         validateConstantTypes("Currency", currencyRepo, Stream.of(Constants.Currencies.values()).map(Enum::name).toArray(String[]::new));
         validateConstantTypes("TxVariant", txVariantRepo, Stream.of(Constants.TxVariant.values()).map(Enum::name).toArray(String[]::new));
+        validateConstantTypes("Platform", platformRepo, Stream.of(Constants.Platforms.values()).map(Enum::name).toArray(String[]::new));
         validateFeeBase();
     }
 
