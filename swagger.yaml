@@ -723,15 +723,14 @@ components:
           exampleSetFlag: false
         uuid:
           type: "string"
-          description: "The unique identifier of the card token. This can be any string\
-            \ but must be globally unique in the API Client systems. Our recommended\
-            \ and preferred format is UUID V4."
+          description: "A unique identifier. Our recommended and preferred format\
+            \ is UUID V4."
           exampleSetFlag: false
           types:
           - "string"
         txReference:
           type: "string"
-          description: "Transaction reference, ex. card token id."
+          description: "Transaction reference"
           exampleSetFlag: false
           types:
           - "string"
@@ -767,7 +766,8 @@ components:
           - "BankReceived"
           - "PrefundGL"
           - "Fee"
-          - "VAT"
+          - "VAT_OUT"
+          - "VAT_IN"
           - "Clearing"
           - "Receivable"
           - "Revenue"
@@ -815,6 +815,53 @@ components:
             exampleSetFlag: false
           types:
           - "array"
+      exampleSetFlag: false
+    AuthUser:
+      type: "object"
+      properties:
+        userId:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+        username:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        companyAccountId:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+        roles:
+          uniqueItems: true
+          type: "array"
+          exampleSetFlag: false
+          items:
+            type: "string"
+            exampleSetFlag: false
+            types:
+            - "string"
+            enum:
+            - "NULL"
+            - "SUPER_USER"
+            - "DEFAULT"
+          types:
+          - "array"
+        tokenIssuedAt:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        name:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
       exampleSetFlag: false
   securitySchemes:
     API_KEY:

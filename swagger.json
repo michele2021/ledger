@@ -791,11 +791,11 @@
           },
           "uuid" : {
             "type" : "string",
-            "description" : "The unique identifier of the card token. This can be any string but must be globally unique in the API Client systems. Our recommended and preferred format is UUID V4."
+            "description" : "A unique identifier. Our recommended and preferred format is UUID V4."
           },
           "txReference" : {
             "type" : "string",
-            "description" : "Transaction reference, ex. card token id."
+            "description" : "Transaction reference"
           },
           "additionalData" : {
             "$ref" : "#/components/schemas/JsonNode"
@@ -812,7 +812,7 @@
         "properties" : {
           "registerType" : {
             "type" : "string",
-            "enum" : [ "OrderProcessed", "TokenCreated", "TokenActivated", "TokenReceivable", "OpenBalance", "Payable", "BankAccount", "BankBalance", "BankReceived", "PrefundGL", "Fee", "VAT", "Clearing", "Receivable", "Revenue" ]
+            "enum" : [ "OrderProcessed", "TokenCreated", "TokenActivated", "TokenReceivable", "OpenBalance", "Payable", "BankAccount", "BankBalance", "BankReceived", "PrefundGL", "Fee", "VAT_OUT", "VAT_IN", "Clearing", "Receivable", "Revenue" ]
           },
           "lineType" : {
             "type" : "string",
@@ -841,6 +841,37 @@
             "items" : {
               "$ref" : "#/components/schemas/JournalLinePostingDTO"
             }
+          }
+        }
+      },
+      "AuthUser" : {
+        "type" : "object",
+        "properties" : {
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          },
+          "companyAccountId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "roles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "NULL", "SUPER_USER", "DEFAULT" ]
+            }
+          },
+          "tokenIssuedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "name" : {
+            "type" : "string"
           }
         }
       }
