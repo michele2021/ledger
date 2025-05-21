@@ -5,6 +5,7 @@ import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.services.security.AuthServiceMock;
 import com.accounting.core.swagger.ApiBadRequestResponse;
 import com.accounting.core.swagger.ApiDefaultResponses;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -40,6 +43,11 @@ public class AuthResourceMock {
     private final AuthServiceMock authServiceMock;
     private final Gson gson = SerializationUtil.getGson();
 
+    public record LoginRequest(
+            @NotBlank(message = "username is required")
+            @JsonProperty("username")
+            String username) {}
+
     @POST
     @ApiKeyAuth
     @Path("login")
@@ -55,13 +63,13 @@ public class AuthResourceMock {
     @RequestBody(
             required = true,
             content = @Content(
-                    schema = @Schema(implementation = JsonNode.class),
+                    schema = @Schema(implementation = LoginRequest.class),
                     mediaType = MediaType.APPLICATION_JSON
             ))
-    public Response login(@Context HttpHeaders headers, @NotNull JsonNode jsonNode) {
-        log.info("Login headers: {}, jsonNode {}", headers, jsonNode);
-        var username = jsonNode.get("username").asText();
-        var authResult = authServiceMock.login(username);
+    public Response login(@Context HttpHeaders headers, @Valid LoginRequest req) {
+        log.info("Login headers: {}, loginRequest {}", headers, req);
+
+        var authResult = authServiceMock.login(req.username);
         return Response
                 .ok(authResult)
                 .build();
