@@ -7,7 +7,7 @@ import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
-import com.accounting.commons.repository.database.PlatformRepoIf;
+import com.accounting.commons.repository.PlatformRepoIf;
 import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.entities.*;
