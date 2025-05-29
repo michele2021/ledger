@@ -2,7 +2,10 @@ package com.accounting.core.processing;
 
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.core.db.JournalDAO;
-import com.accounting.core.entities.*;
+import com.accounting.core.entities.Batch;
+import com.accounting.core.entities.JournalDb;
+import com.accounting.core.entities.JournalLine;
+import com.accounting.core.entities.Tx;
 import com.accounting.core.processing.templates.JournalTemplateIf;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -67,15 +70,9 @@ public class JournalMaker {
             journalTemplateImpl.updateSpecializedTx();
         }
         if (addSpecializedTx) {
-            List<SpecializedTx> specializedTxs = journalTemplateImpl.buildSpecializedTxs(mainTxId);
-            for (SpecializedTx tx : specializedTxs) {
-                switch (tx) {
-                    case OrderDTO order -> dao.createOrder(order);
-                    // case CCToken token -> dao.createTokenTx(token);
-                    default -> throw new AccountingMakerException(
-                            String.format("Unrecognized SpecializedTx type for txId: %s", mainTxId)
-                    );
-                }
+            var specializedTxs = journalTemplateImpl.buildSpecializedTxs(mainTxId);
+            for (var tx : specializedTxs) {
+                tx.save(dao);
             }
         }
 

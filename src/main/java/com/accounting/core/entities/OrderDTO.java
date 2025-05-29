@@ -1,5 +1,6 @@
 package com.accounting.core.entities;
 
+import com.accounting.core.db.JournalDAO;
 import lombok.Builder;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public record OrderDTO(long platformId,
                        List<TaxLine> taxLines) implements SpecializedTx {
 
     @Override
-    public boolean isOrder() {
-        return true;
+    public void save(JournalDAO dao) {
+        dao.createOrder(this);
     }
 }

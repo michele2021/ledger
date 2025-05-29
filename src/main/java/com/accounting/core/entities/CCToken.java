@@ -1,6 +1,7 @@
 package com.accounting.core.entities;
 
 import com.accounting.commons.Constants;
+import com.accounting.core.db.JournalDAO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,7 +31,7 @@ public class CCToken implements SpecializedTx {
     private String client; // for AG and other distributors, this is the client of AG that ordered the card.
 
     @Override
-    public boolean isCCToken() {
-        return true;
+    public void save(JournalDAO dao) {
+        //
     }
 }

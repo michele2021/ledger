@@ -1,5 +1,6 @@
 package com.accounting.core.entities;
 
+import com.accounting.core.db.JournalDAO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class Card implements SpecializedTx {
     private LocalDate expiryDate;
 
     @Override
-    public boolean isCard() {
-        return true;
+    public void save(JournalDAO dao) {
+        //
     }
 }

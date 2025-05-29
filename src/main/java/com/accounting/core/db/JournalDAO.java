@@ -74,20 +74,25 @@ public interface JournalDAO {
     // Batch management end.
 
     @SqlUpdate("""
+               insert into payment(txId, paymentProviderId, paymentMethod)
+                values (:txId, :paymentProviderId, :paymentMethod)""")
+    void createPayment(@BindMethods PaymentDTO order);
+
+    @SqlUpdate("""
                insert into orders(txId, platformId, orderNumber, billingAddressCountry, shippingAddressCountry)
                 values (:txId, :platformId, :orderNumber, :billingAddressCountry, :shippingAddressCountry)""")
-    void createOrders(@BindMethods OrderDTO order);
+    void insertOrder(@BindMethods OrderDTO order);
 
     @SqlBatch("""
              insert into orderLine(orderId, price, quantity, id, name, sku)
                 values (:orderId, :price, :quantity, :id, :name, :sku)""")
-    void createOrderItems(@BindMethods OrderItem... items);
+    void insertOrderItems(@BindMethods OrderItem... items);
 
     default void createOrder(OrderDTO order) {
-        createOrders(order);
+        insertOrder(order);
         var items = order.orderItems();
         if(!AccountingUtils.isEmptyOrNull(items)) {
-            createOrderItems(items.toArray(OrderItem[]::new));
+            insertOrderItems(items.toArray(OrderItem[]::new));
         }
     }
 

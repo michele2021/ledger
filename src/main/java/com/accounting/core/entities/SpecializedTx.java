@@ -1,16 +1,7 @@
 package com.accounting.core.entities;
 
+import com.accounting.core.db.JournalDAO;
+
 public interface SpecializedTx {
-
-    default boolean isOrder() {
-        return false;
-    }
-
-    default boolean isCCToken() {
-        return false;
-    }
-
-    default boolean isCard() {
-        return false;
-    }
+    void save(JournalDAO dao);
 }

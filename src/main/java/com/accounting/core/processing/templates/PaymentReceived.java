@@ -54,6 +54,11 @@ public class PaymentReceived extends AbstractTemplate {
     }
 
     @Override
+    public boolean addSpecializedTx() {
+        return true;
+    }
+
+    @Override
     public List<SpecializedTx> buildSpecializedTxs(long txId) {
         var paymentProvider = paymentProviderRepo.get(payment.paymentProvider().toString());
         var paymentDTO = payment.paymentDTO(txId, paymentProvider.getID());
