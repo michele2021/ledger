@@ -8,12 +8,14 @@ import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.FeeBaseRepoIf;
 import com.accounting.commons.repository.TxVariantRepoIf;
 import com.accounting.commons.utils.AccountingUtils;
+import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.db.JournalDAO;
 import com.accounting.core.entities.Tx;
 import com.accounting.core.exceptions.AccountingTemplateException;
 import com.accounting.core.processing.JournalLinesMaker;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
@@ -46,6 +48,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
     protected final TxVariantRepoIf txVariantRepo;
     protected final AccountRepoIf accountRepo;
     protected final FeeBaseRepoIf feeBaseRepo;
+    protected final Gson gson;
 
     protected AbstractTemplate(TxType txType, Account account, String txReference,
                                JournalType journalType, JournalMaker journalMaker, Amount amount,
@@ -63,6 +66,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         this.accountRepo = repositoryHelper.getAccountRepo();
         this.txVariantRepo = repositoryHelper.getTxVariantRepo();
         this.feeBaseRepo = repositoryHelper.getFeeBaseRepo();
+        this.gson = SerializationUtil.getGson();
     }
 
     final Tx buildBaseTx(Long parentTxId) {
