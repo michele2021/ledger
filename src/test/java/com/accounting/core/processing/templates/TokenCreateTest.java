@@ -197,7 +197,6 @@ class TokenCreateTest {
 
         SpecializedTx expectedOrderResult = OrderDTO.builder()
                 .orderNumber(1234567)
-                .orderRef("OrderRef1")
                 .build();
 
         TokenCreate subject = new TokenCreate(
