@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Value;
 
 @Value
-public class PaymentDTO {
+public class PaymentExecutionDTO {
 
     @Schema(description = "Originator bank account/virtual iban", required = true)
     long fromAccountId;
