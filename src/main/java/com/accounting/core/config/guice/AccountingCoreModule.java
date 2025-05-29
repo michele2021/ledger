@@ -191,6 +191,7 @@ public class AccountingCoreModule extends AbstractModule {
         var feeBaseDAO = jdbi.onDemand(FeeBaseDAO.class);
         var userDAO = jdbi.onDemand(UserDAO.class);
         var platformDAO = jdbi.onDemand(PlatformDAO.class);
+        var paymentProviderDAO = jdbi.onDemand(PaymentProviderDAO.class);
 
         bind(AccountCache.class).toInstance(new AccountCache(accountDAO));
         bind(AccountTypeCache.class).toInstance(new AccountTypeCache(accountTypeDAO));
@@ -203,6 +204,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(FeeBaseCache.class).toInstance(new FeeBaseCache(feeBaseDAO));
         bind(UserCache.class).toInstance(new UserCache(userDAO));
         bind(PlatformCache.class).toInstance(new PlatformCache(platformDAO));
+        bind(PaymentProviderCache.class).toInstance(new PaymentProviderCache(paymentProviderDAO));
     }
 
     private void configureKafka() {
@@ -236,6 +238,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseRepoDAO(jdbi.onDemand(FeeBaseDAO.class)));
         bind(UserRepoIf.class).toInstance(new UserRepoDAO(jdbi.onDemand(UserDAO.class)));
         bind(PlatformRepoIf.class).toInstance(new PlatformRepoDAO(jdbi.onDemand(PlatformDAO.class)));
+        bind(PaymentProviderRepoIf.class).toInstance(new PaymentProviderRepoDAO(jdbi.onDemand(PaymentProviderDAO.class)));
     }
 
     private void bindRepositoriesToCache() {
@@ -250,6 +253,7 @@ public class AccountingCoreModule extends AbstractModule {
         bind(FeeBaseRepoIf.class).toInstance(new FeeBaseCache(jdbi.onDemand(FeeBaseDAO.class)));
         bind(UserRepoIf.class).toInstance(new UserCache(jdbi.onDemand(UserDAO.class)));
         bind(PlatformRepoIf.class).toInstance(new PlatformCache(jdbi.onDemand(PlatformDAO.class)));
+        bind(PaymentProviderRepoIf.class).toInstance(new PaymentProviderCache(jdbi.onDemand(PaymentProviderDAO.class)));
     }
 
     private void bindEnvVarRepo() {

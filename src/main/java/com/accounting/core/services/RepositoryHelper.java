@@ -41,6 +41,7 @@ public class RepositoryHelper {
     private final TxTypeRepoIf txTypeRepo;
     private final TxVariantRepoIf txVariantRepo;
     private final PlatformRepoIf platformRepo;
+    private final PaymentProviderRepoIf paymentProviderRepo;
     private final FeeBaseRepoIf feeBaseRepo;
     private final UserRepoIf userRepoIf;
     private final AccountDAO accountDAO;
@@ -60,6 +61,7 @@ public class RepositoryHelper {
         subsystemRepo.init();
         txVariantRepo.init();
         platformRepo.init();
+        paymentProviderRepo.init();
         feeBaseRepo.init();
         userRepoIf.init();
     }
@@ -103,6 +105,7 @@ public class RepositoryHelper {
         validateConstantTypes("Currency", currencyRepo, Stream.of(Constants.Currencies.values()).map(Enum::name).toArray(String[]::new));
         validateConstantTypes("TxVariant", txVariantRepo, Stream.of(Constants.TxVariant.values()).map(Enum::name).toArray(String[]::new));
         validateConstantTypes("Platform", platformRepo, Stream.of(Constants.Platform.values()).map(Enum::name).toArray(String[]::new));
+        validateConstantTypes("PaymentProvider", paymentProviderRepo, Stream.of(Constants.PaymentProvider.values()).map(Enum::name).toArray(String[]::new));
         validateFeeBase();
     }
 
