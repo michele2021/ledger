@@ -1,7 +1,6 @@
-package com.accounting.core;
+package com.accounting.core.entities;
 
 import com.accounting.commons.Constants;
-import com.accounting.core.entities.PaymentDTO;
 
 public record Payment(String paymentMethod, Constants.PaymentProvider paymentProvider) {
 
