@@ -96,7 +96,7 @@ public class AccountAddFunds extends AbstractTemplate {
         assert bankAccount != null;
         long bankAccountId = bankAccount.getAccountId();
 
-        String ccAccountCode = Constants.BusinessEntityAccount.rule30.toString();
+        String ccAccountCode = "r30";
         Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.Company.toString());
         throwExceptionIfNull(ccAccount, "Business Entity not found for account code: " + ccAccount);
         assert ccAccount != null;
@@ -133,7 +133,7 @@ public class AccountAddFunds extends AbstractTemplate {
         assert bankAccount != null;
         long bankAccountId = bankAccount.getAccountId();
 
-        String ccAccountCode = Constants.BusinessEntityAccount.rule30.toString();
+        String ccAccountCode = "r30";
         Account ccAccount = accountRepo.getByCodeAndType(ccAccountCode, Constants.AccountType.Company.toString());
         throwExceptionIfNull(ccAccount, "Business Entity not found for account code: " + ccAccount);
         assert ccAccount != null;
