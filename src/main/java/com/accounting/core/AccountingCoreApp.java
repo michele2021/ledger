@@ -112,6 +112,10 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         environment.admin().addTask(new CreateTestAccountTask(injector.getInstance(DataFixProcessor.class)));
         environment.admin().addTask(new DataManagerTask(injector.getInstance(DataFixProcessor.class)));
         environment.admin().addTask(new BatchManagerTask(injector.getInstance(BatchService.class)));
+        if(config.getDebugToolsConfig().getEnableSeedTestData()) {
+            KafkaMessageProducer<String, String> kafkaMessageQueueProducer = injector.getInstance(new Key<>() {});
+            environment.admin().addTask(new TestDataIngestionTask(kafkaMessageQueueProducer));
+        }
     }
 
     private void registerMessagesQueueClient(Environment environment, Injector injector, AccountingCoreAppConfig config) {

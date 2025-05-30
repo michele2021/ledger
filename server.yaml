@@ -80,6 +80,7 @@ aws:
 debugTools:
   autoSkipMessage: ${LEDGER_AUTO_SKIP_MESSAGE:-false}
   dsrSnsNotificationEnabled: ${DSR_SNS_NOTIFICATIONS_ENABLED:-false}
+  enableSeedTestData: true
 
 repository:
   cache: true
