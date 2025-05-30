@@ -104,7 +104,6 @@ class JournalMakerTest {
         // no interaction expected
         verify(journalDAO, times(0)).createTx(any(Tx.class));
         verify(journalDAO, times(0)).createOrder(any(OrderDTO.class));
-        // verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
 
         verify(tokenMatch).linkTx();
         verify(tokenMatch).getJournalType();
@@ -179,7 +178,6 @@ class JournalMakerTest {
         // no interaction expected
         verify(journalDAO, times(0)).createTx(any(Tx.class));
         verify(journalDAO, times(0)).createOrder(any(OrderDTO.class));
-        // verify(journalDAO, times(0)).createTokenTx(any(CCToken.class));
 
         verify(tokenMatch).linkTx();
         verify(tokenMatch).getJournalType();
