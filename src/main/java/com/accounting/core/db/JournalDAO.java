@@ -81,18 +81,19 @@ public interface JournalDAO {
     @SqlUpdate("""
                insert into orders(txId, platformId, orderNumber, billingAddressCountry, shippingAddressCountry)
                 values (:txId, :platformId, :orderNumber, :billingAddressCountry, :shippingAddressCountry)""")
-    void insertOrder(@BindMethods OrderDTO order);
+    @GetGeneratedKeys("orderid")
+    long insertOrder(@BindMethods OrderDTO order);
 
     @SqlBatch("""
-             insert into orderLine(orderId, price, quantity, id, name, sku)
-                values (:orderId, :price, :quantity, :id, :name, :sku)""")
-    void insertOrderItems(@BindMethods OrderItem... items);
+             insert into orderItem(orderId, price, quantity, title, sku)
+                values (:orderId, :price, :quantity, :title, :sku)""")
+    void insertOrderItems(long orderId, @BindMethods OrderItem... items);
 
     default void createOrder(OrderDTO order) {
-        insertOrder(order);
+        var orderId = insertOrder(order);
         var items = order.orderItems();
         if(!AccountingUtils.isEmptyOrNull(items)) {
-            insertOrderItems(items.toArray(OrderItem[]::new));
+            insertOrderItems(orderId, items.toArray(OrderItem[]::new));
         }
     }
 
