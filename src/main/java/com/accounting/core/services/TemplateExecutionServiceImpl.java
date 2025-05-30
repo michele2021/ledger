@@ -9,7 +9,6 @@ import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
-import com.accounting.commons.utils.MappingUtils;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.entities.JournalTemplate;
@@ -128,7 +127,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                         .build());
 
         var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
-        var serializedMessage = MappingUtils.OBJECT_MAPPER.writeValueAsString(kafkaMessage);
+        var serializedMessage = OBJECT_MAPPER.writeValueAsString(kafkaMessage);
         var response = kafkaMessageProducer.send(defaultQueueTopic, "MAIN", serializedMessage);
         log.debug("Message sent: {}", response);
     }
