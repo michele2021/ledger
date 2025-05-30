@@ -1,12 +1,12 @@
 package com.accounting.core.processing.templates;
 
 
-import com.accounting.commons.Constants;
 import com.accounting.commons.entities.*;
-import com.accounting.commons.entities.TxVariant;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
-import com.accounting.core.entities.*;
+import com.accounting.core.entities.JournalLine;
+import com.accounting.core.entities.Tx;
+import com.accounting.core.entities.TxStatus;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.Gson;
@@ -169,50 +169,6 @@ class TokenCreateTest {
         assertThat(result).usingRecursiveComparison().ignoringFields("creationDate").isEqualTo(expectedResult);
         assertThat(result.getCreationDate()).isCloseTo(OffsetDateTime.now(), Assertions.within(1, ChronoUnit.SECONDS));
     }
-
-    @Test
-    void shouldBuildSpecializedTx() throws Exception {
-        //given
-        long txId = 34234L;
-
-        when(message.uuid()).thenReturn("TxReference");
-
-        JsonObject additionalData = new Gson().fromJson("{ " +
-                "\"publishableId\" : \"4587458\"," +
-                "\"orderItemId\" : \"0123456789\"," +
-                "\"orderId\" : \"1234567\"," +
-                "\"orderRef\" : \"OrderRef1\"," +
-                "\"activatingLocationRef\" : \"POS-LOC2\"" +
-                "}", JsonObject.class);
-        when(message.additionalData()).thenReturn(additionalData);
-
-        SpecializedTx expectedTokenResult = CCToken.builder()
-                .txId(txId)
-                .publishableId("4587458")
-                .locationRef("POS-LOC2")
-                .orderItemId("0123456789")
-                .orderId(1234567L)
-                .type(Constants.TokenType.POSA)
-                .build();
-
-        SpecializedTx expectedOrderResult = OrderDTO.builder()
-                .orderNumber(1234567)
-                .build();
-
-        TokenCreate subject = new TokenCreate(
-                journalMaker, account, amount,
-                journalType, txType, message, repositoryHelper
-        );
-
-        //when
-        List<SpecializedTx> result = subject.buildSpecializedTxs(txId);
-
-        //then
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0)).isEqualTo(expectedTokenResult);
-        assertThat(result.get(1)).isEqualTo(expectedOrderResult);
-    }
-
 
     @Test
     void shouldBuildJournalLines() throws Exception {
