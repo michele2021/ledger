@@ -45,7 +45,9 @@ public class AuthServiceMockImpl implements AuthServiceMock {
         if (jwtToken == null) {
             return null;
         }
+        log.info("refresh-token - get user by userId {}", jwtToken.userId());
         User user = userRepo.get(jwtToken.userId());
+        // TODO handle if user is not found (avoid NPE)
         log.info("refresh-token - user retrieved from db {}", user);
         // N.B. initially we assume 1 user - 1 company
         var companyRoles = user.getCompanyRoles().stream()
