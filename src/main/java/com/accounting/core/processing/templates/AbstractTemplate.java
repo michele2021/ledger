@@ -2,7 +2,10 @@ package com.accounting.core.processing.templates;
 
 import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
-import com.accounting.commons.entities.*;
+import com.accounting.commons.entities.Account;
+import com.accounting.commons.entities.Amount;
+import com.accounting.commons.entities.JournalType;
+import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.FeeBaseRepoIf;
@@ -18,15 +21,11 @@ import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.function.Function;
 
 import static java.lang.String.format;
@@ -36,8 +35,7 @@ import static java.util.Objects.isNull;
 @Slf4j
 abstract class AbstractTemplate extends JournalLinesMaker {
 
-    @Getter
-    protected final JournalType journalType;
+    private final JournalType journalType;
     protected final String txReference;
     protected Amount amount;
     protected final TxType txType;
@@ -67,6 +65,11 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         this.txVariantRepo = repositoryHelper.getTxVariantRepo();
         this.feeBaseRepo = repositoryHelper.getFeeBaseRepo();
         this.gson = SerializationUtil.getGson();
+    }
+
+    @Override
+    public JournalType getJournalType() {
+        return journalType;
     }
 
     final Tx buildBaseTx(Long parentTxId) {
@@ -165,53 +168,53 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         return account;
     }
 
-    final FeeTier getFeeTier() throws AccountingMakerException {
-        List<FeeBase> fees = feeBaseRepo.getByJournalTypeId(journalType.getJournalTypeId());
-        if (ObjectUtils.isEmpty(fees)) {
-            // no fees to apply
-            log.debug("No fees found to apply for journalType: {} ", journalType.getCode());
-            return null;
-        }
-        log.info("Fetched fees from cache for journalType: {}, fees: {}", journalType.getJournalTypeId(), fees);
-
-        // filter by account and txType
-        fees = fees.stream()
-                .filter(e -> e.getAccountId() == account.getAccountId())
-                .filter(e -> e.getTxTypeId() == null || e.getTxTypeId() == txType.getTxTypeId())
-                .toList();
-        if (fees.isEmpty()) {
-            // no fees to apply
-            log.debug("No fees found to apply for journalType '{}', account '{}' and txType '{}' ", journalType.getCode(), account.getAccountCode(), txType.getCode());
-            return null;
-        }
-        if (fees.size() > 1) {
-            throw new AccountingMakerException("Could not uniquely identify the fee to apply. Applicable fees: " + fees);
-        }
-        FeeBase fee = fees.getFirst();
-        // N.B. a basic validation of the fee record fetched from the DB is already done at application startup.
-
-        if (ObjectUtils.isEmpty(fee.getFeeTiers())) {
-            throw new AccountingMakerException("Expected tier definition not found for fees with Id: " + fee.getFeeId());
-        }
-        FeeTier feeTier = findTier(fee.getFeeTiers(), amount.getQuantity());
-        if (feeTier == null) {
-            throw new AccountingMakerException("No tier matching the exact amount: " + amount + ". Fees with Id: " + fee.getFeeId());
-        }
-        List<FeeTierDetail> feeTierDetails = feeTier.getFeeTierDetails();
-        if (feeTierDetails.size() != 2) {
-            throw new AccountingMakerException("Expected 2 lines for the tier with id: " + feeTier.getTierId() + ", but was: " + feeTierDetails.size());
-        }
-        return feeTier;
-    }
-
-    private FeeTier findTier(@Nonnull List<FeeTier> tiers, long quantity) {
-        for (FeeTier tier : tiers) {
-            // TODO refactor and support "LIMIT" tiers
-            if ("EXACT".equals(tier.getTierType()) && tier.getTierQuantity() == quantity) {
-                log.debug("found tier with id: {} exact quantity: {}", tier.getTierId(), tier.getTierQuantity());
-                return tier;
-            }
-        }
-        return null;
-    }
+//    final FeeTier getFeeTier() throws AccountingMakerException {
+//        List<FeeBase> fees = feeBaseRepo.getByJournalTypeId(journalType.getJournalTypeId());
+//        if (ObjectUtils.isEmpty(fees)) {
+//            // no fees to apply
+//            log.debug("No fees found to apply for journalType: {} ", journalType.getCode());
+//            return null;
+//        }
+//        log.info("Fetched fees from cache for journalType: {}, fees: {}", journalType.getJournalTypeId(), fees);
+//
+//        // filter by account and txType
+//        fees = fees.stream()
+//                .filter(e -> e.getAccountId() == account.getAccountId())
+//                .filter(e -> e.getTxTypeId() == null || e.getTxTypeId() == txType.getTxTypeId())
+//                .toList();
+//        if (fees.isEmpty()) {
+//            // no fees to apply
+//            log.debug("No fees found to apply for journalType '{}', account '{}' and txType '{}' ", journalType.getCode(), account.getAccountCode(), txType.getCode());
+//            return null;
+//        }
+//        if (fees.size() > 1) {
+//            throw new AccountingMakerException("Could not uniquely identify the fee to apply. Applicable fees: " + fees);
+//        }
+//        FeeBase fee = fees.getFirst();
+//        // N.B. a basic validation of the fee record fetched from the DB is already done at application startup.
+//
+//        if (ObjectUtils.isEmpty(fee.getFeeTiers())) {
+//            throw new AccountingMakerException("Expected tier definition not found for fees with Id: " + fee.getFeeId());
+//        }
+//        FeeTier feeTier = findTier(fee.getFeeTiers(), amount.getQuantity());
+//        if (feeTier == null) {
+//            throw new AccountingMakerException("No tier matching the exact amount: " + amount + ". Fees with Id: " + fee.getFeeId());
+//        }
+//        List<FeeTierDetail> feeTierDetails = feeTier.getFeeTierDetails();
+//        if (feeTierDetails.size() != 2) {
+//            throw new AccountingMakerException("Expected 2 lines for the tier with id: " + feeTier.getTierId() + ", but was: " + feeTierDetails.size());
+//        }
+//        return feeTier;
+//    }
+//
+//    private FeeTier findTier(@Nonnull List<FeeTier> tiers, long quantity) {
+//        for (FeeTier tier : tiers) {
+//            // TODO refactor and support "LIMIT" tiers
+//            if ("EXACT".equals(tier.getTierType()) && tier.getTierQuantity() == quantity) {
+//                log.debug("found tier with id: {} exact quantity: {}", tier.getTierId(), tier.getTierQuantity());
+//                return tier;
+//            }
+//        }
+//        return null;
+//    }
 }

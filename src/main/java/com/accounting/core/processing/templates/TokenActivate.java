@@ -124,7 +124,8 @@ public class TokenActivate extends AbstractTemplate {
         addDebitLine(journalId, journalLines, Constants.RegisterType.TokenActivated, accountId, amount);
 
         // check if there is any fee to process associated with this journal.
-        FeeTier feeTier = getFeeTier();
+        FeeTier feeTier =  null;
+        //getFeeTier();
         if(feeTier != null) {
             for (FeeTierDetail feeTierDetail : feeTier.getFeeTierDetails()) {
                 // TODO cleanup how we deal with the currency.

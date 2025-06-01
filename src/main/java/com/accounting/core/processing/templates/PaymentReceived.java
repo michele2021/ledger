@@ -7,6 +7,7 @@ import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
+import com.accounting.commons.repository.JournalTypeRepoIf;
 import com.accounting.commons.repository.PaymentProviderRepoIf;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.Payment;
@@ -23,6 +24,7 @@ public class PaymentReceived extends AbstractTemplate {
     private Tx oriTx;
     private final Payment payment;
     private final PaymentProviderRepoIf paymentProviderRepo;
+    private final JournalTypeRepoIf journalTypeRepo;
     private final String oriTxReference;
 
     public PaymentReceived(JournalMaker journalMaker,
@@ -36,6 +38,7 @@ public class PaymentReceived extends AbstractTemplate {
         this.oriTxReference = message.txReference();
         this.payment = gson.fromJson(additionalData, Payment.class);
         this.paymentProviderRepo = repositoryHelper.getPaymentProviderRepo();
+        this.journalTypeRepo = repositoryHelper.getJournalTypeRepo();
         validateIfTxReferencePresent();
     }
 
@@ -46,6 +49,15 @@ public class PaymentReceived extends AbstractTemplate {
         // TODO if the match is not found, the payment should still be created (as not matched)
         // throwExceptionIfNull(oriTx, format("Tx not found with oriTxReference '%s'.", oriTxReference));
         journalMaker.createJournal(this);
+    }
+
+    @Override
+    public JournalType getJournalType() {
+        if(oriTx == null) {
+            // payment isn't matched (yet)
+            return super.getJournalType();
+        }
+        return journalTypeRepo.get(Constants.JournalType.PaymentMatched.name());
     }
 
     @Override
@@ -77,12 +89,11 @@ public class PaymentReceived extends AbstractTemplate {
     public List<JournalLine> buildJournalLines(long journalId) {
         var journalLines = new ArrayList<JournalLine>();
 
-        // Debit
         long accountId = account.getAccountId();
         addDebitLine(journalId, journalLines, Constants.RegisterType.Clearing, accountId, amount);
-
-        // Credit
-        addCreditLine(journalId, journalLines, Constants.RegisterType.Receivable, accountId, amount);
+        var creditRegisterType = oriTx == null ?
+                Constants.RegisterType.UnappliedCash : Constants.RegisterType.Receivable;
+        addCreditLine(journalId, journalLines, creditRegisterType, accountId, amount);
         return journalLines;
     }
 }
