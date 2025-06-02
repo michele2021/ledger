@@ -151,7 +151,7 @@ class JournalLinesMakerTest {
     void testAddCreditLine2() {
         // given
         List<JournalLine> journalLines = new ArrayList<>();
-        String registerTypeCode = Constants.RegisterType.TokenReceivable.name();
+        String registerTypeCode = Constants.RegisterType.Receivable.name();
 
         RegisterType registerType = RegisterType.builder()
                 .registerTypeId(1)
@@ -175,7 +175,7 @@ class JournalLinesMakerTest {
         when(journalMaker.getOrCreateAvailableBatch(registerTypeId, accountId)).thenReturn(batchId);
 
         // when
-        tokenMatch.addCreditLine(journalId, journalLines, Constants.RegisterType.TokenReceivable, accountId, amount);
+        tokenMatch.addCreditLine(journalId, journalLines, Constants.RegisterType.Receivable, accountId, amount);
 
         // then
         assertThat(journalLines).hasSize(1);

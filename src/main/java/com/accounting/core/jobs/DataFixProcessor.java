@@ -14,7 +14,6 @@ public class DataFixProcessor {
     private final CreateTestAccountExecutor createTestAccountExecutor;
     private final JournalCleaningExecutor journalCleaningExecutor;
     private final ActivatedJournalFeesOpenBalanceFixExecutor activatedJournalFeesOpenBalanceFixExecutor;
-    private final ActivatedJournalAddMissingLinesExecutor activatedJournalAddMissingLinesExecutor;
     private final PaymentsReverseExecutor paymentsReverseExecutor;
 
     @Inject
@@ -22,13 +21,11 @@ public class DataFixProcessor {
                             CreateTestAccountExecutor createTestAccountExecutor,
                             JournalCleaningExecutor journalCleaningExecutor,
                             ActivatedJournalFeesOpenBalanceFixExecutor activatedJournalFeesOpenBalanceFixExecutor,
-                            ActivatedJournalAddMissingLinesExecutor activatedJournalAddMissingLinesExecutor,
                             PaymentsReverseExecutor paymentsReverseExecutor) {
         this.moveAccountExecutor = moveAccountExecutor;
         this.createTestAccountExecutor = createTestAccountExecutor;
         this.journalCleaningExecutor = journalCleaningExecutor;
         this.activatedJournalFeesOpenBalanceFixExecutor = activatedJournalFeesOpenBalanceFixExecutor;
-        this.activatedJournalAddMissingLinesExecutor = activatedJournalAddMissingLinesExecutor;
         this.paymentsReverseExecutor = paymentsReverseExecutor;
     }
 
@@ -46,10 +43,6 @@ public class DataFixProcessor {
 
     public void activatedJournalFeesOpenBalanceFix(String accountCode, boolean test) throws JobProcessingException {
         activatedJournalFeesOpenBalanceFixExecutor.execute(accountCode, test);
-    }
-
-    public void activatedJournalAddMissingLines(String accountCode,String issuerAccountCode, boolean test) throws JobProcessingException {
-        activatedJournalAddMissingLinesExecutor.execute(accountCode, issuerAccountCode, test);
     }
 
     public void reverseAndSubmitPayments(String mode, Long txId, Long newPaymentId, boolean test) throws JobProcessingException {

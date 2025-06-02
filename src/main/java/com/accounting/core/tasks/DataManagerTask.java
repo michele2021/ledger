@@ -65,11 +65,6 @@ public class DataManagerTask extends Task {
             String accountCode = getSingleMandatoryParameter(parameters, ACCOUNT_CODE_PARAM);
             boolean test = Boolean.TRUE.equals(getSingleOptionalParameter(parameters, TEST_PARAM).map(Boolean::valueOf).orElse(false));
             dataFixProcessor.activatedJournalFeesOpenBalanceFix(accountCode, test);
-        } else if ("ACTIVATED_JOURNAL_ADD_MISSING_JL".equalsIgnoreCase(action)) {
-            String accountCode = getSingleMandatoryParameter(parameters, ACCOUNT_CODE_PARAM);
-            boolean test = Boolean.TRUE.equals(getSingleOptionalParameter(parameters, TEST_PARAM).map(Boolean::valueOf).orElse(false));
-            String issuerAccountCode = getSingleMandatoryParameter(parameters, ISSUER_ACCOUNT_CODE_PARAM);
-            dataFixProcessor.activatedJournalAddMissingLines(accountCode, issuerAccountCode, test);
         } else if ("PAYMENT_REVERSE_AND_SUBMIT".equalsIgnoreCase(action)) {
             String mode = getSingleMandatoryParameter(parameters, MODE_PARAM);
             Long txId = getSingleOptionalParameter(parameters, TXID_PARAM).map(Long::valueOf).orElse(null);

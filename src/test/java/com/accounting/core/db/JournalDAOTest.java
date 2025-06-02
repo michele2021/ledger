@@ -730,7 +730,7 @@ class JournalDAOTest {
         final Integer createdJournalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", Constants.JournalType.Created);
         final Integer tokenCreatedRegisterTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
-                "WHERE registerTypeCode = ?;", Constants.RegisterType.TokenCreated);
+                "WHERE registerTypeCode = ?;", Constants.RegisterType.Receivable);
         assertNotNull(createdJournalTypeId);
         assertNotNull(tokenCreatedRegisterTypeId);
 
