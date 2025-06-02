@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TransactionType {
-    A(Constants.JournalType.Activated),
-    D(Constants.JournalType.Cancelled);
+    A(Constants.JournalType.Manual),
+    D(Constants.JournalType.Manual);
 
     private final Constants.JournalType journalType;
 }

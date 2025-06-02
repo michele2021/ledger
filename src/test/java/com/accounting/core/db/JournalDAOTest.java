@@ -539,7 +539,7 @@ class JournalDAOTest {
         final Integer accountId = TestSqlUtils.getInt(handle, "SELECT accountid FROM config.account LIMIT 1;");
         final Integer txVariantId = TestSqlUtils.getInt(handle, "SELECT txvariantId FROM config.txVariant LIMIT 1;");
 
-        final Constants.JournalType journalType = Constants.JournalType.Activated;
+        final Constants.JournalType journalType = Constants.JournalType.PaymentReceived;
 
         final Integer journalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", journalType);
@@ -602,7 +602,7 @@ class JournalDAOTest {
         journalDAO.createJournalLine(expectedJournalLine);
 
         Amount receivedFee1 = journalDAO.getReceivedFee(txId, journalType);
-        Amount receivedFee2 = journalDAO.getReceivedFee(txId, Constants.JournalType.Cancelled);
+        Amount receivedFee2 = journalDAO.getReceivedFee(txId, Constants.JournalType.Received);
 
         // then
         assertThat(receivedFee1).isNotNull();
@@ -627,7 +627,7 @@ class JournalDAOTest {
         final Integer accountId = TestSqlUtils.getInt(handle, "SELECT accountid FROM config.account LIMIT 1;");
         final Integer txVariantId = TestSqlUtils.getInt(handle, "SELECT txvariantId FROM config.txVariant LIMIT 1;");
 
-        final Constants.JournalType journalType = Constants.JournalType.Activated;
+        final Constants.JournalType journalType = Constants.JournalType.Received;
 
         final Integer journalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", journalType);
@@ -689,7 +689,7 @@ class JournalDAOTest {
         //when
         journalDAO.createJournalLine(expectedJournalLine);
         boolean exist1 = journalDAO.doesJournalExist(txId, journalType);
-        boolean exist2 = journalDAO.doesJournalExist(txId, Constants.JournalType.Cancelled);
+        boolean exist2 = journalDAO.doesJournalExist(txId, Constants.JournalType.Received);
 
         // then
         assertThat(exist1).isTrue();
@@ -728,7 +728,7 @@ class JournalDAOTest {
 
         // prepare the TokenCreated journal
         final Integer createdJournalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
-                "WHERE journalTypeCode = ?;", Constants.JournalType.Created);
+                "WHERE journalTypeCode = ?;", Constants.JournalType.Received);
         final Integer tokenCreatedRegisterTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
                 "WHERE registerTypeCode = ?;", Constants.RegisterType.Receivable);
         assertNotNull(createdJournalTypeId);
@@ -763,7 +763,7 @@ class JournalDAOTest {
 
         // prepare the Activated journal
         final Integer activatedJournalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
-                "WHERE journalTypeCode = ?;", Constants.JournalType.Activated);
+                "WHERE journalTypeCode = ?;", Constants.JournalType.Received);
         final Integer cardsPayablePendingRegisterTypeId = TestSqlUtils.getInt(handle, "SELECT registerTypeId FROM config.registerType " +
                 "WHERE registerTypeCode = ?;", Constants.RegisterType.Fee);
         assertNotNull(activatedJournalTypeId);
@@ -821,7 +821,7 @@ class JournalDAOTest {
         final Integer accountId = TestSqlUtils.getInt(handle, "SELECT accountid FROM config.account LIMIT 1;");
         final Integer txVariantId = TestSqlUtils.getInt(handle, "SELECT txvariantId FROM config.txVariant LIMIT 1;");
 
-        final Constants.JournalType journalType = Constants.JournalType.Activated;
+        final Constants.JournalType journalType = Constants.JournalType.Received;
 
         final Integer activatedJournalTypeId = TestSqlUtils.getInt(handle, "SELECT journalTypeId FROM config.journalType " +
                 "WHERE journalTypeCode = ?;", journalType);
@@ -884,7 +884,7 @@ class JournalDAOTest {
         journalDAO.createJournalLine(expectedJournalLine);
 
         Journal journalActivated = journalDAO.getJournalByTxIdAndType(txId, journalType);
-        Journal journalCancelled = journalDAO.getJournalByTxIdAndType(txId, Constants.JournalType.Cancelled);
+        Journal journalCancelled = journalDAO.getJournalByTxIdAndType(txId, Constants.JournalType.Received);
 
         // then
         assertThat(journalActivated).isNotNull();

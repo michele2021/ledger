@@ -131,7 +131,7 @@ public final class DailySalesReportsProcessor {
                 validateTokensMatch(reportTxId, tx, reprocessing, reportRow);
                 // For a "Cancelled" row, we expect to have a preceding "Activated" row, so we do not create again a tx/journal.
                 // TODO: to be determined with EPay if we can
-                if(reportRow.getJournalType() == Constants.JournalType.Cancelled) {
+                if(reportRow.getJournalType() == Constants.JournalType.Manual) {
                     continue;
                 }
                 // TODO Consider the possibility to create the TokenReconciliationTx in the TokenMatch template (leveraging the journalMaker framework)
@@ -211,7 +211,7 @@ public final class DailySalesReportsProcessor {
 
         validateTokenType(reportTxId, reportRow, tx);
 
-        if(reportRow.getJournalType() == Constants.JournalType.Cancelled) {
+        if(reportRow.getJournalType() == Constants.JournalType.Manual) {
             // For "Cancelled" journal we expect to have already the created the "Matched" journal previously.
             // We return without additional checks (that have already been performed when performing the previous "Activated" line)
             return;
