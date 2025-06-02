@@ -57,7 +57,7 @@ public class ActivatedJournalFeesOpenBalanceFixExecutor {
                             log.info("'FeeReceivable' journal line, deleted. Number of lines deleted: {} ", n);
                             continue;
                         }
-                        if (jl.getRegisterType().equals(Constants.RegisterType.OpenBalance)) {
+                        if (jl.getRegisterType().equals(Constants.RegisterType.Clearing)) {
                             // we rely on the fact that the journalLines are processed ordered by registerTypeCode
                             if (feeQuantity == 0) {
                                 throw new JobProcessingException("feeQuantity could not be determined.");

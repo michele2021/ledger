@@ -117,8 +117,8 @@ public class AccountAddFunds extends AbstractTemplate {
 //            addCreditLine(journalId, journalLines, Constants.RegisterType.ClientDiscountPayable, ccAccountId, discountAmount);
 //        }
         // Debit/Credit
-        addDebitLine(journalId, journalLines, Constants.RegisterType.OpenBalance, accountId, amount);
-        addCreditLine(journalId, journalLines, Constants.RegisterType.PrefundGL, accountId, prefundGLAmount);
+        addDebitLine(journalId, journalLines, Constants.RegisterType.Clearing, accountId, amount);
+        addCreditLine(journalId, journalLines, Constants.RegisterType.Receivable, accountId, prefundGLAmount);
 
         return journalLines;
     }
@@ -153,8 +153,8 @@ public class AccountAddFunds extends AbstractTemplate {
 //            addDebitLine(journalId, journalLines, Constants.RegisterType.ClientDiscountPayable, ccAccountId, discountAmount);
 //        }
         // Debit/Credit
-        addCreditLine(journalId, journalLines, Constants.RegisterType.OpenBalance, accountId, amount);
-        addDebitLine(journalId, journalLines, Constants.RegisterType.PrefundGL, accountId, prefundGLAmount);
+        addCreditLine(journalId, journalLines, Constants.RegisterType.Clearing, accountId, amount);
+        addDebitLine(journalId, journalLines, Constants.RegisterType.Receivable, accountId, prefundGLAmount);
 
         return journalLines;
     }

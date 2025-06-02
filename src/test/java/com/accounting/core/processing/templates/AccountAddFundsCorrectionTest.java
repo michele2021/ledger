@@ -192,9 +192,9 @@ public class AccountAddFundsCorrectionTest {
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeBankBalanceId).build());
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankReceived.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeBankReceivedId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.OpenBalance.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Clearing.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeOpenBalanceId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.PrefundGL.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Receivable.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypePrefundGLId).build());
 
         when(journalMaker.getOrCreateAvailableBatch(registerTypeBankBalanceId, bankAccountId))
@@ -276,9 +276,9 @@ public class AccountAddFundsCorrectionTest {
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.VAT_OUT.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeVATId).build());
 
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.OpenBalance.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Clearing.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeOpenBalanceId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.PrefundGL.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Receivable.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypePrefundGLId).build());
 
         when(journalMaker.getOrCreateAvailableBatch(registerTypeBankBalanceId, bankAccountId))
@@ -362,9 +362,9 @@ public class AccountAddFundsCorrectionTest {
         when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.BankReceived.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeBankReceivedId).build());
 
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.OpenBalance.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Clearing.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypeOpenBalanceId).build());
-        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.PrefundGL.toString()))
+        when(repositoryHelper.getRegisterTypeRepo().get(Constants.RegisterType.Receivable.toString()))
                 .thenReturn(RegisterType.builder().registerTypeId(registerTypePrefundGLId).build());
 
         when(journalMaker.getOrCreateAvailableBatch(registerTypeBankBalanceId, bankAccountId))
