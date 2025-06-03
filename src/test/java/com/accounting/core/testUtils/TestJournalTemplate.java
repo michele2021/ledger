@@ -20,18 +20,18 @@ public class TestJournalTemplate {
     }
 
     @SneakyThrows
-    public static JournalTemplate tokenCreate() {
-        return templateCache.get(TOKEN_CREATE);
+    public static JournalTemplate orderReceived() {
+        return templateCache.get(ORDER_RECEIVED);
     }
 
     @SneakyThrows
-    public static JournalTemplate tokenActivate() {
-        return templateCache.get(TOKEN_ACTIVATE);
+    public static JournalTemplate paymentReceived() {
+        return templateCache.get(PAYMENT_RECEIVED);
     }
 
     @SneakyThrows
-    public static JournalTemplate tokenCreateActivate() {
-        return templateCache.get(TOKEN_CREATE_ACTIVE);
+    public static JournalTemplate paymentMatch() {
+        return templateCache.get(PAYMENT_MATCH);
     }
 
 }

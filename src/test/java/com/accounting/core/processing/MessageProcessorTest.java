@@ -86,9 +86,8 @@ public class MessageProcessorTest {
     @SuppressWarnings("unused")
     static Stream<Arguments> shouldProcessTemplate() {
         return Stream.of(
-                Arguments.of(TestQueueMessage.tokenCreate(), TestJournalTemplate.tokenCreate()),
-                Arguments.of(TestQueueMessage.tokenActivate(), TestJournalTemplate.tokenActivate()),
-                Arguments.of(TestQueueMessage.tokenCreateActivate(), TestJournalTemplate.tokenCreateActivate())
+                Arguments.of(TestQueueMessage.tokenCreate(), TestJournalTemplate.orderReceived()),
+                Arguments.of(TestQueueMessage.tokenActivate(), TestJournalTemplate.paymentReceived())
         );
     }
 
@@ -216,7 +215,7 @@ public class MessageProcessorTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateJson(),
                 json -> json.replace("publishableId", "NOT_publishableId"));
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
 
         Field jsonSchemaFactoryField = subject.getClass().getDeclaredField("jsonSchemaFactory");
@@ -249,7 +248,7 @@ public class MessageProcessorTest {
         //given
         QueueMessage message = TestQueueMessage.tokenCreate();
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
 
         Field jsonSchemaFactoryField = subject.getClass().getDeclaredField("jsonSchemaFactory");
@@ -278,7 +277,7 @@ public class MessageProcessorTest {
         //given
         QueueMessage message = TestQueueMessage.tokenCreate(false);
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
 
         Field jsonSchemaFactoryField = subject.getClass().getDeclaredField("jsonSchemaFactory");
@@ -301,7 +300,7 @@ public class MessageProcessorTest {
         //given
         QueueMessage message = TestQueueMessage.tokenCreate(null, "LEDGER_API", "TOKEN_CREATE");
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
         Field jsonSchemaFactoryField = subject.getClass().getDeclaredField("jsonSchemaFactory");
         jsonSchemaFactoryField.setAccessible(true);
@@ -323,7 +322,7 @@ public class MessageProcessorTest {
         //given
         QueueMessage message = TestQueueMessage.tokenCreate();
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType(anyString(), anyString())).thenReturn(null);
 
@@ -350,7 +349,7 @@ public class MessageProcessorTest {
         QueueMessage message = TestQueueMessage.tokenCreate();
         message.amount().setCurrencyCode(null);
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType(anyString(), anyString())).thenReturn(account);
 
@@ -376,7 +375,7 @@ public class MessageProcessorTest {
 
         QueueMessage message = TestQueueMessage.tokenCreate();
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType(anyString(), anyString())).thenReturn(account);
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(null);
@@ -407,7 +406,7 @@ public class MessageProcessorTest {
 
         QueueMessage message = TestQueueMessage.tokenCreate();
 
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType(anyString(), anyString())).thenReturn(account);
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
@@ -447,13 +446,13 @@ public class MessageProcessorTest {
         currency.setCurrencyId(456);
         final JournalType journalType = new JournalType();
         final TxType txType = new TxType();
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         QueueMessage message = TestQueueMessage.tokenCreateWithTestFlag(true);
         // message.setAccountCode("EPAY");
 
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
         when(repositoryHelper.getAccountRepo().getByCodeAndType(eq(originAccountCode), anyString())).thenReturn(originAccount);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(eq(testAccountCode), anyString())).thenReturn(testAccount);
         when(templateCache.get(any())).thenReturn(journalTemplate);
@@ -505,13 +504,13 @@ public class MessageProcessorTest {
 //        currency.setCurrencyId(456);
 //        final JournalType journalType = new JournalType();
 //        final TxType txType = new TxType();
-//        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+//        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 //
 //        QueueMessage message = TestQueueMessage.tokenCreateWithTestFlag(true);
 //        message.setAccountCode("EPAY");
 //
 //        when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
-//        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+//        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 //        when(repositoryHelper.getAccountRepo().getByCodeAndType(eq(originAccountCode), anyString())).thenReturn(originAccount);
 //        when(repositoryHelper.getAccountRepo().getByCodeAndType(eq(testAccountCode), anyString())).thenReturn(testAccount);
 //        when(templateCache.get(any())).thenReturn(journalTemplate);
@@ -539,13 +538,13 @@ public class MessageProcessorTest {
         currency.setCurrencyId(456);
         final JournalType journalType = new JournalType();
         final TxType txType = new TxType();
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         QueueMessage message = TestQueueMessage.tokenCreateWithTestFlag(true);
         // message.setAccountCode("EPAY");
 
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
-        when(templateCache.get(any())).thenReturn(TestJournalTemplate.tokenCreate());
+        when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
         when(repositoryHelper.getAccountRepo().getByCodeAndType(eq(originAccountCode), anyString())).thenReturn(originAccount);
         when(repositoryHelper.getAccountRepo().getByCodeAndType(eq(testAccountCode), anyString())).thenReturn(testAccount);
         when(templateCache.get(any())).thenReturn(journalTemplate);

@@ -35,7 +35,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
     public void shouldValidate() throws Exception {
         //given
         QueueMessage message = TestQueueMessage.tokenCreateActivate();
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         messageProcessor.validateAdditionalData(message, journalTemplate);
@@ -48,7 +48,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
     public void shouldFailIfNoAdditionalData() {
         //given
         QueueMessage message = TestQueueMessage.tokenCreateActivate(false);
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -64,7 +64,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"activatingLocationRef\" : \"POS-LOC2\",", "\"activatingLocationRef\" : 458745,"));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -81,7 +81,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"issuer\" : \"Monavate\",", ""));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -98,7 +98,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"issuer\" : \"Monavate\",", "\"issuer\" : 458745,"));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -115,7 +115,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"expiryDate\" : \"2023-12-15\",", ""));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -132,7 +132,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"expiryDate\" : \"2023-12-15\",", "\"expiryDate\" : 1231654,"));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -149,7 +149,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"expiryDate\" : \"2023-12-15\",", "\"expiryDate\" : \"\","));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -178,7 +178,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"expiryDate\" : \"2023-12-15\",", "\"expiryDate\" : \"" + malformedDate + "\","));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -195,7 +195,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"activationTimestamp\" : \"2021-12-15T11:38:32Z\",", "\"activationTimestamp\" : 1231654,"));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -231,7 +231,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"activationTimestamp\" : \"2021-12-15T11:38:32Z\",", "\"activationTimestamp\" : \"" + malformedDateTime + "\","));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -248,7 +248,7 @@ class TokenCreateActivateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateActivateJson(),
                 json -> json.replace("\"activationTimezone\" : \"Europe/Warsaw\"", "\"activationTimezone\" : 1231654"));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreateActivate();
+        JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));

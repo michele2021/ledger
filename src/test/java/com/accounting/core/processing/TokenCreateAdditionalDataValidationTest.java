@@ -30,7 +30,7 @@ class TokenCreateAdditionalDataValidationTest {
     public void shouldValidate() throws Exception {
         //given
         QueueMessage message = TestQueueMessage.tokenCreate();
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+        JournalTemplate journalTemplate = TestJournalTemplate.paymentReceived();
 
         //when
         messageProcessor.validateAdditionalData(message, journalTemplate);
@@ -43,7 +43,7 @@ class TokenCreateAdditionalDataValidationTest {
     public void shouldFailIfNoAdditionalData() {
         //given
         QueueMessage message = TestQueueMessage.tokenCreate(false);
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+        JournalTemplate journalTemplate = TestJournalTemplate.paymentReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -59,7 +59,7 @@ class TokenCreateAdditionalDataValidationTest {
         QueueMessage message = TestQueueMessage.fromJson(TestQueueMessage.tokenCreateJson(),
                 json -> json.replace("\"activatingLocationRef\" : \"POS-LOC2\"", "\"activatingLocationRef\" : 458745"));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+        JournalTemplate journalTemplate = TestJournalTemplate.paymentReceived();
 
         //when
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> messageProcessor.validateAdditionalData(message, journalTemplate));
@@ -77,7 +77,7 @@ class TokenCreateAdditionalDataValidationTest {
                 json -> json.replace("\"activatingLocationRef\" : \"POS-LOC2\"", ""),
                 json -> json.replace("\"publishableId\" : \"4587458\",", "\"publishableId\" : \"4587458\""));
 
-        JournalTemplate journalTemplate = TestJournalTemplate.tokenCreate();
+        JournalTemplate journalTemplate = TestJournalTemplate.paymentReceived();
 
         //when
         Assertions.assertDoesNotThrow(() -> messageProcessor.validateAdditionalData(message, journalTemplate));
