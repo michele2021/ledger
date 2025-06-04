@@ -160,20 +160,6 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         return converter.apply(jsonElement);
     }
 
-    final Account getIssuerAccount() throws AccountingMakerException {
-        Account account;
-        String issuer = getMandatoryAdditionalData(Message.AdditionalData.issuer).getAsString();
-        account = accountRepo.getByCodeAndType(issuer, Constants.AccountType.Issuer.toString());
-        if (account == null) {
-            String mappedIssuer = issuer;
-            if (mappedIssuer != null) {
-                account = accountRepo.getByCodeAndType(mappedIssuer, Constants.AccountType.Issuer.toString());
-            }
-            throwExceptionIfNull(account, format("'%s' issuer not found. Template: %s", issuer, this.getClass()));
-        }
-        return account;
-    }
-
 //    final FeeTier getFeeTier() throws AccountingMakerException {
 //        List<FeeBase> fees = feeBaseRepo.getByJournalTypeId(journalType.getJournalTypeId());
 //        if (ObjectUtils.isEmpty(fees)) {
