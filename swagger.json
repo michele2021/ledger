@@ -300,7 +300,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/JsonNode"
+                "$ref" : "#/components/schemas/LoginRequest"
               }
             }
           },
@@ -754,6 +754,15 @@
       "JsonNode" : {
         "type" : "object"
       },
+      "LoginRequest" : {
+        "required" : [ "username" ],
+        "type" : "object",
+        "properties" : {
+          "username" : {
+            "type" : "string"
+          }
+        }
+      },
       "QueueMessageAmountDTO" : {
         "required" : [ "currencyCode", "quantity" ],
         "type" : "object",
@@ -780,7 +789,7 @@
           "type" : {
             "type" : "string",
             "description" : "Message type, determine how some other fields are handled.",
-            "enum" : [ "PAYMENT_RECEIVED", "PAYMENT_RECEIVED_CORRECTION", "CLIENT_FEE_PAYOUT", "JOURNAL_POST" ]
+            "enum" : [ "PAYMENT_RECEIVED", "PAYMENT_MATCH", "JOURNAL_POST" ]
           },
           "accountCode" : {
             "type" : "string",
@@ -812,7 +821,7 @@
         "properties" : {
           "registerType" : {
             "type" : "string",
-            "enum" : [ "OrderProcessed", "TokenCreated", "TokenActivated", "TokenReceivable", "OpenBalance", "Payable", "BankAccount", "BankBalance", "BankReceived", "PrefundGL", "Fee", "VAT_OUT", "VAT_IN", "Clearing", "Receivable", "Revenue" ]
+            "enum" : [ "Payable", "BankAccount", "BankBalance", "BankReceived", "Fee", "VAT_OUT", "VAT_IN", "Clearing", "Receivable", "Revenue", "UnappliedCash" ]
           },
           "lineType" : {
             "type" : "string",

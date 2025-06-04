@@ -53,6 +53,6 @@ class TemplateExecutionResourceTest {
 
         //then
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        verify(templateExecutionService).executeTemplate(eq(message));
+        verify(templateExecutionService).executeTemplate(null, eq(message));
     }
 }

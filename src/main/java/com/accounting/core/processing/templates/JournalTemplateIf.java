@@ -6,8 +6,10 @@ import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.SpecializedTx;
 import com.accounting.core.entities.Tx;
 import com.accounting.core.processing.JournalMaker;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 
 public interface JournalTemplateIf {
@@ -28,8 +30,9 @@ public interface JournalTemplateIf {
         return true;
     }
 
-    default Long linkTx() {
-        return null;
+    @NotNull
+    default List<Long> linkTxs() {
+        return Collections.emptyList();
     }
 
     default Tx buildTx() {

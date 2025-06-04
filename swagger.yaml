@@ -238,7 +238,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/JsonNode"
+              $ref: "#/components/schemas/LoginRequest"
               exampleSetFlag: false
             exampleSetFlag: false
         required: true
@@ -670,6 +670,17 @@ components:
     JsonNode:
       type: "object"
       exampleSetFlag: false
+    LoginRequest:
+      required:
+      - "username"
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+      exampleSetFlag: false
     QueueMessageAmountDTO:
       required:
       - "currencyCode"
@@ -709,8 +720,7 @@ components:
           - "string"
           enum:
           - "PAYMENT_RECEIVED"
-          - "PAYMENT_RECEIVED_CORRECTION"
-          - "CLIENT_FEE_PAYOUT"
+          - "PAYMENT_MATCH"
           - "JOURNAL_POST"
         accountCode:
           type: "string"
@@ -755,22 +765,17 @@ components:
           types:
           - "string"
           enum:
-          - "OrderProcessed"
-          - "TokenCreated"
-          - "TokenActivated"
-          - "TokenReceivable"
-          - "OpenBalance"
           - "Payable"
           - "BankAccount"
           - "BankBalance"
           - "BankReceived"
-          - "PrefundGL"
           - "Fee"
           - "VAT_OUT"
           - "VAT_IN"
           - "Clearing"
           - "Receivable"
           - "Revenue"
+          - "UnappliedCash"
         lineType:
           type: "string"
           exampleSetFlag: false

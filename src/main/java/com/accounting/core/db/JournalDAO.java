@@ -8,6 +8,7 @@ import com.accounting.core.entities.*;
 import com.accounting.core.entities.composite.TxJournal;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
+import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.BindMethods;
 import org.jdbi.v3.sqlobject.statement.*;
@@ -45,9 +46,8 @@ public interface JournalDAO {
     @GetGeneratedKeys("txid")
     long createTxIfNotExists(@BindBean Tx tx);
 
-    @SqlUpdate("insert into journalTx(journalId, txId) values (\n" +
-            " :journalId, :txId)")
-    void createJournalTx(long journalId, long txId);
+    @SqlBatch("insert into journalTx(journalId, txId) values (:journalId, :txId)")
+    void createJournalTxBulk(long journalId, @Bind("txId") List<Long> txIds);
 
     @SqlUpdate("insert into journalLine(journalId, batchId, currencyId, quantity) values (\n" +
             " :journalId, :batchId, :currencyId, :quantity)")
@@ -128,16 +128,25 @@ public interface JournalDAO {
     @SqlQuery("select txId from tx where txReference = :txReference")
     Long getTxIdByReference(String txReference);
 
-    @SqlQuery("select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate " +
-            "    from tx " +
-            "   where txReference = :txReference")
+    @SqlQuery("""
+            SELECT txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate
+              FROM tx
+             WHERE txReference = :txReference""")
     @RegisterBeanMapper(Tx.class)
     Tx getTxByReference(String txReference);
 
+    @SqlQuery("""
+            SELECT txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate
+              FROM tx
+              JOIN config.txType USING (txTypeId)
+             WHERE txId = :txId
+               AND txTypeCode = :txType""")
+    @RegisterBeanMapper(Tx.class)
+    Tx getTxByIdAndType(long txId, Constants.TxType txType);
+
     @SqlQuery("SELECT txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate, " +
-            "         j.journalId, j.bookingDate, jt.journalTypeCode, tk.type as tokenType " +
+            "         j.journalId, j.bookingDate, jt.journalTypeCode" +
             "    FROM tx " +
-            "  LEFT JOIN token tk USING (txId) " +
             "    JOIN journalTx jtx USING (txId) " +
             "    JOIN journal j USING (journalId) " +
             "    JOIN config.journalType jt USING (journalTypeId) " +
@@ -239,13 +248,12 @@ public interface JournalDAO {
 
     @SqlQuery("SELECT tx.txId, txTypeId," +
             "     accountId, parentTxId, txVariantId," +
-            "     txReference, quantity, currencyId, creationDate, tk.type as tokenType " +
+            "     txReference, quantity, currencyId, creationDate " +
             "  FROM tx " +
-            "     JOIN token tk on tx.parentTxId = tk.txid " +
             "     JOIN config.txType txType USING (txTypeId) " +
             "  WHERE parentTxId = :parentTxId AND txType.txTypeCode = :txType ")
     @RegisterBeanMapper(TxStatus.class)
-    List<TxStatus> getTokenTxByParentIdAndTxTypeId(Long parentTxId, Constants.TxType txType);
+    List<TxStatus> getTxByParentIdAndTxTypeId(Long parentTxId, Constants.TxType txType);
 
     @SqlQuery("SELECT CAST(count(1) AS BIT) " +
             "  FROM tx t" +
@@ -263,37 +271,6 @@ public interface JournalDAO {
             "  WHERE t.txId = :txId AND jt.journalTypeCode = :journalType")
     @RegisterBeanMapper(Journal.class)
     Journal getJournalByTxIdAndType(long txId, Constants.JournalType journalType);
-
-    @SqlQuery("select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate " +
-            "  from token " +
-            "   join tx using (txId) " +
-            "  where publishableId = :serialNumber")
-    @RegisterBeanMapper(Tx.class)
-    Tx getTxByTokenSerialNumber(long serialNumber);
-
-    // N.B. The parameter 'id' is a String, but we are always passing a numeric. Because the numeric can be 19 digits we
-    // do not convert to java long (it would not fit).
-    @SqlQuery("""
-               select txId, txTypeId, accountId, parentTxId, txVariantId, txReference, quantity, currencyId, creationDate,\s
-                      j.journalId, j.bookingDate, jt.journalTypeCode\s
-                 from tx t\s
-                 join journalTx jtx using (txId)\s
-                 join journal j using (journalId)\s
-                 join config.journalType jt using (journalTypeId)\s
-                where \
-                accountId = :accountId \
-                and t.txId = (select txId\s
-                                  from tx t1\s
-                                 where t1.txReference = :id\s
-                                 union\s
-                                select txId\s
-                                  from token\s
-                                 where publishableId = (:id)::bigint)\s
-             order by j.bookingDate desc\s
-                limit 1;\
-            """)
-    @RegisterBeanMapper(TxStatus.class)
-    TxStatus getTxStatusByReferenceOrTokenSerialNumber(String id, long accountId);
 
     @SqlQuery("SELECT" +
             "       jl.quantity AS quantity," +

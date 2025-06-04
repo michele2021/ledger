@@ -89,7 +89,7 @@ class JournalMakerTest {
 
         when(tokenMatch.buildJournalLines(journalId)).thenReturn(expectedJournalLines);
         when(tokenMatch.getJournalType()).thenReturn(journalType);
-        when(tokenMatch.linkTx()).thenReturn(txId);
+        when(tokenMatch.linkTxs()).thenReturn(List.of(txId));
         when(journalDAO.createJournalAt(anyInt(), any())).thenReturn(journalId);
 
         when(tokenMatch.addNewTx()).thenReturn(false);
@@ -105,13 +105,13 @@ class JournalMakerTest {
         verify(journalDAO, times(0)).createTx(any(Tx.class));
         verify(journalDAO, times(0)).createOrder(any(OrderDTO.class));
 
-        verify(tokenMatch).linkTx();
+        verify(tokenMatch).linkTxs();
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).updateSpecializedTx();
 
         verify(journalDAO).createJournalAt(eq(journalType.getJournalTypeId()), isNull());
 
-        verify(journalDAO).createJournalTx(journalId, txId);
+        verify(journalDAO).createJournalTxBulk(journalId, List.of(txId));
         verify(journalDAO).createJournalLinesBulk(expectedJournalLines);
 
         verifyNoMoreInteractions(journalDAO);
@@ -162,7 +162,7 @@ class JournalMakerTest {
 
         when(tokenMatch.buildJournalLines(1L)).thenReturn(expectedJournalLines);
         when(tokenMatch.getJournalType()).thenReturn(journalType);
-        when(tokenMatch.linkTx()).thenReturn(txId);
+        when(tokenMatch.linkTxs()).thenReturn(List.of(txId));
         when(tokenMatch.getJournalBookingDate()).thenReturn(bookingDate);
         when(journalDAO.createJournalAt(anyInt(), any(OffsetDateTime.class))).thenReturn(journalId);
 
@@ -179,13 +179,13 @@ class JournalMakerTest {
         verify(journalDAO, times(0)).createTx(any(Tx.class));
         verify(journalDAO, times(0)).createOrder(any(OrderDTO.class));
 
-        verify(tokenMatch).linkTx();
+        verify(tokenMatch).linkTxs();
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).updateSpecializedTx();
 
         verify(journalDAO).createJournalAt(eq(journalType.getJournalTypeId()), eq(bookingDate));
 
-        verify(journalDAO).createJournalTx(journalId, txId);
+        verify(journalDAO).createJournalTxBulk(journalId, List.of(txId));
         verify(journalDAO).createJournalLinesBulk(expectedJournalLines);
 
         verifyNoMoreInteractions(journalDAO);

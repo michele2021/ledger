@@ -18,6 +18,7 @@ import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PaymentReceived extends AbstractTemplate {
@@ -46,8 +47,6 @@ public class PaymentReceived extends AbstractTemplate {
     public void process() throws AccountingMakerException {
         // reconciliation
         oriTx = journalDAO.getTxByReference(oriTxReference);
-        // TODO if the match is not found, the payment should still be created (as not matched)
-        // throwExceptionIfNull(oriTx, format("Tx not found with oriTxReference '%s'.", oriTxReference));
         journalMaker.createJournal(this);
     }
 
@@ -78,11 +77,11 @@ public class PaymentReceived extends AbstractTemplate {
     }
 
     @Override
-    public Long linkTx() {
+    public List<Long> linkTxs() {
         if(oriTx == null) {
-            return null;
+            return Collections.emptyList();
         }
-        return oriTx.getTxId();
+        return List.of(oriTx.getTxId());
     }
 
     @Override

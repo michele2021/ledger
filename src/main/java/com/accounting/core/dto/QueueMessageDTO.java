@@ -12,7 +12,7 @@ import lombok.Value;
 public class QueueMessageDTO {
 
     @Schema(description = "Message type, determine how some other fields are handled.",
-            allowableValues = {"PAYMENT_RECEIVED", "PAYMENT_RECEIVED_CORRECTION", "CLIENT_FEE_PAYOUT", "JOURNAL_POST"}, requiredMode = Schema.RequiredMode.REQUIRED)
+            allowableValues = {"PAYMENT_RECEIVED", "PAYMENT_MATCH", "JOURNAL_POST"}, requiredMode = Schema.RequiredMode.REQUIRED)
     String type;
 
     @Schema(description = "Code of account, account must exist in database.", requiredMode = Schema.RequiredMode.REQUIRED)

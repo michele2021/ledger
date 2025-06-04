@@ -10,7 +10,6 @@ import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.FeeBaseRepoIf;
 import com.accounting.commons.repository.TxVariantRepoIf;
-import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.commons.utils.SerializationUtil;
 import com.accounting.core.db.JournalDAO;
 import com.accounting.core.entities.Tx;
@@ -21,6 +20,7 @@ import com.accounting.core.services.RepositoryHelper;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
@@ -141,13 +141,19 @@ abstract class AbstractTemplate extends JournalLinesMaker {
         }
     }
 
-    final JsonElement getAdditionalData(Message.AdditionalData additionalDataType) throws AccountingMakerException {
-        return AccountingUtils.getMandatoryAdditionalData(additionalData, additionalDataType);
+    @NotNull
+    final JsonElement getMandatoryAdditionalData(Message.AdditionalData additionalDataType) throws AccountingMakerException {
+        var jsonElement = additionalData.get(additionalDataType.toString());
+        if (jsonElement == null) {
+            // Normally, this should not be possible to happen, since we have json-schema validation.
+            throw new AccountingMakerException("The 'additionalData' element in the message is missing the required field " + additionalDataType);
+        }
+        return jsonElement;
     }
 
     @Nullable
     final <TYPE> TYPE getAdditionalData(Message.AdditionalData additionalDataType, Function<JsonElement, TYPE> converter) {
-        JsonElement jsonElement = additionalData.get(additionalDataType.toString());
+        var jsonElement = additionalData.get(additionalDataType.toString());
         if (isNull(jsonElement) || jsonElement.isJsonNull()) {
             return null;
         }
@@ -156,7 +162,7 @@ abstract class AbstractTemplate extends JournalLinesMaker {
 
     final Account getIssuerAccount() throws AccountingMakerException {
         Account account;
-        String issuer = getAdditionalData(Message.AdditionalData.issuer).getAsString();
+        String issuer = getMandatoryAdditionalData(Message.AdditionalData.issuer).getAsString();
         account = accountRepo.getByCodeAndType(issuer, Constants.AccountType.Issuer.toString());
         if (account == null) {
             String mappedIssuer = issuer;

@@ -63,11 +63,11 @@ public class BankPayment extends AbstractTemplate {
     private void validateAndGetAdditionalData() throws AccountingMakerException {
         Account account;
 
-        senderAccountId = getAdditionalData(accountIdFrom).getAsLong();
+        senderAccountId = getMandatoryAdditionalData(accountIdFrom).getAsLong();
         account = accountRepo.get(senderAccountId);
         throwExceptionIfNull(account, "Account not found with accountId " + senderAccountId);
 
-        beneficiaryAccountId = getAdditionalData(accountIdTo).getAsLong();
+        beneficiaryAccountId = getMandatoryAdditionalData(accountIdTo).getAsLong();
         account = accountRepo.get(beneficiaryAccountId);
         throwExceptionIfNull(account, "Account not found with accountId " + beneficiaryAccountId);
     }

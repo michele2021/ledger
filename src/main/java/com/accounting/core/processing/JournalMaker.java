@@ -32,55 +32,55 @@ public class JournalMaker {
      * For example if the creation of the journalLines fails, the previous tables would remain populated.
      * For now this is accepted, we consider that journals that do not have journal lines should be ignored.
      */
-    public JournalDb createJournal(JournalTemplateIf journalTemplateImpl) throws AccountingMakerException {
-
-        var journalType = journalTemplateImpl.getJournalType();
+    public JournalDb createJournal(JournalTemplateIf template) throws AccountingMakerException {
+        var journalType = template.getJournalType();
         int journalTypeId = journalType.getJournalTypeId();
-        boolean isTestAccount = journalTemplateImpl.isTestAccount();
 
-        log.info("createJournal with jt code: {}, journalTypeId: {}, isTestAccount: {}" , journalType.getCode(), journalTypeId, isTestAccount);
+        log.info("createJournal with jt code: {}, journalTypeId: {}", journalType.getCode(), journalTypeId);
 
         // Journal lines, initially created with a fictitious journalId in order to allow validation as a first step
         // (to avoid creating a journal in the db if the validation fails)
-        var journalLines = journalTemplateImpl.buildJournalLines(1);
+        var journalLines = template.buildJournalLines(1);
         validateJL(journalLines);
 
         // journal
-        long journalId = dao.createJournalAt(journalTypeId, journalTemplateImpl.getJournalBookingDate());
+        long journalId = dao.createJournalAt(journalTypeId, template.getJournalBookingDate());
 
         // tx (create a new tx or add a journal to an existing one)
-        boolean addNewTx = journalTemplateImpl.addNewTx();
-        boolean addSpecializedTx = journalTemplateImpl.addSpecializedTx();
-        var linkedTxId = journalTemplateImpl.linkTx();
+        boolean addNewTx = template.addNewTx();
+        boolean addSpecializedTx = template.addSpecializedTx();
+        var linkedTxs = Optional.ofNullable(template.linkTxs())
+                .orElse(Collections.emptyList());
 
-        if(addSpecializedTx && !addNewTx) {
+        if (addSpecializedTx && !addNewTx) {
             throw new AccountingMakerException("A specialized tx can only be added if there is a new tx");
         }
-        if (!addNewTx) {
-            // TODO this should probably be catched and throw an AccountingMakerException
-            Objects.requireNonNull(linkedTxId,
-                    "txId cannot be null. Either a new tx is created or a reference to an existing one is added.");
+        if (!addNewTx && linkedTxs.isEmpty()) {
+            throw new AccountingMakerException("At least a linked tx has to be specified");
         }
 
         long mainTxId = 0;
         if (addNewTx) {
-            Tx tx = journalTemplateImpl.buildTx();
+            Tx tx = template.buildTx();
             mainTxId = dao.createTx(tx);
         } else {
-            journalTemplateImpl.updateSpecializedTx();
+            // by default, it does nothing.
+            template.updateSpecializedTx();
         }
         if (addSpecializedTx) {
-            var specializedTxs = journalTemplateImpl.buildSpecializedTxs(mainTxId);
-            for (var tx : specializedTxs) {
+            var stxs = template.buildSpecializedTxs(mainTxId);
+            for (var tx : stxs) {
                 tx.save(dao);
             }
         }
 
         // journalTx
-        dao.createJournalTx(journalId, mainTxId);
-        if (linkedTxId != null) {
-            dao.createJournalTx(journalId, linkedTxId);
+        var txIdstoLink = new ArrayList<Long>();
+        if(addNewTx) {
+            txIdstoLink.add(mainTxId);
         }
+        txIdstoLink.addAll(linkedTxs);
+        dao.createJournalTxBulk(journalId, txIdstoLink);
 
         // journalLines
         journalLines.forEach(jl -> jl.setJournalId(journalId));

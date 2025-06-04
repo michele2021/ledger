@@ -1,8 +1,8 @@
 package com.accounting.core.reports;
 
 import com.accounting.commons.Constants;
-import com.accounting.commons.entities.TxVariant;
 import com.accounting.commons.entities.*;
+import com.accounting.commons.entities.TxVariant;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.exceptions.FileManagerException;
 import com.accounting.core.entities.*;
@@ -46,8 +46,18 @@ class DailySalesReportsProcessorTest {
     private static final TxVariant TX_VARIANT = new TxVariant(1, "BASE");
     private static final Currency CURRENCY = new Currency(2, 1, "EUR");
     private static final TxType DSR_TX_TYPE = new TxType(9, Constants.TxType.DailySalesReport.name());
-    private static final Account ACCOUNT = new Account(16, "DEFAULT", 7,
-            Constants.AccountType.Client.name(), 15L, "EPAY", "", null, null, false, OffsetDateTime.now(), "user1");
+    private static final Account ACCOUNT = Account.builder()
+            .accountId(16)
+            .accountCode("DEFAULT")
+            .accountTypeId(7)
+            .accountTypeCode(Constants.AccountType.Client.name())
+            .parentId(15L)
+            .parentAccountCode("EPAY")
+            .description("")
+            .test(false)
+            .created(OffsetDateTime.now())
+            .createdBy("user1")
+            .build();
     private static final JournalType JOURNAL_TYPE = new JournalType(14, Constants.JournalType.Matched.name());
 
     @Mock
@@ -139,7 +149,7 @@ class DailySalesReportsProcessorTest {
         verify(repositoryHelper.getJournalDAO()).getJournalByTxIdAndType(parentTxId, journalType);
         verify(repositoryHelper.getJournalDAO()).getReceivedFee(parentTxId, journalType);
         verify(journalMaker).createJournal(any(TokenMatch.class));
-        verify(repositoryHelper.getJournalDAO()).createJournalTx(journalDb.getJournalId(), REPORT_TX_ID);
+        verify(repositoryHelper.getJournalDAO()).createJournalTxBulk(journalDb.getJournalId(), List.of(REPORT_TX_ID));
 
         if (reprocessing) {
             verify(repositoryHelper.getJournalDAO()).createTxIfNotExists(any(Tx.class));

@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+// TODO currently not used
 public class TxJournal extends Tx {
 
     private final List<JournalView> journals = new ArrayList<>();

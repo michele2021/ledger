@@ -40,9 +40,9 @@ import static java.util.Objects.nonNull;
 @Singleton
 public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
-    private static final List<String> ALLOWED_TYPES = List.of(Message.EventType.PAYMENT_RECEIVED.toString(),
+    private static final List<String> SUPPORTED_MESSAGE_TYPES = List.of(Message.EventType.PAYMENT_MATCH.toString(),
             Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString(), Message.EventType.CLIENT_FEE_PAYOUT.toString());
-    private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", ALLOWED_TYPES) + "\"";
+    private static final String ALLOWED_TYPES_STRING = "\"" + String.join("\", \"", SUPPORTED_MESSAGE_TYPES) + "\"";
     private KafkaMessageProducer<String, String> kafkaMessageProducer;
     private final TemplateCache templateCache;
     private final AccountRepoIf accountRepo;
@@ -71,7 +71,10 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     @Override
-    public void executeTemplate(QueueMessageDTO message) {
+    public void executeTemplate(String accountCode, QueueMessageDTO qm) {
+        var message = qm.toBuilder()
+                .accountCode(accountCode)
+                .build();
         log.debug("executeTemplate(): Start: {}", message);
         validate(message);
         try {
@@ -178,7 +181,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     private JournalTemplate validateType(String type) {
-        if (!ALLOWED_TYPES.contains(type)) {
+        if (!SUPPORTED_MESSAGE_TYPES.contains(type)) {
             throw validationError("type", "Field value must be one of (" + ALLOWED_TYPES_STRING + ").");
         }
         try {
@@ -243,9 +246,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     private void validateUuid(QueueMessageDTO message) {
-        if (Message.EventType.PAYMENT_RECEIVED.toString().equals(message.getType()) ||
-                Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString().equals(message.getType()) ||
-                Message.EventType.CLIENT_FEE_PAYOUT.toString().equals(message.getType())) {
+        if (SUPPORTED_MESSAGE_TYPES.contains(message.getType())) {
             validateIsNull("uuid", message.getUuid());
         }
     }

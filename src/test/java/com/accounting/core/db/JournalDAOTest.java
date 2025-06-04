@@ -225,7 +225,7 @@ class JournalDAOTest {
     }
 
     @Test
-    public void testCreateJournalTx() {
+    public void testCreateJournalTxBulk() {
         //given
         final String txReference = "txReference";
         final OffsetDateTime dateTime = OffsetDateTime.now();
@@ -272,7 +272,7 @@ class JournalDAOTest {
         assertNull(journalDbBeforeInsert);
 
         //when
-        journalDAO.createJournalTx(journalId, txId);
+        journalDAO.createJournalTxBulk(journalId, List.of(txId));
 
         //then
         JournalDb journalDbAfterInsert = handle.select("SELECT * FROM public.journalTx WHERE journalId = ? AND txId = ?", journalId, txId)
@@ -576,7 +576,7 @@ class JournalDAOTest {
         expectedJournalDb.setJournalId(journalId);
         expectedJournalDb.setTxId(txId);
 
-        journalDAO.createJournalTx(journalId, txId);
+        journalDAO.createJournalTxBulk(journalId, List.of(txId));
 
         final Batch batch = Batch.builder()
                 .batchNumber(batchNumber)
@@ -664,7 +664,7 @@ class JournalDAOTest {
         expectedJournalDb.setJournalId(journalId);
         expectedJournalDb.setTxId(txId);
 
-        journalDAO.createJournalTx(journalId, txId);
+        journalDAO.createJournalTxBulk(journalId, List.of(txId));
 
         final Batch batch = Batch.builder()
                 .batchNumber(batchNumber)
@@ -740,7 +740,7 @@ class JournalDAOTest {
                 .build();
         long createdJournalId = journalDAO.createJournal(createdJournal);
         createdJournal.setJournalId(createdJournalId);
-        journalDAO.createJournalTx(createdJournalId, txId);
+        journalDAO.createJournalTxBulk(createdJournalId, List.of(txId));
 
         final Batch tokenCreatedBatch = Batch.builder()
                 .batchNumber(batchNumber)
@@ -776,7 +776,7 @@ class JournalDAOTest {
         long activatedJournalId = journalDAO.createJournal(activatedJournal);
         activatedJournal.setJournalId(activatedJournalId);
 
-        journalDAO.createJournalTx(activatedJournalId, txId);
+        journalDAO.createJournalTxBulk(activatedJournalId, List.of(txId));
 
         final Batch cardsPayablePendingBatch = Batch.builder()
                 .batchNumber(batchNumber+1)
@@ -858,7 +858,7 @@ class JournalDAOTest {
         expectedJournalDb.setJournalId(journalId);
         expectedJournalDb.setTxId(txId);
 
-        journalDAO.createJournalTx(journalId, txId);
+        journalDAO.createJournalTxBulk(journalId, List.of(txId));
 
         final Batch batch = Batch.builder()
                 .batchNumber(batchNumber)

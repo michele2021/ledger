@@ -46,7 +46,7 @@ public class AccountAddFunds extends AbstractTemplate {
                            RepositoryHelper repositoryHelper) throws AccountingMakerException {
         super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         throwExceptionIf(amount.getQuantity() <= 0, "The amount should be greater than zero, but was " + Constants.fromMU(amount));
-        bankAccountCode = getAdditionalData(Message.AdditionalData.bankAccountCode).getAsString();
+        bankAccountCode = getMandatoryAdditionalData(Message.AdditionalData.bankAccountCode).getAsString();
         currencyId = amount.getCurrencyId();
         currencyCode = amount.getCurrencyCode();
         bookingDateTime = getAdditionalData(bookingDate, this::toOffsetDateTime);

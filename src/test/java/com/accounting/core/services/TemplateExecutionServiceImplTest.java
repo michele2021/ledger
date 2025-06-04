@@ -137,7 +137,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        subject.executeTemplate(message);
+        subject.executeTemplate(null, message);
 
 
         //then
@@ -169,7 +169,7 @@ class TemplateExecutionServiceImplTest {
         //given
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, null));
 
         //then
         assertThat(validationError.getMessage()).contains("No message");
@@ -195,7 +195,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -225,7 +225,7 @@ class TemplateExecutionServiceImplTest {
         when(templateCache.get(any())).thenReturn(journalTemplate);
 
 
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -254,7 +254,7 @@ class TemplateExecutionServiceImplTest {
         when(templateCache.get(any())).thenReturn(journalTemplate);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -282,7 +282,7 @@ class TemplateExecutionServiceImplTest {
         when(templateCache.get(any())).thenReturn(journalTemplate);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -314,7 +314,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -345,7 +345,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -376,7 +376,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -409,7 +409,7 @@ class TemplateExecutionServiceImplTest {
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("Company"))).thenReturn(cardAccount);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -442,7 +442,7 @@ class TemplateExecutionServiceImplTest {
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("Company"))).thenReturn(cardAccount);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -478,7 +478,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -515,7 +515,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -552,7 +552,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -591,7 +591,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -629,7 +629,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -667,7 +667,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -720,7 +720,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -772,7 +772,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then
@@ -822,7 +822,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
 
 
         //then

@@ -152,7 +152,7 @@ public final class DailySalesReportsProcessor {
             JournalDb journalDb = journalMaker.createJournal(buildTokenMatchTemplate(reportRow, tokenReconciliationTx));
 
             // dailySalesReportTx association
-            journalDAO.createJournalTx(journalDb.getJournalId(), reportTxId);
+            journalDAO.createJournalTxBulk(journalDb.getJournalId(), List.of(reportTxId));
         } catch (AccountingMakerException e) {
             handleError(tokenReconciliationTx.getTxId(), reportTxId, reportRow, ErrorStatus.VALIDATION_ERROR, e.getMessage());
         }

@@ -1,0 +1,25 @@
+{
+  "class": "PaymentMatch",
+  "eventType": "PAYMENT_MATCH",
+  "accountTypes": ["Company"],
+  "journalType": "PaymentMatched",
+  "txType": "Payment",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "orderTxId": {
+        "description": "The txId of the Order to be matched",
+        "type": "integer"
+      },
+      "paymentTxId": {
+        "description": "The txId of the Payment to be matched",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "orderTxId",
+      "paymentTxId"
+    ]
+  }
+}

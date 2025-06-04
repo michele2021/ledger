@@ -96,13 +96,13 @@ public class TemplateExecutionResource {
                     schema = @Schema(implementation = QueueMessageDTO.class),
                     mediaType = MediaType.APPLICATION_JSON,
                     examples = {
-                            @ExampleObject(name="PAYMENT_RECEIVED", description = "Client payment received", value = PAYMENT_RECEIVED_EXAMPLE),
+                            @ExampleObject(name="PAYMENT_MATCH", description = "Match an order and a payment", value = PAYMENT_RECEIVED_EXAMPLE),
                             @ExampleObject(name="PAYMENT_RECEIVED_CORRECTION", description = "Posts a reverse journal of PAYMENT_RECEIVED", value = PAYMENT_RECEIVED_CORRECTION_EXAMPLE),
                             @ExampleObject(name="CLIENT_FEE_PAYOUT", description = "Client fee payout", value = CLIENT_FEE_PAYOUT_EXAMPLE)
                     }
             ))
-    public Response execute(@Context HttpHeaders headers, @NotNull QueueMessageDTO message) {
-        templateExecutionService.executeTemplate(message);
+    public Response execute(@Context HttpHeaders headers, @Auth AuthUser authUser, @NotNull QueueMessageDTO message) {
+        templateExecutionService.executeTemplate(authUser.companyAccountCode(), message);
         return Response.ok().build();
     }
 
