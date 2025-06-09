@@ -56,7 +56,7 @@ public class AccountAddFundsCorrectionTest {
     RepositoryHelper repositoryHelper = setUpMockRepositoryHelper();
 
     final int currencyId = 11;
-    final String currencyCode = Constants.Currencies.EUR.toString();
+    final Constants.Currencies currencyCode = Constants.Currencies.EUR;
 
     @Test
     void shouldConstructorValidateAmountGreaterThanZero() {

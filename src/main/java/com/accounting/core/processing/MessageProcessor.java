@@ -3,6 +3,7 @@ package com.accounting.core.processing;
 import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
 import com.accounting.commons.entities.*;
+import com.accounting.commons.entities.dto.AmountDTO;
 import com.accounting.commons.exceptions.AccountingEventException;
 import com.accounting.commons.exceptions.AccountingException;
 import com.accounting.commons.queue.MessageProcessorIf;
@@ -76,7 +77,7 @@ public class MessageProcessor implements MessageProcessorIf {
     private JournalTemplateIf populateTemplate(QueueMessage message, JournalTemplate journalTemplate) throws AccountingTemplateException {
         validateAdditionalData(message, journalTemplate);
         Account account = validateAndGetAccount(message, journalTemplate);
-        Amount amount = validateAmount(message);
+        Amount amount = validateAndGetAmount(message);
         JournalType jt = validateJournalType(journalTemplate);
         TxType txType = validateTxType(journalTemplate);
 
@@ -88,7 +89,6 @@ public class MessageProcessor implements MessageProcessorIf {
         if (StringUtils.isEmpty(schemaContent)) {
             return;
         }
-
         if (isNull(message.additionalData())) {
             throw new AccountingTemplateException("No additionalData found in message.");
         }
@@ -131,17 +131,19 @@ public class MessageProcessor implements MessageProcessorIf {
         return account;
     }
 
-    private Amount validateAmount(QueueMessage message) throws AccountingTemplateException {
+    private Amount validateAndGetAmount(QueueMessage message) throws AccountingTemplateException {
         // validate amount (optional)
-        Amount amount = message.amount();
+        AmountDTO amount = message.amountDTO();
         if (amount != null) {
-            String currencyCode = amount.getCurrencyCode();
+            String currencyCode = amount.getCurrencyCode().toString();
             throwExceptionIfNull(currencyCode, "Currency code not specified!");
+            // here is where we touch the cache
             Currency currency = currencyRepo.get(currencyCode);
             throwExceptionIfNull(currency, format("Unrecognized currency %s", currencyCode));
-            amount.setCurrencyId(currency.getCurrencyId());
+            // amount.setCurrencyId(currency.getCurrencyId());
+            return new Amount(Constants.toMinorUnits(amount.getCurrencyCode(), amount.getQuantity()), currency);
         }
-        return amount;
+        return null;
     }
 
     private JournalType validateJournalType(JournalTemplate journalTemplate) throws AccountingTemplateException {

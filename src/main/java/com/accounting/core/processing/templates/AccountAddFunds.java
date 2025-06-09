@@ -34,7 +34,7 @@ public class AccountAddFunds extends AbstractTemplate {
     private Amount prefundGLAmount;
     private final String bankAccountCode;
     private final int currencyId;
-    private final String currencyCode;
+    private final Constants.Currencies currencyCode;
     final OffsetDateTime bookingDateTime;
 
     public AccountAddFunds(JournalMaker journalMaker,

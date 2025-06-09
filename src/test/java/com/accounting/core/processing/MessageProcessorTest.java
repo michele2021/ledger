@@ -1,9 +1,7 @@
 package com.accounting.core.processing;
 
-import com.accounting.commons.entities.Account;
-import com.accounting.commons.entities.Currency;
-import com.accounting.commons.entities.JournalType;
-import com.accounting.commons.entities.TxType;
+import com.accounting.commons.Constants;
+import com.accounting.commons.entities.*;
 import com.accounting.commons.exceptions.AccountingEventException;
 import com.accounting.commons.queue.QueueMessage;
 import com.accounting.core.entities.JournalTemplate;
@@ -141,11 +139,11 @@ public class MessageProcessorTest {
         verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq(message.accountCode()), eq(journalTemplate.getAccountTypes().getFirst().toString()));
 
         //validateAmount
-        if (Objects.isNull(message.amount())) {
+        if (Objects.isNull(message.amountDTO())) {
             verify(repositoryHelper.getCurrencyRepo(), never()).get(anyLong());
         } else {
-            verify(repositoryHelper.getCurrencyRepo()).get(eq(message.amount().getCurrencyCode()));
-            assertThat(message.amount().getCurrencyId()).isEqualTo(currency.getCurrencyId());
+            verify(repositoryHelper.getCurrencyRepo()).get(eq(message.amountDTO().getCurrencyCode().toString()));
+            assertThat(message.amountDTO().getCurrencyCode()).isEqualTo(currency.getCode());
         }
 
         //validateJournalType
@@ -154,11 +152,12 @@ public class MessageProcessorTest {
         //validateTxType
         verify(repositoryHelper.getTxTypeRepo()).get(eq(journalTemplate.getTxType().toString()));
 
+        var amount = new Amount(Constants.toMinorUnits(message.amountDTO().getCurrencyCode(), message.amountDTO().getQuantity()), message.amountDTO().getCurrencyCode());
         verify(journalTemplateFactory).makeJournalTemplateInstance(
                 eq(message),
                 eq(journalTemplate),
                 eq(account),
-                eq(message.amount()),
+                eq(message.amountDTO()),
                 eq(journalType),
                 eq(txType)
         );
@@ -347,7 +346,7 @@ public class MessageProcessorTest {
         final Account account = new Account();
 
         QueueMessage message = TestQueueMessage.tokenCreate();
-        message.amount().setCurrencyCode(null);
+        message.amountDTO().setCurrencyCode(null);
 
         when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
 
@@ -483,7 +482,7 @@ public class MessageProcessorTest {
                 eq(message),
                 eq(journalTemplate),
                 eq(testAccount),
-                eq(message.amount()),
+                eq(message.amountDTO()),
                 eq(journalType),
                 eq(txType)
         );
@@ -572,7 +571,7 @@ public class MessageProcessorTest {
                 eq(message),
                 eq(journalTemplate),
                 eq(originAccount),
-                eq(message.amount()),
+                eq(message.amountDTO()),
                 eq(journalType),
                 eq(txType)
         );
