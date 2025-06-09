@@ -3,7 +3,7 @@ package com.accounting.core.services;
 import com.accounting.commons.Constants;
 import com.accounting.commons.SystemConstants;
 import com.accounting.commons.entities.AccountingEntity;
-import com.accounting.commons.entities.FeeBase;
+import com.accounting.commons.entities.Currency;
 import com.accounting.commons.infra.cache.management.CacheActionDAO;
 import com.accounting.commons.infra.jobs.JobsDAO;
 import com.accounting.commons.repository.*;
@@ -20,8 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
 
@@ -66,47 +65,69 @@ public class RepositoryHelper {
         userRepoIf.init();
     }
 
+    private <E extends Enum<E>> void validateConfigEnum(String entityName,
+                                                        Repository<? extends AccountingEntity> repo,
+                                                        E[] values) {
+        validateConfigEnum(entityName, repo, values, null);
+    }
+
     // Checks that all the constants defined in Java are also present in the database.
-    private void validateConstantTypes(String entityName, Repository<? extends AccountingEntity> repo, String[] types) {
-        for (String type : types) {
-            AccountingEntity entity = repo.get(type);
+    private <E extends Enum<E>> void validateConfigEnum(String entityName,
+                                                        Repository<? extends AccountingEntity> repo,
+                                                        E[] values,
+                                                        BiConsumer<AccountingEntity, E> additionalCheck) {
+        for (E value : values) {
+            AccountingEntity entity = repo.get(value.name());
             if (entity == null) {
-                log.error("Config validation: {} '{}' not found in database!", entityName, type);
-                String message = format("Exception: %s '%s' not found in database!", entityName, type);
+                log.error("Config validation: {} '{}' not found in database!", entityName, value);
+                String message = format("Exception: %s '%s' not found in database!", entityName, value);
                 throw new WebApplicationException(message);
+            }
+            if (additionalCheck != null) {
+                additionalCheck.accept(entity, value);
             }
         }
         int size = repo.size();
         // if the repository is a cache (size >=0) additionally check that all the values in the cache are also in the constants.
-        if (size != -1 && size != types.length) {
-            String message = format("Exception: %s - values in cache: %s , while values in Constants are %s", entityName, size, types.length);
-            log.error("Config validation: {} - values in cache: {}, while values in Constants are {}", entityName, size, types.length);
+        if (size != -1 && size != values.length) {
+            String message = format("Exception: %s - values in cache: %s , while values in Constants are %s", entityName, size, values.length);
+            log.error("Config validation: {} - values in cache: {}, while values in Constants are {}", entityName, size, values.length);
             throw new WebApplicationException(message);
         }
     }
 
-    private void validateFeeBase() {
-        List<FeeBase> fees = feeBaseRepo.getAll();
-        for (FeeBase fee : fees) {
-            if ((fee.getFeeQuantity() != null && fee.getCurrencyId() == null) || (fee.getFeeQuantity() == null && fee.getCurrencyId() != null)) {
-                throw new WebApplicationException("Contractual fee definition is inconsistent: quantity and currency need to be either both null or both set. FeeId: " + fee.getFeeId());
-            }
-            if (fee.getFeeQuantity() != null && fee.getFeePercentage() != null) {
-                throw new WebApplicationException("Contractual fee definition is inconsistent: percentage and amount cannot be both specified. FeeId: " + fee.getFeeId());
+    private <E extends Enum<E>> void validateMetadata(AccountingEntity entity, E value) {
+        if (entity instanceof Currency currency && value instanceof Constants.Currencies enumCurrency) {
+            if (currency.getDecimals() != enumCurrency.getDecimals()) {
+                String message = format("Exception: for Currency %s the decimals in the database do not match the application value!", entity.getCode());
+                log.error(message);
+                throw new WebApplicationException(message);
             }
         }
     }
 
+//    private void validateFeeBase() {
+//        List<FeeBase> fees = feeBaseRepo.getAll();
+//        for (FeeBase fee : fees) {
+//            if ((fee.getFeeQuantity() != null && fee.getCurrencyId() == null) || (fee.getFeeQuantity() == null && fee.getCurrencyId() != null)) {
+//                throw new WebApplicationException("Contractual fee definition is inconsistent: quantity and currency need to be either both null or both set. FeeId: " + fee.getFeeId());
+//            }
+//            if (fee.getFeeQuantity() != null && fee.getFeePercentage() != null) {
+//                throw new WebApplicationException("Contractual fee definition is inconsistent: percentage and amount cannot be both specified. FeeId: " + fee.getFeeId());
+//            }
+//        }
+//    }
+
     private void validateConstants() {
-        validateConstantTypes("AccountType", accountTypeRepo, Stream.of(Constants.AccountType.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("JournalType", journalTypeRepo, Stream.of(Constants.JournalType.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("RegisterType", registerTypeRepo, Stream.of(Constants.RegisterType.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("TxType", txTypeRepo, Stream.of(Constants.TxType.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("Currency", currencyRepo, Stream.of(Constants.Currencies.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("TxVariant", txVariantRepo, Stream.of(Constants.TxVariant.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("Platform", platformRepo, Stream.of(Constants.Platform.values()).map(Enum::name).toArray(String[]::new));
-        validateConstantTypes("PaymentProvider", paymentProviderRepo, Stream.of(Constants.PaymentProvider.values()).map(Enum::name).toArray(String[]::new));
-        validateFeeBase();
+        validateConfigEnum("AccountType", accountTypeRepo, Constants.AccountType.values());
+        validateConfigEnum("JournalType", journalTypeRepo, Constants.JournalType.values());
+        validateConfigEnum("RegisterType", registerTypeRepo, Constants.RegisterType.values());
+        validateConfigEnum("TxType", txTypeRepo, Constants.TxType.values());
+        validateConfigEnum("Currency", currencyRepo, Constants.Currencies.values(), this::validateMetadata);
+        validateConfigEnum("TxVariant", txVariantRepo, Constants.TxVariant.values());
+        validateConfigEnum("Platform", platformRepo, Constants.Platform.values());
+        validateConfigEnum("PaymentProvider", paymentProviderRepo, Constants.PaymentProvider.values());
+        // validateFeeBase();
     }
 
     /*
