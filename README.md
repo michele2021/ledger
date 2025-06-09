@@ -114,7 +114,7 @@ This project defines custom Gradle tasks to assist with development and document
 ### Run the app
 First, initialize the gradle wrapper. This is required to execute run.sh.
 ```
-gradle wrapper --gradle-version 7.1.1
+gradle wrapper --gradle-version 8.12.1
 ```
 To run application in your local environment all you need is Docker installed. <br/>
 Automation script will handle *PostgreSQL DBs* creation as well as AWS Localstack resources, such as *SQS* queues *DynamoDB* etc.<br/>
