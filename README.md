@@ -120,7 +120,7 @@ To run application in your local environment all you need is Docker installed. <
 Automation script will handle *PostgreSQL DBs* creation as well as AWS Localstack resources, such as *SQS* queues *DynamoDB* etc.<br/>
 It will also handle building the fat jar if it does not exist.<br/>
 
-To run the project make sure your in the project root directory, and simply execute `./run.sh` cmd in the bash terminal.
+To run the project make sure you’re in the project root directory, and simply execute `./run.sh` cmd in the bash terminal.
 ```
 ./run.sh
 ```
