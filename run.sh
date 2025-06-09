@@ -49,7 +49,7 @@ if [ -d "${JAR_DIR}" ]; then
     echo -e "${WARN} Jar file not found"
     fullBuild
 
-  else [ "${FILES_COUNT}" -gt "1" ];
+  elif [ "${FILES_COUNT}" -gt "1" ]; then
     echo -e "${ERROR}ERROR: More than one jar file found in ${JAR_DIR}"
 
     echo -e "${INFO}Stopping existing Gradle daemons" && ./gradlew --stop
