@@ -58,8 +58,8 @@ public class PaymentMatch extends AbstractTemplate {
         var journalLines = new ArrayList<JournalLine>();
 
         long accountId = account.getAccountId();
-        addDebitLine(journalId, journalLines, Constants.RegisterType.UnappliedCash, accountId, paymentAmount);
         addCreditLine(journalId, journalLines, Constants.RegisterType.Receivable, accountId, paymentAmount);
+        addDebitLine(journalId, journalLines, Constants.RegisterType.UnappliedCash, accountId, paymentAmount);
         return journalLines;
     }
 }
