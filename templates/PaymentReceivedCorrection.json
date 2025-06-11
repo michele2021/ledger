@@ -1,8 +1,8 @@
 {
   "class": "AccountAddFundsCorrection",
   "eventType": "PAYMENT_RECEIVED_CORRECTION",
-  "accountTypes": ["Distributor","Client"],
-  "journalType": "FundsReceivedCorrection",
+  "accountTypes": ["Company","Client"],
+  "journalType": "Manual",
   "txType": "Payment",
   "additionalDataSchema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",

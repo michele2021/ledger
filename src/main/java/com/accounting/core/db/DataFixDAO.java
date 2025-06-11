@@ -213,7 +213,7 @@ public interface DataFixDAO {
                       JOIN config.account a on (a.accountCode = pn.accountCode)
                       JOIN config.accountType at using (accountTypeId)
                      WHERE pn.id = COALESCE(:newPaymentId, pn.id)
-                       AND at.accountTypeCode in ('Client', 'Distributor')) i1""")
+                       AND at.accountTypeCode in ('Client', 'Company')) i1""")
     @RegisterBeanMapper(PaymentView.class)
     List<PaymentView> getNewPaymentsToSubmit(Long newPaymentId);
 

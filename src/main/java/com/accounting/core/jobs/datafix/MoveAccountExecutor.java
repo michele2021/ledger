@@ -142,7 +142,7 @@ public class MoveAccountExecutor {
             throw new JobProcessingException("New account not found for accountId: " + accountId);
         }
         toTestAccount = account.isTest();
-        // we expect the new account to be a Client or Distributor.
+        // we expect the new account to be a Client or Company.
         if (!allowedAccountTypeCodes.contains(account.getAccountTypeCode())) {
             throw new JobProcessingException("The new account is of type " + account.getAccountTypeCode() + ", but the only allowed account types are: " + allowedAccountTypeCodes);
         }

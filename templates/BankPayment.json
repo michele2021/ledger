@@ -1,7 +1,7 @@
 {
   "class": "BankPayment",
   "eventType": "BANK_PAYMENT",
-  "accountTypes": ["Distributor","Client","Company"],
+  "accountTypes": ["Client","Company"],
   "journalType": "PaymentReceived",
   "txType": "Payment",
   "additionalDataSchema": {

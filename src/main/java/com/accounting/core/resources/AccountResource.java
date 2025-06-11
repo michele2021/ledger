@@ -44,7 +44,7 @@ public class AccountResource {
 
     private final AccountService accountService;
 
-    private static final String EPAY_IT_ACCOUNT_EXAMPLE = """
+    private static final String CMPZERO_ACCOUNT_EXAMPLE = """
             {
                     "accountCode" :"DEFAULT",\s
                     "accountTypeCode" : "Client",\s
@@ -67,7 +67,7 @@ public class AccountResource {
             content = @Content(
                     schema = @Schema(implementation = AccountDTO.class),
                     examples = {
-                            @ExampleObject(name="DEFAULT", description = "Creation of DEFAULT Distributor account", value = EPAY_IT_ACCOUNT_EXAMPLE)
+                            @ExampleObject(name="DEFAULT", description = "Creation of DEFAULT Company account", value = CMPZERO_ACCOUNT_EXAMPLE)
                     }
             ))
     public Response create(@Context HttpHeaders headers, @NotNull @Valid AccountDTO accountDTO) {

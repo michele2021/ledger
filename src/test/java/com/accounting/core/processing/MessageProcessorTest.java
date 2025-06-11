@@ -338,7 +338,7 @@ public class MessageProcessorTest {
         AccountingTemplateException exception = assertThrows(AccountingTemplateException.class, () -> subject.process(message));
 
         //then
-        assertThat(exception.getMessage()).isEqualTo("Account in queue message not recognized: EPAY/[Distributor, Client]");
+        assertThat(exception.getMessage()).isEqualTo("Account in queue message not recognized: CMPZERO/[Company, Client]");
     }
 
     @Test
@@ -439,9 +439,9 @@ public class MessageProcessorTest {
     @Test
     void shouldSwitchToTestAccount() throws Exception {
         //given
-        String originAccountCode = "EPAY";
-        String originAccountTypeCode = "Distributor";
-        String testAccountCode = "EPAY_TEST";
+        String originAccountCode = "CMPZERO";
+        String originAccountTypeCode = "Company";
+        String testAccountCode = "CMPZERO_TEST";
         final Currency currency = new Currency();
         currency.setCurrencyId(456);
         final JournalType journalType = new JournalType();
@@ -449,7 +449,7 @@ public class MessageProcessorTest {
         JournalTemplate journalTemplate = TestJournalTemplate.orderReceived();
 
         QueueMessage message = TestQueueMessage.tokenCreateWithTestFlag(true);
-        // message.setAccountCode("EPAY");
+        // message.setAccountCode("CMPZERO");
 
         when(repositoryHelper.getCurrencyRepo().get(anyString())).thenReturn(currency);
         when(templateCache.get(any())).thenReturn(TestJournalTemplate.orderReceived());
