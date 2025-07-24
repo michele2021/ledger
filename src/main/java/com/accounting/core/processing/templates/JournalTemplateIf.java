@@ -2,6 +2,7 @@ package com.accounting.core.processing.templates;
 
 import com.accounting.commons.entities.JournalType;
 import com.accounting.commons.exceptions.AccountingMakerException;
+import com.accounting.core.dto.AttachmentMetaDTO;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.SpecializedTx;
 import com.accounting.core.entities.Tx;
@@ -19,6 +20,10 @@ public interface JournalTemplateIf {
     JournalMaker getJournalMaker();
 
     default OffsetDateTime getJournalBookingDate() {
+        return null;
+    }
+
+    default List<AttachmentMetaDTO> journalInfo() {
         return null;
     }
 

@@ -76,6 +76,9 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
         environment.jersey().register(injector.getInstance(AccountResource.class));
         environment.jersey().register(injector.getInstance(AuthResourceMock.class));
 
+        // To support API endpoints accepting attachments
+        environment.jersey().register(org.glassfish.jersey.media.multipart.MultiPartFeature.class);
+
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
         environment.healthChecks().register("app", injector.getInstance(AppHealthCheck.class));
 

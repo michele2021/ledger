@@ -1,10 +1,10 @@
 package com.accounting.core.reports;
 
-import com.accounting.commons.aws.S3FilesManager;
-import com.accounting.commons.aws.S3FilesManagerImpl;
 import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.exceptions.FileManagerException;
 import com.accounting.commons.model.S3File;
+import com.accounting.commons.objectstorage.FileStorage;
+import com.accounting.commons.objectstorage.S3FilesManagerImpl;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,7 @@ final class S3TransferManager {
     public static final String ERROR_DIR = "ERROR";
 
     private final AWSConfig awsConfig;
-    private S3FilesManager s3FilesManager;
+    private FileStorage s3FilesManager;
 
     @Inject
     public S3TransferManager(AWSConfig awsConfig) {

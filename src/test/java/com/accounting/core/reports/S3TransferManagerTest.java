@@ -1,7 +1,7 @@
 package com.accounting.core.reports;
 
-import com.accounting.commons.aws.S3FilesManagerImpl;
 import com.accounting.commons.conf.AWSConfig;
+import com.accounting.commons.objectstorage.S3FilesManagerImpl;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -14,6 +14,10 @@ import com.accounting.commons.kafka.KafkaMessageConsumer;
 import com.accounting.commons.kafka.KafkaMessageProducer;
 import com.accounting.commons.kafka.KafkaProducerFactory;
 import com.accounting.commons.kafka.impl.*;
+import com.accounting.commons.objectstorage.DatabaseFileStorageImpl;
+import com.accounting.commons.objectstorage.FileStorage;
+import com.accounting.commons.objectstorage.S3FilesManagerImpl;
+import com.accounting.commons.objectstorage.dao.ObjectStorageDAO;
 import com.accounting.commons.queue.MessagesSkipperService;
 import com.accounting.commons.queue.MessagesSkipperServiceImpl;
 import com.accounting.commons.repository.*;
@@ -159,6 +163,11 @@ public class AccountingCoreModule extends AbstractModule {
     }
 
     @Provides
+    public ObjectStorageDAO provideObjectStorageDAO() {
+        return jdbi.onDemand(ObjectStorageDAO.class);
+    }
+
+    @Provides
     public Gson provideGson() { return SerializationUtil.getGson(); }
 
     @Override
@@ -224,6 +233,11 @@ public class AccountingCoreModule extends AbstractModule {
         bind(TemplateExecutionService.class).to(TemplateExecutionServiceImpl.class);
         bind(AccountService.class).to(AccountServiceImpl.class);
         bind(AuthServiceMock.class).to(AuthServiceMockImpl.class);
+        if (config.getRepositoryConfig().isUseAWSS3()) {
+            bind(FileStorage.class).to(S3FilesManagerImpl.class);
+        } else {
+            bind(FileStorage.class).to(DatabaseFileStorageImpl.class);
+        }
     }
 
     private void bindRepositoriesToDAO() {

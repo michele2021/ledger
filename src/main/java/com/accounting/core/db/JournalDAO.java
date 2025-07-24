@@ -4,6 +4,7 @@ import com.accounting.commons.Constants;
 import com.accounting.commons.entities.Amount;
 import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.core.db.reducers.JournalDTOReducer;
+import com.accounting.core.dto.AttachmentMetaDTO;
 import com.accounting.core.entities.*;
 import com.accounting.core.entities.composite.TxJournal;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -29,6 +30,21 @@ public interface JournalDAO {
             " :journalTypeId, coalesce(:bookingDate, now()))")
     @GetGeneratedKeys("journalid")
     long createJournalAt(int journalTypeId, OffsetDateTime bookingDate);
+
+    @SqlBatch("""
+    INSERT INTO journalInfo(journalId, type, filename, contentType, textContent, storageUri, sha256, sizeBytes)
+         VALUES (:journalId, :type, :filename, :contentType, :textContent, :uri, :sha256, :size)
+    ON CONFLICT DO NOTHING;
+    """)
+    void createJournalInfo(long journalId, @BindMethods List<AttachmentMetaDTO> attachmentMetaDTO);
+
+    default long createJournalWithInfoAt(int journalTypeId, OffsetDateTime bookingDate, List<AttachmentMetaDTO> journalInfo) {
+        var journalId = createJournalAt(journalTypeId, bookingDate);
+        if (!AccountingUtils.isEmptyOrNull(journalInfo)) {
+            createJournalInfo(journalId, journalInfo);
+        }
+        return journalId;
+    }
 
     @SqlUpdate("insert into journal (journalTypeId, bookingDate) values (\n" +
             " :journalTypeId, :bookingDate)")

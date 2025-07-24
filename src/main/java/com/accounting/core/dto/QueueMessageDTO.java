@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -29,6 +31,9 @@ public class QueueMessageDTO {
 
     @Schema(description = "Additional data, exact format depends on the message type.")
     JsonNode additionalData;
+
+    @Schema(description = "Metadata regarding journal attachments.")
+    List<AttachmentMetaDTO> journalInfo;
 
     @Schema(description = "Source of message, must be FRONT_END_APP",
             allowableValues = "FRONT_END_APP", requiredMode = Schema.RequiredMode.REQUIRED)

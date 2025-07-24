@@ -29,8 +29,8 @@ public class JournalMaker {
 
     /*
      * The current implementation allows for incomplete journals to be stored in the database.
-     * For example if the creation of the journalLines fails, the previous tables would remain populated.
-     * For now this is accepted, we consider that journals that do not have journal lines should be ignored.
+     * For example, if the creation of the journalLines fails, the previous tables would remain populated.
+     * For now this is accepted; we consider that journals that do not have journal lines should be ignored.
      */
     public JournalDb createJournal(JournalTemplateIf template) throws AccountingMakerException {
         var journalType = template.getJournalType();
@@ -44,7 +44,9 @@ public class JournalMaker {
         validateJL(journalLines);
 
         // journal
-        long journalId = dao.createJournalAt(journalTypeId, template.getJournalBookingDate());
+        long journalId = dao.createJournalWithInfoAt(journalTypeId,
+                template.getJournalBookingDate(),
+                template.journalInfo());
 
         // tx (create a new tx or add a journal to an existing one)
         boolean addNewTx = template.addNewTx();
@@ -75,12 +77,12 @@ public class JournalMaker {
         }
 
         // journalTx
-        var txIdstoLink = new ArrayList<Long>();
+        var txIdsToLink = new ArrayList<Long>();
         if(addNewTx) {
-            txIdstoLink.add(mainTxId);
+            txIdsToLink.add(mainTxId);
         }
-        txIdstoLink.addAll(linkedTxs);
-        dao.createJournalTxBulk(journalId, txIdstoLink);
+        txIdsToLink.addAll(linkedTxs);
+        dao.createJournalTxBulk(journalId, txIdsToLink);
 
         // journalLines
         journalLines.forEach(jl -> jl.setJournalId(journalId));
@@ -121,11 +123,14 @@ public class JournalMaker {
     }
 
     private void validateJL(List<JournalLine> jls) throws AccountingMakerException {
-        Map<Integer, Long> currencyBalance = new HashMap<>();
+        var currencyBalance = new HashMap<Integer, Long>();
         for (JournalLine jl : jls) {
             currencyBalance.merge(jl.getCurrencyId(), jl.getQuantity(), Long::sum);
         }
-        Optional<Map.Entry<Integer, Long>> entry = currencyBalance.entrySet().stream().filter(e -> e.getValue() != 0).findFirst();
+        Optional<Map.Entry<Integer, Long>> entry = currencyBalance.entrySet()
+                .stream()
+                .filter(e -> e.getValue() != 0)
+                .findFirst();
         if (entry.isPresent()) {
             int currencyId = entry.get().getKey();
             long value = entry.get().getValue();

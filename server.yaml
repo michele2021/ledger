@@ -84,6 +84,7 @@ debugTools:
 
 repository:
   cache: true
+  useAWSS3 : false
 
 server:
   applicationConnectors:

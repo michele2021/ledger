@@ -80,7 +80,7 @@ paths:
               exampleSetFlag: false
             examples:
               DEFAULT:
-                description: "Creation of DEFAULT Distributor account"
+                description: "Creation of DEFAULT Company account"
                 value:
                   accountCode: "DEFAULT"
                   accountTypeCode: "Client"
@@ -360,7 +360,7 @@ paths:
                 code: 400
                 message: "Detailed message."
               exampleSetFlag: true
-  /accounting/execute:
+  /accounting/journals/from-template:
     post:
       tags:
       - "TemplateExecutionResource"
@@ -374,8 +374,8 @@ paths:
               $ref: "#/components/schemas/QueueMessageDTO"
               exampleSetFlag: false
             examples:
-              PAYMENT_RECEIVED:
-                description: "Client payment received"
+              PAYMENT_MATCH:
+                description: "Match an order and a payment"
                 value:
                   type: "PAYMENT_RECEIVED"
                   accountCode: "DEFAULT"
@@ -444,7 +444,7 @@ paths:
                 code: 400
                 message: "Detailed message."
               exampleSetFlag: true
-  /accounting/companies/journals:
+  /accounting/journals:
     post:
       tags:
       - "TemplateExecutionResource"
@@ -504,6 +504,34 @@ paths:
                 code: 400
                 message: "Detailed message."
               exampleSetFlag: true
+  /accounting/journals/wa:
+    post:
+      tags:
+      - "TemplateExecutionResource"
+      summary: "Post a custom journal with optional description and/or attachments"
+      operationId: "postJournalWithAttachments"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/AuthUser"
+              exampleSetFlag: false
+            exampleSetFlag: false
+      responses:
+        "500":
+          description: "Internal server error or unhandled error"
+          content:
+            application/json:
+              example:
+                code: 500
+                message: "Detailed message."
+              exampleSetFlag: true
+        "401":
+          description: "Unauthorized"
+        "200":
+          description: "Journal posted successfully"
+        "400":
+          description: "Invalid form data"
 components:
   schemas:
     AccountDTO:
@@ -669,6 +697,7 @@ components:
       exampleSetFlag: false
     JsonNode:
       type: "object"
+      description: "Additional data, exact format depends on the message type."
       exampleSetFlag: false
     LoginRequest:
       required:
@@ -680,6 +709,52 @@ components:
           exampleSetFlag: false
           types:
           - "string"
+      exampleSetFlag: false
+    AttachmentMetaDTO:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        type:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        filename:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        contentType:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        textContent:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        uri:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        sha256:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        size:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+      description: "Metadata regarding journal attachments."
       exampleSetFlag: false
     QueueMessageAmountDTO:
       required:
@@ -747,6 +822,15 @@ components:
         additionalData:
           $ref: "#/components/schemas/JsonNode"
           exampleSetFlag: false
+        journalInfo:
+          type: "array"
+          description: "Metadata regarding journal attachments."
+          exampleSetFlag: false
+          items:
+            $ref: "#/components/schemas/AttachmentMetaDTO"
+            exampleSetFlag: false
+          types:
+          - "array"
         source:
           type: "string"
           description: "Source of message, must be FRONT_END_APP"
@@ -755,6 +839,58 @@ components:
           - "string"
           enum:
           - "FRONT_END_APP"
+      exampleSetFlag: false
+    AuthUser:
+      type: "object"
+      properties:
+        userId:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+        username:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        companyAccountId:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+        companyAccountCode:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        roles:
+          uniqueItems: true
+          type: "array"
+          exampleSetFlag: false
+          items:
+            type: "string"
+            exampleSetFlag: false
+            types:
+            - "string"
+            enum:
+            - "NULL"
+            - "SUPER_USER"
+            - "DEFAULT"
+          types:
+          - "array"
+        tokenIssuedAt:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        name:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
       exampleSetFlag: false
     JournalLinePostingDTO:
       type: "object"
@@ -821,52 +957,467 @@ components:
           types:
           - "array"
       exampleSetFlag: false
-    AuthUser:
+    BodyPart:
       type: "object"
       properties:
-        userId:
-          type: "integer"
-          format: "int64"
+        contentDisposition:
+          $ref: "#/components/schemas/ContentDisposition"
+          exampleSetFlag: false
+        entity:
+          type: "object"
           exampleSetFlag: false
           types:
-          - "integer"
-        username:
+          - "object"
+          jsonSchema:
+            type: "object"
+        headers:
+          type: "object"
+          properties:
+            empty:
+              type: "boolean"
+              exampleSetFlag: false
+              types:
+              - "boolean"
+          additionalProperties:
+            type: "array"
+            exampleSetFlag: false
+            items:
+              type: "string"
+              exampleSetFlag: false
+              types:
+              - "string"
+            types:
+            - "array"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+            properties:
+              empty:
+                type: "boolean"
+        mediaType:
+          $ref: "#/components/schemas/MediaType"
+          exampleSetFlag: false
+        messageBodyWorkers:
+          $ref: "#/components/schemas/MessageBodyWorkers"
+          exampleSetFlag: false
+        parent:
+          $ref: "#/components/schemas/MultiPart"
+          exampleSetFlag: false
+        providers:
+          $ref: "#/components/schemas/Providers"
+          exampleSetFlag: false
+        parameterizedHeaders:
+          type: "object"
+          properties:
+            empty:
+              type: "boolean"
+              exampleSetFlag: false
+              types:
+              - "boolean"
+          additionalProperties:
+            type: "array"
+            exampleSetFlag: false
+            items:
+              $ref: "#/components/schemas/ParameterizedHeader"
+              exampleSetFlag: false
+            types:
+            - "array"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+            properties:
+              empty:
+                type: "boolean"
+      exampleSetFlag: false
+    ContentDisposition:
+      type: "object"
+      properties:
+        type:
           type: "string"
           exampleSetFlag: false
           types:
           - "string"
-        companyAccountId:
-          type: "integer"
-          format: "int64"
-          exampleSetFlag: false
-          types:
-          - "integer"
-        roles:
-          uniqueItems: true
-          type: "array"
-          exampleSetFlag: false
-          items:
+        parameters:
+          type: "object"
+          additionalProperties:
             type: "string"
             exampleSetFlag: false
             types:
             - "string"
-            enum:
-            - "NULL"
-            - "SUPER_USER"
-            - "DEFAULT"
+          exampleSetFlag: false
           types:
-          - "array"
-        tokenIssuedAt:
+          - "object"
+          jsonSchema:
+            type: "object"
+        fileName:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        creationDate:
           type: "string"
           format: "date-time"
           exampleSetFlag: false
           types:
           - "string"
+        modificationDate:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        readDate:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        size:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+      exampleSetFlag: false
+    FormDataBodyPart:
+      type: "object"
+      properties:
+        contentDisposition:
+          $ref: "#/components/schemas/ContentDisposition"
+          exampleSetFlag: false
+        entity:
+          type: "object"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+        headers:
+          type: "object"
+          properties:
+            empty:
+              type: "boolean"
+              exampleSetFlag: false
+              types:
+              - "boolean"
+          additionalProperties:
+            type: "array"
+            exampleSetFlag: false
+            items:
+              type: "string"
+              exampleSetFlag: false
+              types:
+              - "string"
+            types:
+            - "array"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+            properties:
+              empty:
+                type: "boolean"
+        mediaType:
+          $ref: "#/components/schemas/MediaType"
+          exampleSetFlag: false
+        messageBodyWorkers:
+          $ref: "#/components/schemas/MessageBodyWorkers"
+          exampleSetFlag: false
+        parent:
+          $ref: "#/components/schemas/MultiPart"
+          exampleSetFlag: false
+        providers:
+          $ref: "#/components/schemas/Providers"
+          exampleSetFlag: false
         name:
           type: "string"
           exampleSetFlag: false
           types:
           - "string"
+        value:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        simple:
+          type: "boolean"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+        formDataContentDisposition:
+          $ref: "#/components/schemas/FormDataContentDisposition"
+          exampleSetFlag: false
+        parameterizedHeaders:
+          type: "object"
+          properties:
+            empty:
+              type: "boolean"
+              exampleSetFlag: false
+              types:
+              - "boolean"
+          additionalProperties:
+            type: "array"
+            exampleSetFlag: false
+            items:
+              $ref: "#/components/schemas/ParameterizedHeader"
+              exampleSetFlag: false
+            types:
+            - "array"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+            properties:
+              empty:
+                type: "boolean"
+      exampleSetFlag: false
+    FormDataContentDisposition:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        parameters:
+          type: "object"
+          additionalProperties:
+            type: "string"
+            exampleSetFlag: false
+            types:
+            - "string"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+        fileName:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        creationDate:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        modificationDate:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        readDate:
+          type: "string"
+          format: "date-time"
+          exampleSetFlag: false
+          types:
+          - "string"
+        size:
+          type: "integer"
+          format: "int64"
+          exampleSetFlag: false
+          types:
+          - "integer"
+        name:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+      exampleSetFlag: false
+    MediaType:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        subtype:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        parameters:
+          type: "object"
+          additionalProperties:
+            type: "string"
+            exampleSetFlag: false
+            types:
+            - "string"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+        wildcardType:
+          type: "boolean"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+        wildcardSubtype:
+          type: "boolean"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+      exampleSetFlag: false
+    MessageBodyWorkers:
+      type: "object"
+      exampleSetFlag: false
+    MultiPart:
+      type: "object"
+      properties:
+        contentDisposition:
+          $ref: "#/components/schemas/ContentDisposition"
+          exampleSetFlag: false
+        entity:
+          type: "object"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+        headers:
+          type: "object"
+          properties:
+            empty:
+              type: "boolean"
+              exampleSetFlag: false
+              types:
+              - "boolean"
+          additionalProperties:
+            type: "array"
+            exampleSetFlag: false
+            items:
+              type: "string"
+              exampleSetFlag: false
+              types:
+              - "string"
+            types:
+            - "array"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+            properties:
+              empty:
+                type: "boolean"
+        mediaType:
+          $ref: "#/components/schemas/MediaType"
+          exampleSetFlag: false
+        messageBodyWorkers:
+          $ref: "#/components/schemas/MessageBodyWorkers"
+          exampleSetFlag: false
+        parent:
+          $ref: "#/components/schemas/MultiPart"
+          exampleSetFlag: false
+        providers:
+          $ref: "#/components/schemas/Providers"
+          exampleSetFlag: false
+        bodyParts:
+          type: "array"
+          exampleSetFlag: false
+          items:
+            $ref: "#/components/schemas/BodyPart"
+            exampleSetFlag: false
+          types:
+          - "array"
+        parameterizedHeaders:
+          type: "object"
+          properties:
+            empty:
+              type: "boolean"
+              exampleSetFlag: false
+              types:
+              - "boolean"
+          additionalProperties:
+            type: "array"
+            exampleSetFlag: false
+            items:
+              $ref: "#/components/schemas/ParameterizedHeader"
+              exampleSetFlag: false
+            types:
+            - "array"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+            properties:
+              empty:
+                type: "boolean"
+      exampleSetFlag: false
+    MultivaluedMapStringParameterizedHeader:
+      type: "object"
+      properties:
+        empty:
+          type: "boolean"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+      additionalProperties:
+        type: "array"
+        exampleSetFlag: false
+        items:
+          $ref: "#/components/schemas/ParameterizedHeader"
+          exampleSetFlag: false
+        types:
+        - "array"
+      exampleSetFlag: false
+      types:
+      - "object"
+    MultivaluedMapStringString:
+      type: "object"
+      properties:
+        empty:
+          type: "boolean"
+          exampleSetFlag: false
+          types:
+          - "boolean"
+      additionalProperties:
+        type: "array"
+        exampleSetFlag: false
+        items:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        types:
+        - "array"
+      exampleSetFlag: false
+      types:
+      - "object"
+    ParameterizedHeader:
+      type: "object"
+      properties:
+        value:
+          type: "string"
+          exampleSetFlag: false
+          types:
+          - "string"
+        parameters:
+          type: "object"
+          additionalProperties:
+            type: "string"
+            exampleSetFlag: false
+            types:
+            - "string"
+          exampleSetFlag: false
+          types:
+          - "object"
+          jsonSchema:
+            type: "object"
+      exampleSetFlag: false
+    Providers:
+      type: "object"
       exampleSetFlag: false
   securitySchemes:
     API_KEY:

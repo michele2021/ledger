@@ -7,8 +7,12 @@ import com.accounting.commons.entities.Account;
 import com.accounting.commons.exceptions.WebValidationException;
 import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
+import com.accounting.commons.objectstorage.FileStorage;
+import com.accounting.commons.objectstorage.StoredFile;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
+import com.accounting.core.dto.AttachmentMetaDTO;
+import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.entities.JournalTemplate;
@@ -21,14 +25,15 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,15 +55,19 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     private final boolean isEnabled;
     private final String defaultQueueTopic;
     private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
+    private final FileStorage fileStorage;
+    private static final long MAX_SIZE = 10 * 1024 * 1024;   // 10 MB, tweak
 
     @Inject
     public TemplateExecutionServiceImpl(
             KafkaConfig kafkaConfig,
             TemplateCache templateCache,
+            FileStorage fileStorage,
             KafkaMessageProducer<String, String> kafkaMessageProducer,
             RepositoryHelper repositoryHelper
     ) {
         this.templateCache = templateCache;
+        this.fileStorage = fileStorage;
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
         this.accountRepo = repositoryHelper.getAccountRepo();
         this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
@@ -68,6 +77,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         } else {
             log.info("Queue disabled in config.");
         }
+        // this.gson = SerializationUtil.getGson();
     }
 
     @Override
@@ -87,10 +97,10 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     @Override
-    public void postJournal(long accountId, JsonNode journalJson) {
-        log.debug("postJournal: accountId {}, journal {}", accountId, journalJson);
+    public void postJournal(long accountId, JournalPostingDTO journalPosting) {
+        log.debug("postJournal: accountId {}, journal {}", accountId, journalPosting);
         var account = validateAccountAndGet(accountId);
-        var message = prepareMessage(account, journalJson);
+        var message = prepareMessage(account, journalPosting);
         try {
             sendMessageToQueue(message);
         } catch (JsonProcessingException e) {
@@ -100,9 +110,10 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         log.debug("postJournal(): Success");
     }
 
-    private QueueMessageDTO prepareMessage(Account account, JsonNode journalInfo) {
+    private QueueMessageDTO  prepareMessage(Account account, JournalPostingDTO journalPosting) {
         var timestamp = System.currentTimeMillis();
         var uuid = UUID.randomUUID().toString();
+        var journalJson = OBJECT_MAPPER.valueToTree(journalPosting);
         var amount = QueueMessageAmountDTO
                 .builder()
                 .quantity(BigDecimal.ZERO)
@@ -112,7 +123,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                 .timestamp(timestamp)
                 .accountCode(account.getAccountCode())
                 .txReference(null)
-                .additionalData(journalInfo)
+                .additionalData(journalJson)
                 .uuid(uuid)
                 .amount(amount)
                 .source(Message.Source.FRONT_END_APP.toString())
@@ -126,8 +137,8 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         }
         log.debug("Message to send: {}", message);
         var m = OBJECT_MAPPER.writeValueAsString(message.toBuilder()
-                        .timestamp(System.currentTimeMillis())
-                        .build());
+                .timestamp(System.currentTimeMillis())
+                .build());
 
         var kafkaMessage = KafkaMessage.builder().key("MAIN").value(m).build();
         var serializedMessage = OBJECT_MAPPER.writeValueAsString(kafkaMessage);
@@ -202,7 +213,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         validateIsNotEmpty("accountCode", accountCode);
 
         Account account = null;
-        for(Constants.AccountType accountType : accountTypes) {
+        for (Constants.AccountType accountType : accountTypes) {
             var accountTypeCode = accountType.toString();
             account = accountRepo.getByCodeAndType(accountCode, accountTypeCode);
             if (nonNull(account)) {
@@ -282,7 +293,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                 );
             }
         } catch (JsonProcessingException e) {
-            throw validationError("additionalData","Failed to parse JSON");
+            throw validationError("additionalData", "Failed to parse JSON");
         }
 
         if (Message.EventType.PAYMENT_RECEIVED.toString().equals(message.getType()) ||
@@ -295,10 +306,88 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
             }
         }
     }
-
     @SuppressWarnings("SameParameterValue")
-    private <T> T getAdditionalData(QueueMessageDTO message, Message.AdditionalData additionalDataType, Function<JsonNode, T> converter) {
+    private <T> T getAdditionalData(QueueMessageDTO message,
+                                    Message.AdditionalData additionalDataType,
+                                    Function<JsonNode, T> converter) {
         return converter.apply(message.getAdditionalData().get(additionalDataType.toString()));
+    }
+
+    @Override
+    public void postJournalWithAttachments(long accountId, JournalPostingDTO journalPostingDTO, List<FormDataBodyPart> files) {
+        var account = validateAccountAndGet(accountId);
+        var message = prepareMessage(account, journalPostingDTO);
+        try {
+            var attachments = handleFiles(files, journalPostingDTO.description(), account.getAccountCode());
+            message = message.toBuilder()
+                    .journalInfo(attachments)
+                    .build();
+            sendMessageToQueue(message);
+        } catch (IOException e) {
+            log.error("Failed to process and send message to SQS", e);
+            throw new WebApplicationException("Failed to process and send message to SQS", e);
+        }
+        log.debug("postJournalWithAttachments(): Success");
+    }
+
+    private List<AttachmentMetaDTO> handleFiles(List<FormDataBodyPart> parts,
+                                                String journalDescription,
+                                                String companyCode) throws IOException {
+        var attachments = new ArrayList<AttachmentMetaDTO>();
+
+        if (journalDescription != null) {
+            var mime = MediaType.TEXT_PLAIN;
+            StoredFile stored = fileStorage.putText("journals/" + companyCode, journalDescription, mime);
+            var meta = AttachmentMetaDTO.builder()
+                    .id(stored.id())
+                    .type(resolveType(mime))
+                    .filename(null)
+                    .contentType(mime)
+                    .uri(stored.uri())
+                    .sha256(stored.sha256())
+                    .size(stored.size())
+                    .textContent(journalDescription)
+                    .build();
+            attachments.add(meta);
+        }
+
+        for (FormDataBodyPart part : parts) {
+            var filename = part.getContentDisposition().getFileName();
+            if (filename == null) continue;
+
+            var mime = part.getMediaType().toString();
+            long size = part.getContentDisposition().getSize(); // -1 if unknown
+
+            try (InputStream in = part.getEntityAs(InputStream.class)) {
+
+                StoredFile stored = fileStorage.put(
+                        "journals/" + companyCode,  // bucket / logical folder
+                        in,
+                        mime,
+                        MAX_SIZE);
+                // ---- 3. Build attachment DTO --------------------------------
+                var meta = AttachmentMetaDTO.builder()
+                        .id(stored.id())               // UUID from storage
+                        .type(resolveType(mime)) // image / pdf / text …
+                        .filename(filename)
+                        .contentType(mime)
+                        .uri(stored.uri())             // e.g. s3://… or pgsql://…
+                        .sha256(stored.sha256())
+                        .size(size != -1 ? size : stored.size())
+                        .build();
+                attachments.add(meta);
+            }
+        }
+        return attachments;
+    }
+
+    private String resolveType(String mime) {
+        return switch (mime) {
+            case "image/png", "image/jpeg" -> "image";
+            case "application/pdf" -> "pdf";
+            case "text/plain" -> "text";
+            default -> "doc";
+        };
     }
 
 }

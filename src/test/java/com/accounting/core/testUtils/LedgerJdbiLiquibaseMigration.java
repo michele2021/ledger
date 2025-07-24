@@ -39,6 +39,8 @@ public class LedgerJdbiLiquibaseMigration implements JdbiExtensionInitializer {
         prepareSingleSchema(handle, "public");
         prepareSingleSchema(handle, "config");
         prepareSingleSchema(handle, "infra");
+        prepareSingleSchema(handle, "auth");
+        prepareSingleSchema(handle, "object");
     }
 
     private void prepareSingleSchema(Handle handle, String schemaName) {

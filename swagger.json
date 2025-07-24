@@ -99,7 +99,7 @@
               },
               "examples" : {
                 "DEFAULT" : {
-                  "description" : "Creation of DEFAULT Distributor account",
+                  "description" : "Creation of DEFAULT Company account",
                   "value" : {
                     "accountCode" : "DEFAULT",
                     "accountTypeCode" : "Client",
@@ -465,7 +465,7 @@
         }
       }
     },
-    "/accounting/execute" : {
+    "/accounting/journals/from-template" : {
       "post" : {
         "tags" : [ "TemplateExecutionResource" ],
         "summary" : "Execute template. JSON should be passed as body.",
@@ -478,8 +478,8 @@
                 "$ref" : "#/components/schemas/QueueMessageDTO"
               },
               "examples" : {
-                "PAYMENT_RECEIVED" : {
-                  "description" : "Client payment received",
+                "PAYMENT_MATCH" : {
+                  "description" : "Match an order and a payment",
                   "value" : {
                     "type" : "PAYMENT_RECEIVED",
                     "accountCode" : "DEFAULT",
@@ -572,7 +572,7 @@
         }
       }
     },
-    "/accounting/companies/journals" : {
+    "/accounting/journals" : {
       "post" : {
         "tags" : [ "TemplateExecutionResource" ],
         "summary" : "Post a custom journal",
@@ -646,6 +646,44 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/accounting/journals/wa" : {
+      "post" : {
+        "tags" : [ "TemplateExecutionResource" ],
+        "summary" : "Post a custom journal with optional description and/or attachments",
+        "operationId" : "postJournalWithAttachments",
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthUser"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "500" : {
+            "description" : "Internal server error or unhandled error",
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "code" : 500,
+                  "message" : "Detailed message."
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "200" : {
+            "description" : "Journal posted successfully"
+          },
+          "400" : {
+            "description" : "Invalid form data"
           }
         }
       }
@@ -752,7 +790,8 @@
         "description" : "Client Account details"
       },
       "JsonNode" : {
-        "type" : "object"
+        "type" : "object",
+        "description" : "Additional data, exact format depends on the message type."
       },
       "LoginRequest" : {
         "required" : [ "username" ],
@@ -762,6 +801,37 @@
             "type" : "string"
           }
         }
+      },
+      "AttachmentMetaDTO" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "filename" : {
+            "type" : "string"
+          },
+          "contentType" : {
+            "type" : "string"
+          },
+          "textContent" : {
+            "type" : "string"
+          },
+          "uri" : {
+            "type" : "string"
+          },
+          "sha256" : {
+            "type" : "string"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "description" : "Metadata regarding journal attachments."
       },
       "QueueMessageAmountDTO" : {
         "required" : [ "currencyCode", "quantity" ],
@@ -809,10 +879,51 @@
           "additionalData" : {
             "$ref" : "#/components/schemas/JsonNode"
           },
+          "journalInfo" : {
+            "type" : "array",
+            "description" : "Metadata regarding journal attachments.",
+            "items" : {
+              "$ref" : "#/components/schemas/AttachmentMetaDTO"
+            }
+          },
           "source" : {
             "type" : "string",
             "description" : "Source of message, must be FRONT_END_APP",
             "enum" : [ "FRONT_END_APP" ]
+          }
+        }
+      },
+      "AuthUser" : {
+        "type" : "object",
+        "properties" : {
+          "userId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "username" : {
+            "type" : "string"
+          },
+          "companyAccountId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "companyAccountCode" : {
+            "type" : "string"
+          },
+          "roles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "NULL", "SUPER_USER", "DEFAULT" ]
+            }
+          },
+          "tokenIssuedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "name" : {
+            "type" : "string"
           }
         }
       },
@@ -853,36 +964,316 @@
           }
         }
       },
-      "AuthUser" : {
+      "BodyPart" : {
         "type" : "object",
         "properties" : {
-          "userId" : {
-            "type" : "integer",
-            "format" : "int64"
+          "contentDisposition" : {
+            "$ref" : "#/components/schemas/ContentDisposition"
           },
-          "username" : {
-            "type" : "string"
+          "entity" : {
+            "type" : "object"
           },
-          "companyAccountId" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "roles" : {
-            "uniqueItems" : true,
-            "type" : "array",
-            "items" : {
-              "type" : "string",
-              "enum" : [ "NULL", "SUPER_USER", "DEFAULT" ]
+          "headers" : {
+            "type" : "object",
+            "properties" : {
+              "empty" : {
+                "type" : "boolean"
+              }
+            },
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
             }
           },
-          "tokenIssuedAt" : {
+          "mediaType" : {
+            "$ref" : "#/components/schemas/MediaType"
+          },
+          "messageBodyWorkers" : {
+            "$ref" : "#/components/schemas/MessageBodyWorkers"
+          },
+          "parent" : {
+            "$ref" : "#/components/schemas/MultiPart"
+          },
+          "providers" : {
+            "$ref" : "#/components/schemas/Providers"
+          },
+          "parameterizedHeaders" : {
+            "type" : "object",
+            "properties" : {
+              "empty" : {
+                "type" : "boolean"
+              }
+            },
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/ParameterizedHeader"
+              }
+            }
+          }
+        }
+      },
+      "ContentDisposition" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "fileName" : {
+            "type" : "string"
+          },
+          "creationDate" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "modificationDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "readDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "FormDataBodyPart" : {
+        "type" : "object",
+        "properties" : {
+          "contentDisposition" : {
+            "$ref" : "#/components/schemas/ContentDisposition"
+          },
+          "entity" : {
+            "type" : "object"
+          },
+          "headers" : {
+            "type" : "object",
+            "properties" : {
+              "empty" : {
+                "type" : "boolean"
+              }
+            },
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          },
+          "mediaType" : {
+            "$ref" : "#/components/schemas/MediaType"
+          },
+          "messageBodyWorkers" : {
+            "$ref" : "#/components/schemas/MessageBodyWorkers"
+          },
+          "parent" : {
+            "$ref" : "#/components/schemas/MultiPart"
+          },
+          "providers" : {
+            "$ref" : "#/components/schemas/Providers"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "simple" : {
+            "type" : "boolean"
+          },
+          "formDataContentDisposition" : {
+            "$ref" : "#/components/schemas/FormDataContentDisposition"
+          },
+          "parameterizedHeaders" : {
+            "type" : "object",
+            "properties" : {
+              "empty" : {
+                "type" : "boolean"
+              }
+            },
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/ParameterizedHeader"
+              }
+            }
+          }
+        }
+      },
+      "FormDataContentDisposition" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "fileName" : {
+            "type" : "string"
+          },
+          "creationDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "modificationDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "readDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int64"
           },
           "name" : {
             "type" : "string"
           }
         }
+      },
+      "MediaType" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "subtype" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "wildcardType" : {
+            "type" : "boolean"
+          },
+          "wildcardSubtype" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "MessageBodyWorkers" : {
+        "type" : "object"
+      },
+      "MultiPart" : {
+        "type" : "object",
+        "properties" : {
+          "contentDisposition" : {
+            "$ref" : "#/components/schemas/ContentDisposition"
+          },
+          "entity" : {
+            "type" : "object"
+          },
+          "headers" : {
+            "type" : "object",
+            "properties" : {
+              "empty" : {
+                "type" : "boolean"
+              }
+            },
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          },
+          "mediaType" : {
+            "$ref" : "#/components/schemas/MediaType"
+          },
+          "messageBodyWorkers" : {
+            "$ref" : "#/components/schemas/MessageBodyWorkers"
+          },
+          "parent" : {
+            "$ref" : "#/components/schemas/MultiPart"
+          },
+          "providers" : {
+            "$ref" : "#/components/schemas/Providers"
+          },
+          "bodyParts" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BodyPart"
+            }
+          },
+          "parameterizedHeaders" : {
+            "type" : "object",
+            "properties" : {
+              "empty" : {
+                "type" : "boolean"
+              }
+            },
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/ParameterizedHeader"
+              }
+            }
+          }
+        }
+      },
+      "MultivaluedMapStringParameterizedHeader" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          }
+        },
+        "additionalProperties" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/components/schemas/ParameterizedHeader"
+          }
+        }
+      },
+      "MultivaluedMapStringString" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          }
+        },
+        "additionalProperties" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ParameterizedHeader" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "string"
+          },
+          "parameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Providers" : {
+        "type" : "object"
       }
     },
     "securitySchemes" : {
