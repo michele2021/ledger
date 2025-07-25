@@ -7,7 +7,7 @@ import com.accounting.commons.entities.Account;
 import com.accounting.commons.exceptions.WebValidationException;
 import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
-import com.accounting.commons.objectstorage.FileStorage;
+import com.accounting.commons.objectstorage.ObjectStorage;
 import com.accounting.commons.objectstorage.StoredFile;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
@@ -55,19 +55,19 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     private final boolean isEnabled;
     private final String defaultQueueTopic;
     private final JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-    private final FileStorage fileStorage;
+    private final ObjectStorage objectStorage;
     private static final long MAX_SIZE = 10 * 1024 * 1024;   // 10 MB, tweak
 
     @Inject
     public TemplateExecutionServiceImpl(
             KafkaConfig kafkaConfig,
             TemplateCache templateCache,
-            FileStorage fileStorage,
+            ObjectStorage objectStorage,
             KafkaMessageProducer<String, String> kafkaMessageProducer,
             RepositoryHelper repositoryHelper
     ) {
         this.templateCache = templateCache;
-        this.fileStorage = fileStorage;
+        this.objectStorage = objectStorage;
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
         this.accountRepo = repositoryHelper.getAccountRepo();
         this.defaultQueueTopic = kafkaConfig.getDefaultQueueTopic();
@@ -337,7 +337,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
         if (journalDescription != null) {
             var mime = MediaType.TEXT_PLAIN;
-            StoredFile stored = fileStorage.putText("journals/" + companyCode, journalDescription, mime);
+            StoredFile stored = objectStorage.putText("journals/" + companyCode, journalDescription, mime);
             var journalInfoDTO = JournalInfoDTO.builder()
                     .id(stored.id())
                     .type(resolveType(mime))
@@ -360,7 +360,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
             try (InputStream in = part.getEntityAs(InputStream.class)) {
 
-                StoredFile stored = fileStorage.put(
+                StoredFile stored = objectStorage.put(
                         "journals/" + companyCode,  // bucket / logical folder
                         in,
                         mime,
