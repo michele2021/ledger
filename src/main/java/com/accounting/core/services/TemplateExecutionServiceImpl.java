@@ -11,6 +11,7 @@ import com.accounting.commons.objectstorage.ObjectStorage;
 import com.accounting.commons.objectstorage.StoredFile;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
+import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.core.dto.JournalInfoDTO;
 import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageAmountDTO;
@@ -115,7 +116,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         var account = validateAccountAndGet(accountId);
         var message = prepareMessage(account, journalPostingDTO);
         try {
-            var journalInfoDTOS = handleFiles(files, journalPostingDTO.description(), account.getAccountCode());
+            var journalInfoDTOS = persistJournalInfo(files, journalPostingDTO.description(), account.getAccountCode());
             message = message.toBuilder()
                     .journalInfo(journalInfoDTOS)
                     .build();
@@ -330,43 +331,45 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         return converter.apply(message.getAdditionalData().get(additionalDataType.toString()));
     }
 
-    private List<JournalInfoDTO> handleFiles(List<FormDataBodyPart> parts,
-                                             String journalDescription,
-                                             String companyCode) throws IOException {
-        var journalInfoDTOs = new ArrayList<JournalInfoDTO>();
-
-        if (journalDescription != null) {
-            var mime = MediaType.TEXT_PLAIN;
-            StoredFile stored = objectStorage.putText("journals/" + companyCode, journalDescription, mime);
-            var journalInfoDTO = JournalInfoDTO.builder()
-                    .id(stored.id())
-                    .type(resolveType(mime))
-                    .filename(null)
-                    .contentType(mime)
-                    .uri(stored.uri())
-                    .sha256(stored.sha256())
-                    .size(stored.size())
-                    .textContent(journalDescription)
-                    .build();
-            journalInfoDTOs.add(journalInfoDTO);
+    private List<JournalInfoDTO> persistJournalInfo(List<FormDataBodyPart> attachments,
+                                                    String journalDescription,
+                                                    String companyCode) throws IOException {
+        if (StringUtils.isBlank(journalDescription) && AccountingUtils.isEmptyOrNull(attachments)) {
+            return List.of();
         }
 
-        for (FormDataBodyPart part : parts) {
-            var filename = part.getContentDisposition().getFileName();
+        var path = journalPath(companyCode);
+        var journalInfoDTOs = new ArrayList<JournalInfoDTO>();
+        if (StringUtils.isNotBlank(journalDescription)) {
+            var ji = persistTextContent(journalDescription, path);
+            journalInfoDTOs.add(ji);
+        }
+        if (attachments != null) {
+            var jis = persistAttachments(attachments, path);
+            journalInfoDTOs.addAll(jis);
+        }
+        return journalInfoDTOs;
+    }
+
+    private List<JournalInfoDTO> persistAttachments(List<FormDataBodyPart> attachments,
+                                                    String path) throws IOException {
+        var journalInfoDTOs = new ArrayList<JournalInfoDTO>();
+
+        for (FormDataBodyPart attachment : attachments) {
+            var filename = attachment.getContentDisposition().getFileName();
             if (filename == null) continue;
 
-            var mime = part.getMediaType().toString();
-            long size = part.getContentDisposition().getSize(); // -1 if unknown
+            var mime = attachment.getMediaType().toString();
+            long size = attachment.getContentDisposition().getSize(); // -1 if unknown
 
-            try (InputStream in = part.getEntityAs(InputStream.class)) {
-
+            try (InputStream in = attachment.getEntityAs(InputStream.class)) {
                 StoredFile stored = objectStorage.put(
-                        "journals/" + companyCode,  // bucket / logical folder
+                        path,
                         in,
                         mime,
                         MAX_SIZE);
                 // ---- 3. Build journal info DTO --------------------------------
-                var meta = JournalInfoDTO.builder()
+                var ji = JournalInfoDTO.builder()
                         .id(stored.id())               // UUID from storage
                         .type(resolveType(mime)) // image / pdf / text …
                         .filename(filename)
@@ -375,10 +378,25 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                         .sha256(stored.sha256())
                         .size(size != -1 ? size : stored.size())
                         .build();
-                journalInfoDTOs.add(meta);
+                journalInfoDTOs.add(ji);
             }
+            // TODO exception handling
         }
         return journalInfoDTOs;
+    }
+
+    private JournalInfoDTO persistTextContent(String content, String path) {
+        StoredFile stored = objectStorage.putText(path, content, MediaType.TEXT_PLAIN);
+        return JournalInfoDTO.builder()
+                .id(stored.id())
+                .type(MediaType.TEXT_PLAIN)
+                .filename(null)
+                .contentType(MediaType.TEXT_PLAIN)
+                .uri(stored.uri())
+                .sha256(stored.sha256())
+                .size(stored.size())
+                .textContent(content)
+                .build();
     }
 
     private String resolveType(String mime) {
@@ -388,6 +406,14 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
             case "text/plain" -> "text";
             default -> "doc";
         };
+    }
+
+//    private static String journalPath(String companyCode) {
+//        return "journals/" + companyCode;
+//    }
+
+    private String journalPath(String companyCode) {
+        return STR."journals/\{companyCode}";
     }
 
 }
