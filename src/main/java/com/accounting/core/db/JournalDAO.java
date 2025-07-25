@@ -4,7 +4,7 @@ import com.accounting.commons.Constants;
 import com.accounting.commons.entities.Amount;
 import com.accounting.commons.utils.AccountingUtils;
 import com.accounting.core.db.reducers.JournalDTOReducer;
-import com.accounting.core.dto.AttachmentMetaDTO;
+import com.accounting.core.dto.JournalInfoDTO;
 import com.accounting.core.entities.*;
 import com.accounting.core.entities.composite.TxJournal;
 import org.jdbi.v3.sqlobject.config.RegisterBeanMapper;
@@ -36,9 +36,9 @@ public interface JournalDAO {
          VALUES (:journalId, :type, :filename, :contentType, :textContent, :uri, :sha256, :size)
     ON CONFLICT DO NOTHING;
     """)
-    void createJournalInfo(long journalId, @BindMethods List<AttachmentMetaDTO> attachmentMetaDTO);
+    void createJournalInfo(long journalId, @BindMethods List<JournalInfoDTO> journalInfoDTO);
 
-    default long createJournalWithInfoAt(int journalTypeId, OffsetDateTime bookingDate, List<AttachmentMetaDTO> journalInfo) {
+    default long createJournalWithInfoAt(int journalTypeId, OffsetDateTime bookingDate, List<JournalInfoDTO> journalInfo) {
         var journalId = createJournalAt(journalTypeId, bookingDate);
         if (!AccountingUtils.isEmptyOrNull(journalInfo)) {
             createJournalInfo(journalId, journalInfo);

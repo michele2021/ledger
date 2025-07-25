@@ -9,6 +9,6 @@ import java.util.List;
 public interface TemplateExecutionService {
 
     void executeTemplate(String accountCode, QueueMessageDTO message);
-    void postJournalWithAttachments(long accountId, JournalPostingDTO journalPostingDTO, List<FormDataBodyPart> files);
+    void postJournalWithInfo(long accountId, JournalPostingDTO journalPostingDTO, List<FormDataBodyPart> files);
     void postJournal(long accountId, JournalPostingDTO journalPosting);
 }

@@ -11,7 +11,7 @@ import com.accounting.commons.objectstorage.FileStorage;
 import com.accounting.commons.objectstorage.StoredFile;
 import com.accounting.commons.repository.AccountRepoIf;
 import com.accounting.commons.repository.CurrencyRepoIf;
-import com.accounting.core.dto.AttachmentMetaDTO;
+import com.accounting.core.dto.JournalInfoDTO;
 import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
@@ -110,7 +110,24 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         log.debug("postJournal(): Success");
     }
 
-    private QueueMessageDTO  prepareMessage(Account account, JournalPostingDTO journalPosting) {
+    @Override
+    public void postJournalWithInfo(long accountId, JournalPostingDTO journalPostingDTO, List<FormDataBodyPart> files) {
+        var account = validateAccountAndGet(accountId);
+        var message = prepareMessage(account, journalPostingDTO);
+        try {
+            var journalInfoDTOS = handleFiles(files, journalPostingDTO.description(), account.getAccountCode());
+            message = message.toBuilder()
+                    .journalInfo(journalInfoDTOS)
+                    .build();
+            sendMessageToQueue(message);
+        } catch (IOException e) {
+            log.error("Failed to process and send message to SQS", e);
+            throw new WebApplicationException("Failed to process and send message to SQS", e);
+        }
+        log.debug("postJournalWithInfo(): Success");
+    }
+
+    private QueueMessageDTO prepareMessage(Account account, JournalPostingDTO journalPosting) {
         var timestamp = System.currentTimeMillis();
         var uuid = UUID.randomUUID().toString();
         var journalJson = OBJECT_MAPPER.valueToTree(journalPosting);
@@ -313,32 +330,15 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         return converter.apply(message.getAdditionalData().get(additionalDataType.toString()));
     }
 
-    @Override
-    public void postJournalWithAttachments(long accountId, JournalPostingDTO journalPostingDTO, List<FormDataBodyPart> files) {
-        var account = validateAccountAndGet(accountId);
-        var message = prepareMessage(account, journalPostingDTO);
-        try {
-            var attachments = handleFiles(files, journalPostingDTO.description(), account.getAccountCode());
-            message = message.toBuilder()
-                    .journalInfo(attachments)
-                    .build();
-            sendMessageToQueue(message);
-        } catch (IOException e) {
-            log.error("Failed to process and send message to SQS", e);
-            throw new WebApplicationException("Failed to process and send message to SQS", e);
-        }
-        log.debug("postJournalWithAttachments(): Success");
-    }
-
-    private List<AttachmentMetaDTO> handleFiles(List<FormDataBodyPart> parts,
-                                                String journalDescription,
-                                                String companyCode) throws IOException {
-        var attachments = new ArrayList<AttachmentMetaDTO>();
+    private List<JournalInfoDTO> handleFiles(List<FormDataBodyPart> parts,
+                                             String journalDescription,
+                                             String companyCode) throws IOException {
+        var journalInfoDTOs = new ArrayList<JournalInfoDTO>();
 
         if (journalDescription != null) {
             var mime = MediaType.TEXT_PLAIN;
             StoredFile stored = fileStorage.putText("journals/" + companyCode, journalDescription, mime);
-            var meta = AttachmentMetaDTO.builder()
+            var journalInfoDTO = JournalInfoDTO.builder()
                     .id(stored.id())
                     .type(resolveType(mime))
                     .filename(null)
@@ -348,7 +348,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                     .size(stored.size())
                     .textContent(journalDescription)
                     .build();
-            attachments.add(meta);
+            journalInfoDTOs.add(journalInfoDTO);
         }
 
         for (FormDataBodyPart part : parts) {
@@ -365,8 +365,8 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                         in,
                         mime,
                         MAX_SIZE);
-                // ---- 3. Build attachment DTO --------------------------------
-                var meta = AttachmentMetaDTO.builder()
+                // ---- 3. Build journal info DTO --------------------------------
+                var meta = JournalInfoDTO.builder()
                         .id(stored.id())               // UUID from storage
                         .type(resolveType(mime)) // image / pdf / text …
                         .filename(filename)
@@ -375,10 +375,10 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
                         .sha256(stored.sha256())
                         .size(size != -1 ? size : stored.size())
                         .build();
-                attachments.add(meta);
+                journalInfoDTOs.add(meta);
             }
         }
-        return attachments;
+        return journalInfoDTOs;
     }
 
     private String resolveType(String mime) {

@@ -32,8 +32,8 @@ public class QueueMessageDTO {
     @Schema(description = "Additional data, exact format depends on the message type.")
     JsonNode additionalData;
 
-    @Schema(description = "Metadata regarding journal attachments.")
-    List<AttachmentMetaDTO> journalInfo;
+    @Schema(description = "Metadata regarding journal info.")
+    List<JournalInfoDTO> journalInfo;
 
     @Schema(description = "Source of message, must be FRONT_END_APP",
             allowableValues = "FRONT_END_APP", requiredMode = Schema.RequiredMode.REQUIRED)

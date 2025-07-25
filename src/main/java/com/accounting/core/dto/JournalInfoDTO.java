@@ -3,7 +3,7 @@ package com.accounting.core.dto;
 import lombok.Builder;
 
 @Builder
-public record AttachmentMetaDTO(
+public record JournalInfoDTO(
         String id,          // UUID from FileStorage
         String type,        // "image", "pdf", "text", …
         String filename,    // original client name

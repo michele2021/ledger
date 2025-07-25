@@ -8,7 +8,7 @@ import com.accounting.commons.entities.TxType;
 import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
 import com.accounting.commons.repository.CurrencyRepoIf;
-import com.accounting.core.dto.AttachmentMetaDTO;
+import com.accounting.core.dto.JournalInfoDTO;
 import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.Tx;
@@ -26,7 +26,7 @@ import java.util.List;
 public class JournalPost extends AbstractTemplate {
 
     private final JournalPostingDTO journal;
-    private final List<AttachmentMetaDTO> journalInfo;
+    private final List<JournalInfoDTO> journalInfo;
     private final CurrencyRepoIf currencyRepo;
 
     public JournalPost(JournalMaker journalMaker, Account account, Amount amount, JournalType journalType, TxType txType,
@@ -34,7 +34,7 @@ public class JournalPost extends AbstractTemplate {
                        RepositoryHelper repositoryHelper) {
         super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         journal = gson.fromJson(additionalData, JournalPostingDTO.class);
-        var array = gson.fromJson(message.journalInfo(), AttachmentMetaDTO[].class);
+        var array = gson.fromJson(message.journalInfo(), JournalInfoDTO[].class);
         this.journalInfo = List.of(array);
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
     }
@@ -46,7 +46,7 @@ public class JournalPost extends AbstractTemplate {
     }
 
     @Override
-    public List<AttachmentMetaDTO> journalInfo() {
+    public List<JournalInfoDTO> journalInfo() {
         return journalInfo;
     }
 

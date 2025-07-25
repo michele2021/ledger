@@ -187,7 +187,7 @@ public class TemplateExecutionResource {
 
     @POST
     @Path("journals/wa")
-    @Operation(summary = "Post a custom journal with optional description and/or attachments")
+    @Operation(summary = "Post a manual journal with optional info (description and/or attachments)")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
@@ -196,7 +196,7 @@ public class TemplateExecutionResource {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PreProcess(role = SystemConstants.UserRole.SUPER_USER)
-    public Response postJournalWithAttachments(
+    public Response postJournalWithInfo(
             @Context HttpHeaders headers,
             @Auth AuthUser user,
             @Parameter(
@@ -210,7 +210,7 @@ public class TemplateExecutionResource {
                     content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM)
             )
             @FormDataParam("files") List<FormDataBodyPart> files) {
-        templateExecutionService.postJournalWithAttachments(user.companyAccountId(), journalPostingDTO, files);
+        templateExecutionService.postJournalWithInfo(user.companyAccountId(), journalPostingDTO, files);
         return Response.ok().build();
     }
 }
