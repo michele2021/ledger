@@ -653,13 +653,14 @@
     "/accounting/journals/wa" : {
       "post" : {
         "tags" : [ "TemplateExecutionResource" ],
-        "summary" : "Post a custom journal with optional description and/or attachments",
-        "operationId" : "postJournalWithAttachments",
+        "operationId" : "postJournalWithInfo",
         "requestBody" : {
           "content" : {
             "multipart/form-data" : {
               "schema" : {
-                "$ref" : "#/components/schemas/AuthUser"
+                "required" : [ "journal" ],
+                "type" : "object",
+                "properties" : { }
               }
             }
           }
@@ -802,7 +803,7 @@
           }
         }
       },
-      "AttachmentMetaDTO" : {
+      "JournalInfoDTO" : {
         "type" : "object",
         "properties" : {
           "id" : {
@@ -831,7 +832,7 @@
             "format" : "int64"
           }
         },
-        "description" : "Metadata regarding journal attachments."
+        "description" : "Metadata regarding journal info."
       },
       "QueueMessageAmountDTO" : {
         "required" : [ "currencyCode", "quantity" ],
@@ -881,9 +882,9 @@
           },
           "journalInfo" : {
             "type" : "array",
-            "description" : "Metadata regarding journal attachments.",
+            "description" : "Metadata regarding journal info.",
             "items" : {
-              "$ref" : "#/components/schemas/AttachmentMetaDTO"
+              "$ref" : "#/components/schemas/JournalInfoDTO"
             }
           },
           "source" : {
@@ -1162,10 +1163,10 @@
               "type" : "string"
             }
           },
-          "wildcardType" : {
+          "wildcardSubtype" : {
             "type" : "boolean"
           },
-          "wildcardSubtype" : {
+          "wildcardType" : {
             "type" : "boolean"
           }
         }

@@ -4,6 +4,7 @@ import com.accounting.commons.SystemConstants;
 import com.accounting.commons.resources.security.ApiKeyAuth;
 import com.accounting.commons.resources.security.PreProcess;
 import com.accounting.commons.resources.security.entities.AuthUser;
+import com.accounting.commons.utils.MappingUtils;
 import com.accounting.core.dto.JournalPostingDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.services.TemplateExecutionService;
@@ -14,6 +15,7 @@ import com.google.inject.Singleton;
 import io.dropwizard.auth.Auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import static com.accounting.core.swagger.ApiDocConstants.HTTP_STATUS_OK;
@@ -187,8 +191,7 @@ public class TemplateExecutionResource {
 
     @POST
     @Path("journals/wa")
-    @Operation(summary = "Post a manual journal with optional info (description and/or attachments)")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Consumes({MediaType.MULTIPART_FORM_DATA})
     @Produces(MediaType.APPLICATION_JSON)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Journal posted successfully"),
@@ -196,21 +199,53 @@ public class TemplateExecutionResource {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PreProcess(role = SystemConstants.UserRole.SUPER_USER)
+    // TODO to improve scalability (in case of frequent and heavy attachments), move this API to a separate server and/or split the API
+    // by having a dedicated endpoint just for attachments and the other endpoint to post just the journal.
     public Response postJournalWithInfo(
-            @Context HttpHeaders headers,
-            @Auth AuthUser user,
+            @Parameter(hidden = true) @Context HttpHeaders headers,
+            @Parameter(hidden = true) @Auth AuthUser user,
             @Parameter(
-                    description = "Journal data",
-                    required = true,
-                    schema = @Schema(implementation = JournalPostingDTO.class)
+                    name        = "journal",
+                    description = "Journal data (JSON)",
+                    required    = true,
+                    content     = @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema    = @Schema(implementation = JournalPostingDTO.class)
+                    )
             )
-            @NotNull @FormDataParam("journal") JournalPostingDTO journalPostingDTO,
+            @FormDataParam("journal") InputStream journalJson,
             @Parameter(
+                    name        = "files",
                     description = "Attachment files (optional)",
-                    content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM)
+                    content     = @Content(
+                            mediaType = MediaType.APPLICATION_OCTET_STREAM,
+                            array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
+                    )
             )
-            @FormDataParam("files") List<FormDataBodyPart> files) {
-        templateExecutionService.postJournalWithInfo(user.companyAccountId(), journalPostingDTO, files);
+            @FormDataParam("files") List<FormDataBodyPart> files
+            ) throws IOException {
+
+        // TODO handle IOException from readJournal
+        var j = MappingUtils.OBJECT_MAPPER.readValue(journalJson, JournalPostingDTO.class);
+        templateExecutionService.postJournalWithInfo(user.companyAccountId(), j, files);
         return Response.ok().build();
     }
+
+//    public static class JournalUploadForm {
+//
+//        @FormDataParam("journal")               // ← JSON part (content-type: application/json)
+//        private InputStream journalJson;
+//
+//        @FormDataParam("files")                 // ← binary parts
+//        private List<FormDataBodyPart> files;
+//
+//        /** Helper: turn the JSON stream into the DTO with Dropwizard's ObjectMapper */
+//        public JournalPostingDTO readJournal(ObjectMapper mapper) throws IOException {
+//            return mapper.readValue(journalJson, JournalPostingDTO.class);
+//        }
+//
+//        public List<FormDataBodyPart> files() {
+//            return files;
+//        }
+//    }
 }

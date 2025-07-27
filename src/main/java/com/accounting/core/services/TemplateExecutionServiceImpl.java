@@ -389,7 +389,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         StoredFile stored = objectStorage.putText(path, content, MediaType.TEXT_PLAIN);
         return JournalInfoDTO.builder()
                 .id(stored.id())
-                .type(MediaType.TEXT_PLAIN)
+                .type(resolveType(MediaType.TEXT_PLAIN))
                 .filename(null)
                 .contentType(MediaType.TEXT_PLAIN)
                 .uri(stored.uri())

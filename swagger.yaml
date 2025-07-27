@@ -508,14 +508,18 @@ paths:
     post:
       tags:
       - "TemplateExecutionResource"
-      summary: "Post a custom journal with optional description and/or attachments"
-      operationId: "postJournalWithAttachments"
+      operationId: "postJournalWithInfo"
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/AuthUser"
+              required:
+              - "journal"
+              type: "object"
+              properties: {}
               exampleSetFlag: false
+              types:
+              - "object"
             exampleSetFlag: false
       responses:
         "500":
@@ -710,7 +714,7 @@ components:
           types:
           - "string"
       exampleSetFlag: false
-    AttachmentMetaDTO:
+    JournalInfoDTO:
       type: "object"
       properties:
         id:
@@ -754,7 +758,7 @@ components:
           exampleSetFlag: false
           types:
           - "integer"
-      description: "Metadata regarding journal attachments."
+      description: "Metadata regarding journal info."
       exampleSetFlag: false
     QueueMessageAmountDTO:
       required:
@@ -824,10 +828,10 @@ components:
           exampleSetFlag: false
         journalInfo:
           type: "array"
-          description: "Metadata regarding journal attachments."
+          description: "Metadata regarding journal info."
           exampleSetFlag: false
           items:
-            $ref: "#/components/schemas/AttachmentMetaDTO"
+            $ref: "#/components/schemas/JournalInfoDTO"
             exampleSetFlag: false
           types:
           - "array"
@@ -1257,12 +1261,12 @@ components:
           - "object"
           jsonSchema:
             type: "object"
-        wildcardType:
+        wildcardSubtype:
           type: "boolean"
           exampleSetFlag: false
           types:
           - "boolean"
-        wildcardSubtype:
+        wildcardType:
           type: "boolean"
           exampleSetFlag: false
           types:
