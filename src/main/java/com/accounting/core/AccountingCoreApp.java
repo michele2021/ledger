@@ -15,6 +15,7 @@ import com.accounting.core.admin.AdminResourceBundle;
 import com.accounting.core.admin.QueueAdminResource;
 import com.accounting.core.config.AccountingCoreAppConfig;
 import com.accounting.core.config.guice.AccountingCoreModule;
+import com.accounting.core.config.guice.ObjectStorageModule;
 import com.accounting.core.config.guice.SecurityModule;
 import com.accounting.core.jobs.DataFixProcessor;
 import com.accounting.core.processing.MessageProcessor;
@@ -69,7 +70,9 @@ public class AccountingCoreApp extends Application<AccountingCoreAppConfig> {
 
     @Override
     public void run(AccountingCoreAppConfig config, Environment environment) {
-        var injector = Guice.createInjector(new AccountingCoreModule(environment, config), new SecurityModule(config));
+        var injector = Guice.createInjector(new AccountingCoreModule(environment, config),
+                new ObjectStorageModule(config),
+                new SecurityModule(config));
         environment.jersey().register(injector.getInstance(SwaggerResource.class));
         environment.jersey().register(injector.getInstance(AccountingQueuesResource.class));
         environment.jersey().register(injector.getInstance(TemplateExecutionResource.class));
