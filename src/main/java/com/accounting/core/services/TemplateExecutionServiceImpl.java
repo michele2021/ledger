@@ -132,8 +132,7 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         var timestamp = System.currentTimeMillis();
         var uuid = UUID.randomUUID().toString();
         var journalJson = OBJECT_MAPPER.valueToTree(journalPosting);
-        var amount = QueueMessageAmountDTO
-                .builder()
+        var amount = QueueMessageAmountDTO.builder()
                 .quantity(BigDecimal.ZERO)
                 .currencyCode(Constants.Currencies.EUR.toString())
                 .build();
