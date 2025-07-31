@@ -32,8 +32,8 @@ public interface JournalDAO {
     long createJournalAt(int journalTypeId, OffsetDateTime bookingDate);
 
     @SqlBatch("""
-    INSERT INTO journalInfo(journalId, type, filename, contentType, textContent, storageUri, sha256, sizeBytes)
-         VALUES (:journalId, :type, :filename, :contentType, :textContent, :uri, :sha256, :size)
+    INSERT INTO journalInfo(journalId, objectId, type, filename, contentType, textContent, storageUri, sha256, sizeBytes)
+         VALUES (:journalId, :id, :type, :filename, :contentType, :textContent, :uri, :sha256, :size)
     ON CONFLICT DO NOTHING;
     """)
     void createJournalInfo(long journalId, @BindMethods List<JournalInfoDTO> journalInfoDTO);
