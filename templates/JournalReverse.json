@@ -1,0 +1,23 @@
+{
+  "class": "JournalReverse",
+  "eventType": "JOURNAL_REVERSE",
+  "accountTypes": ["Client","Company"],
+  "journalType": "Reversed",
+  "txType": "Manual",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "JournalReverse",
+    "type": "object",
+    "required": [
+      "journalId"
+    ],
+    "properties": {
+      "description": {
+        "type": "string"
+      },
+      "journalId": {
+        "type": "number"
+      }
+    }
+  }
+}

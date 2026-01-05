@@ -306,4 +306,25 @@ public interface JournalDAO {
     @RegisterBeanMapper(Amount.class)
     Amount getReceivedFee(long txId, Constants.JournalType journalType);
 
+    @SqlQuery("""
+            SELECT (SELECT txId
+                      FROM journalTx jtx
+                     WHERE jtx.journalId = j.journalId
+                     LIMIT 1) AS txId
+                  ,jl.journalLineId
+                  ,jl.journalId
+                  ,jl.batchId
+                  ,jl.quantity
+                  ,jl.currencyId
+                  ,b.registerTypeId
+                  ,rt.registerTypeCode
+                  ,b.accountId
+              FROM journal j
+              JOIN journalLine jl USING (journalId)
+              JOIN batch b USING (batchId)
+              JOIN config.registerType rt USING (registerTypeId)
+             WHERE j.journalId = :journalId""")
+    @RegisterBeanMapper(JournalLineWithTxDTO.class)
+    List<JournalLineWithTxDTO> getJournalLinesWithTxByJournalId(long journalId);
+
 }
