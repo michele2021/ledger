@@ -1,5 +1,6 @@
 package com.accounting.core.testUtils;
 
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jdbi.v3.core.ConnectionException;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.postgresql.ds.PGSimpleDataSource;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;

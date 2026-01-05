@@ -54,10 +54,10 @@ project.ext {
     service_commons_version = '1.0-SNAPSHOT'
     // monavate_iban_version = '1.22.2'
 
-    dropwizard_version = "4.0.12"
+    dropwizard_version = "4.0.13"
     lombok_version = '1.18.36'
-    jdbi3_version = '3.49.1'
-    awssdk_version = '2.18.6'
+    jdbi3_version = '3.50.0'
+    awssdk_version = '2.29.0'
 
     junit_jupiter_version = '5.11.3'
     mockito_version = '5.14.2'
@@ -73,7 +73,7 @@ dependencies {
     testImplementation "io.dropwizard:dropwizard-testing:${dropwizard_version}"
 
     // Kafka
-    implementation 'org.apache.kafka:kafka-clients:3.8.0'
+    implementation 'org.apache.kafka:kafka-clients:3.9.1'
 
     implementation platform("software.amazon.awssdk:bom:${awssdk_version}")
     implementation "software.amazon.awssdk:sqs:${awssdk_version}"
