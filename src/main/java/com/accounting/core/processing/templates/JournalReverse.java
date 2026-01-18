@@ -1,6 +1,5 @@
 package com.accounting.core.processing.templates;
 
-import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.entities.Amount;
@@ -10,12 +9,10 @@ import com.accounting.commons.exceptions.AccountingMakerException;
 import com.accounting.commons.queue.QueueMessage;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.JournalLineWithTxDTO;
-import com.accounting.core.entities.Tx;
 import com.accounting.core.processing.JournalMaker;
 import com.accounting.core.services.RepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,10 +40,8 @@ public class JournalReverse extends AbstractTemplate {
     }
 
     @Override
-    public Tx buildTx() {
-        // Get parent tx ID from the first original journal line
-        long parentTxId = originalJournalLines.getFirst().getTxId();
-        return buildBaseTx(parentTxId);
+    public List<Long> linkTxs() {
+        return List.of(originalJournalLines.getFirst().getTxId());
     }
 
     @Override
@@ -55,9 +50,7 @@ public class JournalReverse extends AbstractTemplate {
 
         // Fetch original journal lines and swap credit and debit
         for (JournalLineWithTxDTO originalLine : originalJournalLines) {
-            var currency = Constants.getCurrencyByIso(originalLine.getCurrencyId());
-            var amount = Amount.of(Constants.toMinorUnits(currency,
-                    BigDecimal.valueOf(originalLine.getQuantity())), originalLine.getCurrencyId());
+            var amount = Amount.of(originalLine.getQuantity(), originalLine.getCurrencyId());
 
             if (originalLine.isDebit()) {
                 // Original was debit, so add as credit in reversed journal
