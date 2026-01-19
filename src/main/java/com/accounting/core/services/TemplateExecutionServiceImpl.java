@@ -407,12 +407,8 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         };
     }
 
-//    private static String journalPath(String companyCode) {
-//        return "journals/" + companyCode;
-//    }
-
     private String journalPath(String companyCode) {
-        return STR."journals/\{companyCode}";
+        return "journals/" + companyCode;
     }
 
 }
