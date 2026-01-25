@@ -41,8 +41,8 @@ public interface AccountWriteDAO {
     default long createAccountInternal(Account account) {
         AccountBase newAccount = insertAccount(account.getAccountCode(), account.getAccountTypeId(),
                 account.getParentId(), account.getDescription(), account.isTest(), account.getCreatedBy());
-        if (!AccountingUtils.isEmptyOrNull(account.getPropertiesList())) {
-            insertAccountProperties(account.getPropertiesList(), newAccount.getAccountId());
+        if (!AccountingUtils.isEmptyOrNull(account.getProperties())) {
+            insertAccountProperties(account.getProperties(), newAccount.getAccountId());
         }
         return newAccount.getAccountId();
     }

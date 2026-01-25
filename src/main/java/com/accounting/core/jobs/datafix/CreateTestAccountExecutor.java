@@ -38,7 +38,7 @@ public class CreateTestAccountExecutor {
                 .accountTypeId(account.getAccountTypeId())
                 .accountTypeCode(account.getAccountTypeCode())
                 .description(account.getDescription() + " TEST")
-                .properties(account.getProperties())
+                .propertiesMap(account.getPropertiesMap())
                 .build();
         accountWriteDAO.createAccount(testAccount, false, null);
         log.info("Test account created. Code: {}, Type: {}.", testAccountCode, testAccount.getAccountTypeCode());
