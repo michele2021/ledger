@@ -66,23 +66,27 @@ public class AccountServiceImpl implements AccountService {
         // validations end
 
         // map from AccountDTO to Account.
-        List<AccountProperty> accountProperties = null;
-        if(accountDTO.getAccountProperties() != null) {
-            accountProperties = accountDTO.getAccountProperties()
-                    .stream()
-                    .map(e -> AccountProperty.builder().code(e.getName()).value(e.getValue()).build())
-                    .toList();
-        }
-        account = Account.builder()
+        Account.AccountBuilder<?, ?> accountBuilder = Account.builder()
                 .accountCode(accountDTO.getAccountCode())
                 .accountTypeCode(accountType.getCode())
                 .accountTypeId(accountType.getAccountTypeId())
                 .parentId(parentId)
-                .properties(accountProperties)
                 .description(accountDTO.getDescription())
                 .test(accountDTO.isTestAccount())
-                .createdBy(accountDTO.getUserName())
-                .build();
+                .createdBy(accountDTO.getUserName());
+
+        account = accountBuilder.build();
+
+        // Set properties after building the account
+        if(accountDTO.getAccountProperties() != null) {
+            List<AccountProperty> accountProperties = accountDTO.getAccountProperties()
+                    .stream()
+                    .map(e -> AccountProperty.builder()
+                            .code(e.getName()).value(e.getValue())
+                            .build())
+                    .toList();
+            account.setPropertiesFromList(accountProperties);
+        }
 
         long accountId = accountWriteDAO.createAccount(account, accountDTO.isCreateTestAccount(), accountDTO.getClientDetails());
         // refresh the account caches
