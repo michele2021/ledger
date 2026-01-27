@@ -94,10 +94,9 @@ public class OrderReceived extends AbstractTemplate {
         if(AccountingUtils.isEmptyOrNull(taxLines)) {
             return 0L;
         }
+        String currencyCode = amount.getCurrencyCode();
         return taxLines.stream()
-                .map(TaxLine::price)
-                .map(BigDecimal::new)
-                .map(p -> Constants.toMinorUnits(amount.getCurrencyCode(), p))
-                .reduce(Long::sum).orElse(0L);
+                .mapToLong(taxLine -> Constants.toMinorUnits(currencyCode, new BigDecimal(taxLine.price())))
+                .sum();
     }
 }

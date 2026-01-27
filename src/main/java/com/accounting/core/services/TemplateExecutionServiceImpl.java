@@ -4,6 +4,7 @@ import com.accounting.commons.Constants;
 import com.accounting.commons.Message;
 import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.entities.Account;
+import com.accounting.commons.exceptions.AccountingEventException;
 import com.accounting.commons.exceptions.WebValidationException;
 import com.accounting.commons.kafka.KafkaMessage;
 import com.accounting.commons.kafka.KafkaMessageProducer;
@@ -215,8 +216,10 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         }
         try {
             return templateCache.get(Message.EventType.valueOf(type));
-        } catch (Exception e) {
-            throw new WebApplicationException(String.format("Template for %s not found!", type));
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(String.format("Invalid event type: %s", type), e);
+        } catch (AccountingEventException e) {
+            throw new WebApplicationException(String.format("Template for %s not found!", type), e);
         }
     }
 
