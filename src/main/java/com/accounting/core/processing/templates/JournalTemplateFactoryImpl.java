@@ -17,6 +17,7 @@ import static java.lang.String.format;
 
 public class JournalTemplateFactoryImpl implements JournalTemplateFactory {
 
+    private static final String TEMPLATE_PACKAGE = "com.accounting.core.processing.templates.";
     private final JournalMaker journalMaker;
     private final RepositoryHelper repositoryHelper;
 
@@ -26,16 +27,47 @@ public class JournalTemplateFactoryImpl implements JournalTemplateFactory {
     }
 
     @Override
-    public JournalTemplateIf makeJournalTemplateInstance(QueueMessage message, JournalTemplate journalTemplate, Account account, Amount amount, JournalType jt, TxType txType) throws AccountingTemplateException {
+    public JournalTemplateIf makeJournalTemplateInstance(QueueMessage message, JournalTemplate journalTemplate,
+                                                         Account account, Amount amount, JournalType jt, TxType txType)
+            throws AccountingTemplateException {
+        String className = journalTemplate.getClazz();
         try {
-            Class<?> clazz = Class.forName("com.accounting.core.processing.templates." + journalTemplate.getClazz());
-            Constructor<?> constructor = clazz.getConstructor(JournalMaker.class, Account.class, Amount.class, JournalType.class, TxType.class, QueueMessage.class, RepositoryHelper.class);
+            Constructor<?> constructor = loadConstructor(className);
             return (JournalTemplateIf) constructor.newInstance(journalMaker, account, amount, jt, txType, message, repositoryHelper);
 
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new AccountingTemplateException(format("Exception while trying to instantiate class %s for the template %s",
-                    journalTemplate.getClazz(), journalTemplate.getFileName()), e);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            throw new AccountingTemplateException(format(
+                    "Error during instantiation of template class '%s' (template file: '%s'). Cause: %s",
+                    className, journalTemplate.getFileName(), cause != null ? cause.getMessage() : "Unknown"), e);
+        } catch (InstantiationException e) {
+            throw new AccountingTemplateException(format(
+                    "Cannot instantiate abstract class '%s' for template '%s'. Ensure the class is concrete.",
+                    className, journalTemplate.getFileName()), e);
+        } catch (IllegalAccessException e) {
+            throw new AccountingTemplateException(format(
+                    "Constructor not accessible for class '%s' (template: '%s'). Ensure constructor is public.",
+                    className, journalTemplate.getFileName()), e);
+        } catch (ClassCastException e) {
+            throw new AccountingTemplateException(format(
+                    "Class '%s' does not implement JournalTemplateIf interface (template: '%s').",
+                    className, journalTemplate.getFileName()), e);
         }
     }
 
+    private Constructor<?> loadConstructor(String className) throws AccountingTemplateException {
+        try {
+            Class<?> clazz = Class.forName(TEMPLATE_PACKAGE + className);
+            return clazz.getConstructor(JournalMaker.class, Account.class, Amount.class, 
+                    JournalType.class, TxType.class, QueueMessage.class, RepositoryHelper.class);
+        } catch (ClassNotFoundException e) {
+            throw new AccountingTemplateException(format(
+                    "Template class '%s' not found in package '%s'. Verify the class name and package.",
+                    className, TEMPLATE_PACKAGE), e);
+        } catch (NoSuchMethodException e) {
+            throw new AccountingTemplateException(format(
+                    "Required constructor not found for class '%s'. Expected: (JournalMaker, Account, Amount, JournalType, TxType, QueueMessage, RepositoryHelper).",
+                    className), e);
+        }
+    }
 }

@@ -111,7 +111,9 @@ class JournalTemplateFactoryImplTest {
         AccountingTemplateException exception = Assertions.assertThrows(AccountingTemplateException.class, () -> subject.makeJournalTemplateInstance(message, journalTemplate, account, amount, journalType, txType));
 
         //then
-        AssertionsForClassTypes.assertThat(exception.getMessage()).startsWith("Exception while trying to instantiate class JournalTemplateIf4TestNoCtor for the template TestTemplate.json");
+        AssertionsForClassTypes.assertThat(exception.getMessage())
+                .contains("Required constructor not found for class 'JournalTemplateIf4TestNoCtor'")
+                .contains("Expected: (JournalMaker, Account, Amount, JournalType, TxType, QueueMessage, RepositoryHelper)");
 
     }
 
