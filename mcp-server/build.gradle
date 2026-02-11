@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.accounting.mcp'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+application {
+    mainClass = 'com.accounting.mcp.server.MCPServer'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.3'
+}
+
+shadowJar {
+    archiveBaseName.set('ledger-mcp-server')
+    archiveClassifier.set('')
+    archiveVersion.set(version)
+    
+    manifest {
+        attributes(
+            'Main-Class': 'com.accounting.mcp.server.MCPServer'
+        )
+    }
+    
+    mergeServiceFiles()
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('installMCP', Copy) {
+    dependsOn shadowJar
+    from shadowJar.archiveFile
+    into "${System.getProperty('user.home')}/.mcp/servers/ledger"
+    
+    doLast {
+        println "MCP server JAR installed to: ${System.getProperty('user.home')}/.mcp/servers/ledger"
+    }
+}

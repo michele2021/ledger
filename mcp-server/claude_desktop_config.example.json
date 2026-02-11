@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "ledger": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "C:\\Users\\YourUsername\\.mcp\\servers\\ledger\\ledger-mcp-server-1.0.0.jar"
+      ],
+      "env": {
+        "LEDGER_BASE_URL": "http://localhost:8080",
+        "LEDGER_USERNAME": "your-username-here",
+        "LEDGER_PASSWORD": "your-password-here"
+      }
+    }
+  }
+}

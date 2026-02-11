@@ -1,5 +1,8 @@
 rootProject.name = 'ledger'
 
+// Include MCP server module
+include 'mcp-server'
+
 def includedBuilds = [ '../service-commons' ]
 
 includedBuilds.each { buildFolder ->
