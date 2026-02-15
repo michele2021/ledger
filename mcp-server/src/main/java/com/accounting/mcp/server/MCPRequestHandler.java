@@ -28,7 +28,13 @@ public class MCPRequestHandler {
         try {
             MCPRequest request = gson.fromJson(requestJson, MCPRequest.class);
             log.info("Handling MCP request: method={}, id={}", request.getMethod(), request.getId());
-            
+
+            // Handle notifications (requests without ID) - no response needed
+            if (request.getId() == null) {
+                handleNotification(request);
+                return null;
+            }
+
             Object result = switch (request.getMethod()) {
                 case "initialize" -> handleInitialize(request);
                 case "tools/list" -> handleListTools(request);
@@ -51,24 +57,44 @@ public class MCPRequestHandler {
             return gson.toJson(MCPResponse.error(null, -32603, "Internal error: " + e.getMessage()));
         }
     }
-    
+
+    private void handleNotification(MCPRequest request) {
+        log.info("Handling notification: method={}", request.getMethod());
+        // Notifications don't require responses, just log them
+        switch (request.getMethod()) {
+            case "notifications/initialized" -> log.info("Client initialized");
+            case "notifications/cancelled" -> log.info("Request cancelled");
+            default -> log.warn("Unknown notification: {}", request.getMethod());
+        }
+    }
+
     private Object handleInitialize(MCPRequest request) {
         JsonObject result = new JsonObject();
-        result.addProperty("protocolVersion", "2024-11-05");
-        result.addProperty("serverInfo", "Accounting Ledger MCP Server");
+        // Use the protocol version from the client request, or default to 2024-11-05
+        String clientProtocolVersion = "2024-11-05";
+        if (request.getParams() != null && request.getParams().has("protocolVersion")) {
+            clientProtocolVersion = request.getParams().get("protocolVersion").getAsString();
+        }
+        result.addProperty("protocolVersion", clientProtocolVersion);
+
+        JsonObject serverInfo = new JsonObject();
+        serverInfo.addProperty("name", "ledger");
+        serverInfo.addProperty("version", "1.0.0");
+        result.add("serverInfo", serverInfo);
         
         JsonObject capabilities = new JsonObject();
-        capabilities.addProperty("tools", true);
+        JsonObject tools = new JsonObject();
         result.add("capabilities", capabilities);
+        capabilities.add("tools", tools);
         
-        log.info("MCP server initialized");
+        log.info("MCP server initialized with protocol version: {}", clientProtocolVersion);
         return result;
     }
     
     private Object handleListTools(MCPRequest request) {
-        List<Tool> toolList = new ArrayList<>(tools.values().stream()
+        List<Tool> toolList = tools.values().stream()
                 .map(MCPTool::getDefinition)
-                .toList());
+                .toList();
         
         JsonObject result = new JsonObject();
         result.add("tools", gson.toJsonTree(toolList));

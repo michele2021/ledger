@@ -22,7 +22,10 @@ public class MCPServer {
     private final MCPRequestHandler requestHandler;
 
     public MCPServer(String ledgerBaseUrl, String username, String password) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        // Create Gson without pretty printing - MCP requires compact JSON on single lines
+        Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
+                .create();
         
         // Initialize ledger API client
         LedgerApiClient ledgerClient = new LedgerApiClient(ledgerBaseUrl, username, password);
@@ -45,22 +48,33 @@ public class MCPServer {
         
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             String line;
+            log.info("Waiting for input on stdin...");
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
+                    log.info("Received empty line, skipping");
                     continue;
                 }
                 
-                log.debug("Received request: {}", line);
+                log.info("Received request: {}", line);
                 String response = requestHandler.handleRequest(line);
                 
-                // Write response to stdout
-                System.out.println(response);
-                System.out.flush();
-                
-                log.debug("Sent response: {}", response);
+                // Write response to stdout - must be single line for MCP protocol
+                // Notifications return null and don't need a response
+                if (response != null) {
+                    System.out.print(response);
+                    System.out.print('\n');
+                    System.out.flush();
+                    log.info("Sent response (length={}): {}", response.length(), response.substring(0, Math.min(100, response.length())));
+                } else {
+                    log.info("No response needed (notification)");
+                }
+                log.info("Waiting for next request...");
             }
+            log.info("stdin closed (readLine returned null) - exiting");
         } catch (IOException e) {
             log.error("Error reading from stdin", e);
+        } catch (Exception e) {
+            log.error("Unexpected error in main loop", e);
         }
         
         log.info("MCP Server stopped");

@@ -32,6 +32,7 @@ public class LedgerApiClient {
         this.username = username;
         this.password = password;
         this.gson = new Gson();
+
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
@@ -55,11 +56,13 @@ public class LedgerApiClient {
                 .build();
         
         log.info("Logging in to: {}", url);
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            log.info("Login response status: {}", response.statusCode());
         
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             JsonObject responseBody = gson.fromJson(response.body(), JsonObject.class);
-            this.accessToken = responseBody.get("accessToken").getAsString();
+            this.accessToken = responseBody.get("idToken").getAsString();
             this.refreshToken = responseBody.get("refreshToken").getAsString();
             
             // Assume token expires in 15 minutes if not specified
@@ -71,6 +74,13 @@ public class LedgerApiClient {
             log.info("Login successful, token expires at: {}", tokenExpiry);
         } else {
             throw new RuntimeException("Login failed with status " + response.statusCode() + ": " + response.body());
+        }
+        } catch (java.net.ConnectException e) {
+            log.error("Connection failed to {}: {}", url, e.getMessage());
+            throw new RuntimeException("Cannot connect to ledger API at " + url + ". Please ensure the server is running.", e);
+        } catch (Exception e) {
+            log.error("Login error: {}", e.getMessage(), e);
+            throw e;
         }
     }
     

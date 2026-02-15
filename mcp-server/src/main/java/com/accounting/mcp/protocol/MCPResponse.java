@@ -8,18 +8,18 @@ import lombok.Data;
 @Data
 public class MCPResponse<T> {
     private String jsonrpc = "2.0";
-    private String id;
+    private Object id;  // Can be string, number, or null per JSON-RPC 2.0
     private T result;
     private MCPError error;
     
-    public static <T> MCPResponse<T> success(String id, T result) {
+    public static <T> MCPResponse<T> success(Object id, T result) {
         MCPResponse<T> response = new MCPResponse<>();
         response.setId(id);
         response.setResult(result);
         return response;
     }
     
-    public static <T> MCPResponse<T> error(String id, int code, String message) {
+    public static <T> MCPResponse<T> error(Object id, int code, String message) {
         MCPResponse<T> response = new MCPResponse<>();
         response.setId(id);
         MCPError error = new MCPError();

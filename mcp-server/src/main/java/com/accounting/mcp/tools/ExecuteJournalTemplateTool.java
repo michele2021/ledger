@@ -68,10 +68,11 @@ public class ExecuteJournalTemplateTool implements MCPTool {
         
         schema.add("properties", properties);
         
-        JsonObject required = new JsonObject();
-        required.addProperty("0", "type");
-        required.addProperty("1", "accountCode");
-        required.addProperty("2", "amount");
+        // Required fields as JSON array
+        com.google.gson.JsonArray required = new com.google.gson.JsonArray();
+        required.add("type");
+        required.add("accountCode");
+        required.add("amount");
         schema.add("required", required);
         
         return Tool.builder()
