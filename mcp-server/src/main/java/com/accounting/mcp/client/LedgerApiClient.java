@@ -55,10 +55,10 @@ public class LedgerApiClient {
                 .timeout(Duration.ofSeconds(30))
                 .build();
         
-        log.info("Logging in to: {}", url);
+        log.debug("Logging in to: {}", url);
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            log.info("Login response status: {}", response.statusCode());
+            log.debug("Login response status: {}", response.statusCode());
         
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             JsonObject responseBody = gson.fromJson(response.body(), JsonObject.class);
@@ -71,15 +71,14 @@ public class LedgerApiClient {
                 : 900;
             this.tokenExpiry = Instant.now().plusSeconds(expiresInSeconds);
             
-            log.info("Login successful, token expires at: {}", tokenExpiry);
+            log.debug("Login successful, token expires at: {}", tokenExpiry);
         } else {
             throw new RuntimeException("Login failed with status " + response.statusCode() + ": " + response.body());
         }
         } catch (java.net.ConnectException e) {
-            log.error("Connection failed to {}: {}", url, e.getMessage());
             throw new RuntimeException("Cannot connect to ledger API at " + url + ". Please ensure the server is running.", e);
         } catch (Exception e) {
-            log.error("Login error: {}", e.getMessage(), e);
+            log.error("Login error: {}", e.getMessage());
             throw e;
         }
     }
@@ -89,35 +88,35 @@ public class LedgerApiClient {
      */
     public void refreshAccessToken() throws Exception {
         String url = baseUrl + "/auth/refresh-token";
-        
+
         JsonObject payload = new JsonObject();
         payload.addProperty("refreshToken", refreshToken);
-        
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
                 .timeout(Duration.ofSeconds(30))
                 .build();
-        
+
         log.info("Refreshing access token at: {}", url);
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        
+
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             JsonObject responseBody = gson.fromJson(response.body(), JsonObject.class);
             this.accessToken = responseBody.get("accessToken").getAsString();
-            
+
             // Update refresh token if provided
             if (responseBody.has("refreshToken")) {
                 this.refreshToken = responseBody.get("refreshToken").getAsString();
             }
-            
+
             // Update token expiry
-            long expiresInSeconds = responseBody.has("expiresIn") 
-                ? responseBody.get("expiresIn").getAsLong() 
-                : 900;
+            long expiresInSeconds = responseBody.has("expiresIn")
+                    ? responseBody.get("expiresIn").getAsLong()
+                    : 900;
             this.tokenExpiry = Instant.now().plusSeconds(expiresInSeconds);
-            
+
             log.info("Token refreshed successfully, expires at: {}", tokenExpiry);
         } else {
             throw new RuntimeException("Token refresh failed with status " + response.statusCode() + ": " + response.body());
@@ -128,8 +127,8 @@ public class LedgerApiClient {
      * Ensure we have a valid access token, refreshing or logging in if needed
      */
     private void ensureValidToken() throws Exception {
-        if (accessToken == null || tokenExpiry == null) {
-            log.info("No token available, logging in...");
+        if (accessToken == null || tokenExpiry == null || Instant.now().isAfter(tokenExpiry)) {
+            log.debug("Token expired or missing, logging in...");
             login();
         } else if (Instant.now().isAfter(tokenExpiry.minusSeconds(60))) {
             // Refresh if token expires in less than 60 seconds
@@ -150,7 +149,7 @@ public class LedgerApiClient {
         ensureValidToken();
         
         String url = baseUrl + "/accounting/journals/from-template";
-        
+        log.debug("Sending request to: {}", url);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
@@ -159,7 +158,6 @@ public class LedgerApiClient {
                 .timeout(Duration.ofSeconds(30))
                 .build();
         
-        log.info("Sending request to: {}", url);
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         
         if (response.statusCode() >= 200 && response.statusCode() < 300) {

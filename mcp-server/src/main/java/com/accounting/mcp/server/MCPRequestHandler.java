@@ -27,7 +27,7 @@ public class MCPRequestHandler {
     public String handleRequest(String requestJson) {
         try {
             MCPRequest request = gson.fromJson(requestJson, MCPRequest.class);
-            log.info("Handling MCP request: method={}, id={}", request.getMethod(), request.getId());
+            log.debug("Handling MCP request: method={}, id={}", request.getMethod(), request.getId());
 
             // Handle notifications (requests without ID) - no response needed
             if (request.getId() == null) {
@@ -59,11 +59,11 @@ public class MCPRequestHandler {
     }
 
     private void handleNotification(MCPRequest request) {
-        log.info("Handling notification: method={}", request.getMethod());
+        log.debug("Handling notification: method={}", request.getMethod());
         // Notifications don't require responses, just log them
         switch (request.getMethod()) {
-            case "notifications/initialized" -> log.info("Client initialized");
-            case "notifications/cancelled" -> log.info("Request cancelled");
+            case "notifications/initialized" -> log.debug("Client initialized");
+            case "notifications/cancelled" -> log.debug("Request cancelled");
             default -> log.warn("Unknown notification: {}", request.getMethod());
         }
     }
@@ -87,7 +87,7 @@ public class MCPRequestHandler {
         result.add("capabilities", capabilities);
         capabilities.add("tools", tools);
         
-        log.info("MCP server initialized with protocol version: {}", clientProtocolVersion);
+        log.debug("MCP server initialized with protocol version: {}", clientProtocolVersion);
         return result;
     }
     
@@ -99,16 +99,17 @@ public class MCPRequestHandler {
         JsonObject result = new JsonObject();
         result.add("tools", gson.toJsonTree(toolList));
         
-        log.info("Listed {} tools", toolList.size());
+        log.debug("Listed {} tools", toolList.size());
         return result;
     }
     
     private Object handleCallTool(MCPRequest request) {
         JsonObject params = request.getParams();
         String toolName = params.get("name").getAsString();
-        JsonObject arguments = params.has("arguments") ? params.get("arguments").getAsJsonObject() : new JsonObject();
+        JsonObject arguments = params.getAsJsonObject("arguments");
         
-        log.info("Calling tool: {} with arguments: {}", toolName, arguments);
+        log.info("Calling tool: {}", toolName);
+        log.debug("Tool arguments: {}", arguments);
         
         MCPTool tool = tools.get(toolName);
         if (tool == null) {

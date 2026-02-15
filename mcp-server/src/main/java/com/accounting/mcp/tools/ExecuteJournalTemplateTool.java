@@ -86,7 +86,8 @@ public class ExecuteJournalTemplateTool implements MCPTool {
     @Override
     public ToolResult execute(JsonObject arguments) {
         try {
-            log.info("Executing journal template with arguments: {}", arguments);
+            log.info("Executing journal template: type={}", arguments.has("type") ? arguments.get("type").getAsString() : "unknown");
+            log.debug("Template arguments: {}", arguments);
             
             // Build the request payload
             JsonObject payload = new JsonObject();

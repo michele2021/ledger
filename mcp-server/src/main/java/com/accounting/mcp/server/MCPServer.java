@@ -48,14 +48,12 @@ public class MCPServer {
         
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             String line;
-            log.info("Waiting for input on stdin...");
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
-                    log.info("Received empty line, skipping");
                     continue;
                 }
                 
-                log.info("Received request: {}", line);
+                log.debug("Received request: {}", line);
                 String response = requestHandler.handleRequest(line);
                 
                 // Write response to stdout - must be single line for MCP protocol
@@ -64,13 +62,10 @@ public class MCPServer {
                     System.out.print(response);
                     System.out.print('\n');
                     System.out.flush();
-                    log.info("Sent response (length={}): {}", response.length(), response.substring(0, Math.min(100, response.length())));
-                } else {
-                    log.info("No response needed (notification)");
+                    log.debug("Sent response (length={})", response.length());
                 }
-                log.info("Waiting for next request...");
             }
-            log.info("stdin closed (readLine returned null) - exiting");
+            log.info("stdin closed - exiting");
         } catch (IOException e) {
             log.error("Error reading from stdin", e);
         } catch (Exception e) {
