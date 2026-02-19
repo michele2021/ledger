@@ -52,7 +52,6 @@ repositories {
 
 project.ext {
     service_commons_version = '1.0-SNAPSHOT'
-    // monavate_iban_version = '1.22.2'
 
     dropwizard_version = "4.0.13"
     lombok_version = '1.18.36'
@@ -79,7 +78,7 @@ dependencies {
     implementation "software.amazon.awssdk:sqs:${awssdk_version}"
     implementation "software.amazon.awssdk:sns:${awssdk_version}"
 
-    implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'org.postgresql:postgresql:42.7.7'
     implementation "org.jdbi:jdbi3-sqlobject:${jdbi3_version}"
     implementation "org.jdbi:jdbi3-gson2:${jdbi3_version}"
     implementation "org.jdbi:jdbi3-postgres:${jdbi3_version}"
@@ -103,7 +102,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:${mockito_version}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockito_version}"
 
-    testImplementation "org.assertj:assertj-core:3.26.3"
+    testImplementation 'org.assertj:assertj-core:3.27.7'
     testImplementation "org.jdbi:jdbi3-testing:${jdbi3_version}"
     testImplementation 'org.liquibase.ext:liquibase-postgresql:4.30.0'
 }
@@ -152,15 +151,13 @@ tasks.register('generateOpenAPI', JavaExec) {
 }*/
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs += ['--enable-preview']
 }
 
 tasks.withType(Test) {
-    jvmArgs += ['--enable-preview']
 }
 
 tasks.withType(JavaExec) {
-    jvmArgs += ['--enable-preview']
+    jvmArgs += ['-XX:+UseG1GC', '-XX:+UseStringDeduplication']
 }
 
 test {
