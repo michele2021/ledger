@@ -59,22 +59,22 @@ public class LedgerApiClient {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             log.debug("Login response status: {}", response.statusCode());
-        
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            JsonObject responseBody = gson.fromJson(response.body(), JsonObject.class);
-            this.accessToken = responseBody.get("idToken").getAsString();
-            this.refreshToken = responseBody.get("refreshToken").getAsString();
-            
-            // Assume token expires in 15 minutes if not specified
-            long expiresInSeconds = responseBody.has("expiresIn") 
-                ? responseBody.get("expiresIn").getAsLong() 
-                : 900;
-            this.tokenExpiry = Instant.now().plusSeconds(expiresInSeconds);
-            
-            log.debug("Login successful, token expires at: {}", tokenExpiry);
-        } else {
-            throw new RuntimeException("Login failed with status " + response.statusCode() + ": " + response.body());
-        }
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                JsonObject responseBody = gson.fromJson(response.body(), JsonObject.class);
+                this.accessToken = responseBody.get("idToken").getAsString();
+                this.refreshToken = responseBody.get("refreshToken").getAsString();
+
+                // Assume token expires in 15 minutes if not specified
+                long expiresInSeconds = responseBody.has("expiresIn")
+                        ? responseBody.get("expiresIn").getAsLong()
+                        : 900;
+                this.tokenExpiry = Instant.now().plusSeconds(expiresInSeconds);
+
+                log.debug("Login successful, token expires at: {}", tokenExpiry);
+            } else {
+                throw new RuntimeException("Login failed with status " + response.statusCode() + ": " + response.body());
+            }
         } catch (java.net.ConnectException e) {
             throw new RuntimeException("Cannot connect to ledger API at " + url + ". Please ensure the server is running.", e);
         } catch (Exception e) {
@@ -104,7 +104,13 @@ public class LedgerApiClient {
 
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             JsonObject responseBody = gson.fromJson(response.body(), JsonObject.class);
-            this.accessToken = responseBody.get("accessToken").getAsString();
+
+            // The refresh endpoint returns 'idToken' not 'accessToken'
+            if (responseBody.has("idToken")) {
+                this.accessToken = responseBody.get("idToken").getAsString();
+            } else {
+                throw new RuntimeException("Token refresh response missing idToken or accessToken field");
+            }
 
             // Update refresh token if provided
             if (responseBody.has("refreshToken")) {

@@ -57,7 +57,7 @@ public class ExecuteJournalTemplateTool implements MCPTool {
         // additionalData property
         JsonObject additionalDataProperty = new JsonObject();
         additionalDataProperty.addProperty("type", "object");
-        additionalDataProperty.addProperty("description", "Additional template-specific data");
+        additionalDataProperty.addProperty("description", "Additional template-specific data. PAYMENT_RECEIVED requires txReference field.");
         properties.add("additionalData", additionalDataProperty);
         
         // source property
@@ -78,7 +78,9 @@ public class ExecuteJournalTemplateTool implements MCPTool {
         return Tool.builder()
                 .name(getName())
                 .description("Execute a journal template in the accounting ledger system. " +
-                        "Supports templates like PAYMENT_RECEIVED, PAYMENT_RECEIVED_CORRECTION, CLIENT_FEE_PAYOUT, etc.")
+                        "Supports templates like PAYMENT_RECEIVED (requires txReference in additionalData), " +
+                        "PAYMENT_RECEIVED_CORRECTION, CLIENT_FEE_PAYOUT, JOURNAL_REVERSE (requires journalId in additionalData), etc. " +
+                        "Note: API returns 200 immediately but processes asynchronously - check ledger logs for actual errors.")
                 .inputSchema(schema)
                 .build();
     }
@@ -102,9 +104,10 @@ public class ExecuteJournalTemplateTool implements MCPTool {
             if (arguments.has("source")) {
                 payload.addProperty("source", arguments.get("source").getAsString());
             } else {
-                payload.addProperty("source", "MCP_CLAUDE");
+                // Default to FRONT_END_APP as required by the API
+                payload.addProperty("source", "FRONT_END_APP");
             }
-            
+
             // Execute the template via the ledger API
             String response = ledgerClient.executeTemplate(payload);
             
