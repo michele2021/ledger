@@ -5,12 +5,7 @@
       "args": [
         "-jar",
         "/Users/mic/.mcp/servers/ledger/ledger-mcp-server-1.0.0.jar"
-      ],
-      "env": {
-        "LEDGER_BASE_URL": "http://localhost:8080",
-        "LEDGER_USERNAME": "mberionni",
-        "LEDGER_PASSWORD": ""
-      }
+      ]
     }
   }
 }
