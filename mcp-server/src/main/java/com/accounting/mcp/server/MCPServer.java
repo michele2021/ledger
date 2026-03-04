@@ -3,6 +3,7 @@ package com.accounting.mcp.server;
 import com.accounting.mcp.client.LedgerApiClient;
 import com.accounting.mcp.tools.ExecuteJournalTemplateTool;
 import com.accounting.mcp.tools.MCPTool;
+import com.accounting.mcp.tools.PostJournalTool;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ public class MCPServer {
         Map<String, MCPTool> tools = new HashMap<>();
         ExecuteJournalTemplateTool executeTemplateTool = new ExecuteJournalTemplateTool(ledgerClient);
         tools.put(executeTemplateTool.getName(), executeTemplateTool);
+        PostJournalTool postJournalTool = new PostJournalTool(ledgerClient);
+        tools.put(postJournalTool.getName(), postJournalTool);
         
         this.requestHandler = new MCPRequestHandler(tools, gson);
         

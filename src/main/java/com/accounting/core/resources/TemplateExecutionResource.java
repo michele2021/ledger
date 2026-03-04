@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -176,7 +177,7 @@ public class TemplateExecutionResource {
                             )
                     }
             ))
-    public Response postJournal(@Context HttpHeaders headers, @Auth AuthUser user, @NotNull JournalPostingDTO journalPosting) {
+    public Response postJournal(@Context HttpHeaders headers, @Auth AuthUser user, @NotNull @Valid JournalPostingDTO journalPosting) {
         try {
             templateExecutionService.postJournal(user.companyAccountId(), journalPosting);
             return Response.ok()

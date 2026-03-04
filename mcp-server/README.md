@@ -85,11 +85,18 @@ Execute a journal template in the accounting ledger system.
 - `additionalData` (optional): Template-specific additional data
 - `source` (optional): Source of the request (defaults to "MCP_CLAUDE")
 
-**Example usage in Claude:**
+**Usage examples in Claude:**
 
 ```
 Please execute a payment received template for account DEFAULT with amount 150.00 EUR, 
 bank account ItalyClients1, and discount of 10.
+```
+
+```
+Please post a journal for account CMPZERO with description "test mcp journal post", with the following journal entries:
+- CLEARING DEBIT 16 EUR
+- REVENUE CREDIT 3 EUR
+- UNAPPLIEDCASH CREDIT 16 EUR
 ```
 
 ## Configuration
