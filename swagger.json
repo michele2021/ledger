@@ -807,7 +807,8 @@
         "type" : "object",
         "properties" : {
           "id" : {
-            "type" : "string"
+            "type" : "string",
+            "format" : "uuid"
           },
           "type" : {
             "type" : "string"
@@ -860,7 +861,7 @@
           "type" : {
             "type" : "string",
             "description" : "Message type, determine how some other fields are handled.",
-            "enum" : [ "PAYMENT_RECEIVED", "PAYMENT_MATCH", "JOURNAL_POST" ]
+            "enum" : [ "PAYMENT_RECEIVED", "PAYMENT_MATCH", "JOURNAL_POST", "JOURNAL_REVERSE" ]
           },
           "accountCode" : {
             "type" : "string",
@@ -1163,10 +1164,10 @@
               "type" : "string"
             }
           },
-          "wildcardSubtype" : {
+          "wildcardType" : {
             "type" : "boolean"
           },
-          "wildcardType" : {
+          "wildcardSubtype" : {
             "type" : "boolean"
           }
         }

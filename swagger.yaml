@@ -719,6 +719,7 @@ components:
       properties:
         id:
           type: "string"
+          format: "uuid"
           exampleSetFlag: false
           types:
           - "string"
@@ -801,6 +802,7 @@ components:
           - "PAYMENT_RECEIVED"
           - "PAYMENT_MATCH"
           - "JOURNAL_POST"
+          - "JOURNAL_REVERSE"
         accountCode:
           type: "string"
           description: "Code of account, account must exist in database."
@@ -1261,12 +1263,12 @@ components:
           - "object"
           jsonSchema:
             type: "object"
-        wildcardSubtype:
+        wildcardType:
           type: "boolean"
           exampleSetFlag: false
           types:
           - "boolean"
-        wildcardType:
+        wildcardSubtype:
           type: "boolean"
           exampleSetFlag: false
           types:
