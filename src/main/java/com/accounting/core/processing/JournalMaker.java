@@ -16,6 +16,7 @@ import java.util.*;
 
 import static java.lang.String.format;
 
+
 @Slf4j
 @Singleton
 public class JournalMaker {

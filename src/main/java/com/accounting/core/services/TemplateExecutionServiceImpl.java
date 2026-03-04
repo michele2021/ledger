@@ -217,9 +217,9 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
         try {
             return templateCache.get(Message.EventType.valueOf(type));
         } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(String.format("Invalid event type: %s", type), e);
+            throw new WebApplicationException("Invalid event type: %s".formatted(type), e);
         } catch (AccountingEventException e) {
-            throw new WebApplicationException(String.format("Template for %s not found!", type), e);
+            throw new WebApplicationException("Template for %s not found!".formatted(type), e);
         }
     }
 

@@ -85,7 +85,7 @@ public class AccountAddFunds extends AbstractTemplate {
     // might possibly need the same change.
     @Override
     public List<JournalLine> buildJournalLines(long journalId) throws AccountingMakerException {
-        List<JournalLine> journalLines = new ArrayList<>();
+        var journalLines = new ArrayList<JournalLine>();
 
         long accountId = account.getAccountId();
         Account bankAccount = accountRepo.getByCodeAndType(bankAccountCode, Constants.AccountType.BankAccount.toString());
@@ -125,7 +125,7 @@ public class AccountAddFunds extends AbstractTemplate {
 
     // This builds a "reversed" journal
     public List<JournalLine> buildJournalLinesCorrection(long journalId) throws AccountingMakerException {
-        List<JournalLine> journalLines = new ArrayList<>();
+        var journalLines = new ArrayList<JournalLine>();
 
         long accountId = account.getAccountId();
         Account bankAccount = accountRepo.getByCodeAndType(bankAccountCode, Constants.AccountType.BankAccount.toString());

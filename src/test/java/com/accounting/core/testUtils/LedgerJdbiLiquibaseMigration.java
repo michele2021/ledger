@@ -44,8 +44,8 @@ public class LedgerJdbiLiquibaseMigration implements JdbiExtensionInitializer {
     }
 
     private void prepareSingleSchema(Handle handle, String schemaName) {
-        handle.createUpdate(String.format("DROP SCHEMA IF EXISTS %s CASCADE", schemaName)).execute();
-        handle.createUpdate(String.format("CREATE SCHEMA %s", schemaName)).execute();
+        handle.createUpdate("DROP SCHEMA IF EXISTS %s CASCADE".formatted(schemaName)).execute();
+        handle.createUpdate("CREATE SCHEMA %s".formatted(schemaName)).execute();
     }
 
 }

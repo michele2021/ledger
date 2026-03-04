@@ -46,7 +46,7 @@ public class JournalReverse extends AbstractTemplate {
 
     @Override
     public List<JournalLine> buildJournalLines(long journalId) {
-        List<JournalLine> reversedLines = new ArrayList<>();
+        var reversedLines = new ArrayList<JournalLine>();
 
         // Fetch original journal lines and swap credit and debit
         for (JournalLineWithTxDTO originalLine : originalJournalLines) {

@@ -90,10 +90,9 @@ public interface JournalTemplateIf {
      * @throws UnsupportedOperationException if this template doesn't support transaction creation
      */
     default Tx buildTx() {
-        throw new UnsupportedOperationException(String.format(
-                "Operation buildTx() is not supported for template class '%s'. " +
-                "Override this method if addNewTx() returns true.",
-                this.getClass().getSimpleName()));
+        throw new UnsupportedOperationException(
+                ("Operation buildTx() is not supported for template class '%s'. " +
+                "Override this method if addNewTx() returns true.").formatted(this.getClass().getSimpleName()));
     }
 
     /**
@@ -106,10 +105,9 @@ public interface JournalTemplateIf {
      * @throws UnsupportedOperationException if this template doesn't support specialized transactions
      */
     default List<SpecializedTx> buildSpecializedTxs(long txId) throws AccountingMakerException {
-        throw new UnsupportedOperationException(String.format(
-                "Operation buildSpecializedTxs() is not supported for template class '%s'. " +
-                "Override this method if addSpecializedTx() returns true.",
-                this.getClass().getSimpleName()));
+        throw new UnsupportedOperationException(
+                ("Operation buildSpecializedTxs() is not supported for template class '%s'. " +
+                "Override this method if addSpecializedTx() returns true.").formatted(this.getClass().getSimpleName()));
     }
 
     /**

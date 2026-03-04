@@ -291,7 +291,7 @@ class DailySalesReportsProcessorTest {
         reportRow1.setTransactionType(TransactionType.A);
         reportRow1.setProductType(ProductType.POSA);
 
-        List<DailySalesReportRow> reportRows = Collections.singletonList(reportRow1);
+        List<DailySalesReportRow> reportRows = List.of(reportRow1);
         DailySalesReport report = new DailySalesReport(TEST_REPORT_NAME, reportRows);
 
         long expectedReportTxId = 1L;
@@ -344,7 +344,7 @@ class DailySalesReportsProcessorTest {
         reportRow1.setTransactionType(TransactionType.A);
         reportRow1.setProductType(ProductType.POSA);
 
-        List<DailySalesReportRow> reportRows = Collections.singletonList(reportRow1);
+        List<DailySalesReportRow> reportRows = List.of(reportRow1);
         DailySalesReport report = new DailySalesReport(TEST_REPORT_NAME, reportRows);
 
         long expectedReportTxId = 1L;
@@ -396,7 +396,7 @@ class DailySalesReportsProcessorTest {
         reportRow.setTransactionType(TransactionType.A);
         reportRow.setProductType(ProductType.PIN);
 
-        List<DailySalesReportRow> reportRows = Collections.singletonList(reportRow);
+        List<DailySalesReportRow> reportRows = List.of(reportRow);
         DailySalesReport report = new DailySalesReport(TEST_REPORT_NAME, reportRows);
         long expectedReportTxId = 1L;
 
@@ -455,7 +455,7 @@ class DailySalesReportsProcessorTest {
         reportRow.setTransactionType(TransactionType.A);
         reportRow.setProductType(ProductType.PIN);
 
-        List<DailySalesReportRow> reportRows = Collections.singletonList(reportRow);
+        List<DailySalesReportRow> reportRows = List.of(reportRow);
         DailySalesReport report = new DailySalesReport(TEST_REPORT_NAME, reportRows);
         long expectedReportTxId = 1L;
 
@@ -505,7 +505,7 @@ class DailySalesReportsProcessorTest {
         reportRow.setTransactionType(TransactionType.A);
         reportRow.setProductType(ProductType.PIN);
 
-        List<DailySalesReportRow> reportRows = Collections.singletonList(reportRow);
+        List<DailySalesReportRow> reportRows = List.of(reportRow);
         DailySalesReport report = new DailySalesReport(TEST_REPORT_NAME, reportRows);
         long expectedReportTxId = 1L;
 

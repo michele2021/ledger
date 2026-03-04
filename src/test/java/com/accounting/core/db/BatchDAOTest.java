@@ -169,35 +169,18 @@ class BatchDAOTest {
         List<Integer> registerTypeIds = new ArrayList<>();
         prepareBatchCriteriaTest(accountIds, registerTypeIds);
 
-        Comparator<Batch> comparatorAsc = null;
-        switch (column) {
-            case BATCH_ID:
-//                comparatorAsc = ;
-                comparatorAsc = makeComparator(Batch::getBatchId);
-                break;
-            case ACCOUNT_ID:
-                comparatorAsc = makeComparator(Batch::getAccountId);
-                break;
-            case REGISTER_TYPE_ID:
-                comparatorAsc = makeComparator(Batch::getRegisterTypeId);
-                break;
-            case BATCH_NUMBER:
-                comparatorAsc = makeComparator(Batch::getBatchNumber);
-                break;
-            case PERIOD_BEGIN_DATE:
-                comparatorAsc = makeComparator(Batch::getPeriodBeginDate);
-                break;
-            case PERIOD_END_DATE:
-                comparatorAsc = makeComparator(Batch::getPeriodEndDate);
-                break;
-            case CLOSED_DATE:
-                comparatorAsc = makeComparator(Batch::getClosedDate);
-                break;
-            case CREATED:
-                //field not retrieved for now, can't test
-                //comparatorAsc = makeComparator(Batch::getCreated);
-                break;
-        }
+        var comparatorAsc = switch (column) {
+            case BATCH_ID -> makeComparator(Batch::getBatchId);
+            case ACCOUNT_ID -> makeComparator(Batch::getAccountId);
+            case REGISTER_TYPE_ID -> makeComparator(Batch::getRegisterTypeId);
+            case BATCH_NUMBER -> makeComparator(Batch::getBatchNumber);
+            case PERIOD_BEGIN_DATE -> makeComparator(Batch::getPeriodBeginDate);
+            case PERIOD_END_DATE -> makeComparator(Batch::getPeriodEndDate);
+            case CLOSED_DATE -> makeComparator(Batch::getClosedDate);
+            //field not retrieved for now, can't test
+            //comparatorAsc = makeComparator(Batch::getCreated);
+            case CREATED -> (Comparator<Batch>) null;
+        };
         if (isNull(comparatorAsc)) {
             return;
         }

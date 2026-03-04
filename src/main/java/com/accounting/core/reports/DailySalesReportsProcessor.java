@@ -30,6 +30,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
@@ -38,6 +40,8 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @Singleton
 public final class DailySalesReportsProcessor {
+
+    private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     private final Account account;
     private final JournalDAO journalDAO;
@@ -97,11 +101,11 @@ public final class DailySalesReportsProcessor {
             reportsImporter.moveToErrorDir(fullReportName);
             String errorsMessage = String.join("\n", errors);
             log.error("{}{} daily sales report completed with following errors:\n{}", DailySalesReportUtils.LOG_PREFIX, messagePrefix, errorsMessage);
-        });
+        }, VIRTUAL_EXECUTOR);
     }
 
     private ReportErrors processReportData(String partialReportName, boolean reprocessing) {
-        final List<String> errors = new ArrayList<>();
+        final var errors = new ArrayList<String>();
         final DailySalesReport report = importDailySalesReport(partialReportName, errors);
         final ReportErrors reportErrors = new ReportErrors(report.getFileName(), errors);
 

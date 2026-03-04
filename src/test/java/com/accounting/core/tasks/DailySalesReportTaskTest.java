@@ -2,6 +2,8 @@ package com.accounting.core.tasks;
 
 import com.accounting.core.reports.DailySalesReportUtils;
 import com.accounting.core.reports.DailySalesReportsProcessor;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +14,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +59,7 @@ class DailySalesReportTaskTest {
         // given
         String reportName = "some report name";
         Map<String, List<String>> parameters = new HashMap<>();
-        parameters.put(DailySalesReportTask.REPORT_NAME_PARAM, Collections.singletonList(reportName));
+        parameters.put(DailySalesReportTask.REPORT_NAME_PARAM, List.of(reportName));
 
         // when
         dailySalesReportTask.execute(parameters, null);
@@ -94,7 +94,7 @@ class DailySalesReportTaskTest {
         // given
         String defaultReportName = DailySalesReportUtils.getPartialReportName();
         Map<String, List<String>> parameters = new HashMap<>();
-        parameters.put(DailySalesReportTask.REPROCESS_PARAM, Collections.singletonList(reprocessParam));
+        parameters.put(DailySalesReportTask.REPROCESS_PARAM, List.of(reprocessParam));
 
         // when
         dailySalesReportTask.execute(parameters, null);
@@ -127,7 +127,7 @@ class DailySalesReportTaskTest {
     void testExecuteInvalidReprocessParams(String invalidParam) {
         // given
         Map<String, List<String>> parameters = new HashMap<>();
-        parameters.put(DailySalesReportTask.REPROCESS_PARAM, Collections.singletonList(invalidParam));
+        parameters.put(DailySalesReportTask.REPROCESS_PARAM, List.of(invalidParam));
 
         // when
         WebApplicationException exception = assertThrows(WebApplicationException.class,

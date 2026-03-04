@@ -66,7 +66,7 @@ public class TokenMatch extends JournalLinesMaker {
     public List<JournalLine> buildJournalLines(long journalId) {
 
         long accountId = account.getAccountId();
-        List<JournalLine> journalLines = new ArrayList<>();
+        var journalLines = new ArrayList<JournalLine>();
 
         // tokenReconciliationTx amount includes fees
         Amount tokenAmount = tokenReconciliationTx.getAmount();

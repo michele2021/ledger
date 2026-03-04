@@ -199,19 +199,14 @@ public class LedgerPostgresExtension extends JdbiExternalPostgresExtension imple
             //assume it is a postgres, and configured as we expect.
             return;
         }
-        String command = String.format(
-                "docker run -d --rm " +
-                        "-p %d:5432 " +
-                        "-e POSTGRES_PASSWORD=%s " +
-                        "-e POSTGRES_USER=%s " +
-                        "-e POSTGRES_DB=%s " +
-                        "--name postgres_ledger_test " +
-                        DOCKER_IMAGE,
-                port,
-                password,
-                username,
-                database
-        );
+        String command = """
+                docker run -d --rm \
+                -p %d:5432 \
+                -e POSTGRES_PASSWORD=%s \
+                -e POSTGRES_USER=%s \
+                -e POSTGRES_DB=%s \
+                --name postgres_ledger_test \
+                %s""".formatted(port, password, username, database, DOCKER_IMAGE);
 
         try {
             Runtime.getRuntime().exec(new String[] {command});

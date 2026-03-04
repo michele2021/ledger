@@ -52,7 +52,7 @@ public class BankPayment extends AbstractTemplate {
 
     @Override
     public List<JournalLine> buildJournalLines(long journalId) {
-        List<JournalLine> jls = new ArrayList<>();
+        var jls = new ArrayList<JournalLine>();
 
         // Debit/Credit
         addDebitLine(journalId, jls, getRegisterTypeId(Constants.RegisterType.BankBalance), beneficiaryAccountId, amount);

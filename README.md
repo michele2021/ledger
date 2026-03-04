@@ -7,8 +7,6 @@
 + Docker and Docker-Compose
 + Terraform 1.1.8
 
-
-
 ### Application Env variables:
 * Running environment:
   > * `ENVIRONMENT` &nbsp;&nbsp;&nbsp;(`integration`, `staging`, etc.)

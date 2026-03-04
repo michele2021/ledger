@@ -95,7 +95,7 @@ public class BatchCriteria extends AbstractCriteria<BatchCriteria.Column> {
 
     private void appendHasPeriodConfiguration(SQLBuilder<Column> b) {
         if (nonNull(hasPeriodConfiguration)) {
-            b.appendCriterion(String.format("%s%s",
+            b.appendCriterion("%s%s".formatted(
                     isFalse(hasPeriodConfiguration) ? "NOT " : "",
                     "EXISTS(SELECT 1 FROM config.batchPeriod WHERE accountId = b.accountId and registerTypeId = b.registerTypeId)"));
         }
