@@ -9,6 +9,7 @@ import com.accounting.core.entities.JournalDb;
 import com.accounting.core.entities.JournalLine;
 import com.accounting.core.entities.OrderDTO;
 import com.accounting.core.entities.Tx;
+import com.accounting.core.processing.templates.JournalTemplateIf;
 import com.accounting.core.processing.templates.TokenMatch;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +38,15 @@ class JournalMakerTest {
     @Mock
     private TokenMatch tokenMatch;
 
+    @Mock
+    private JournalTemplateIf orderTemplate;
+
     @InjectMocks
     private JournalMaker journalMaker;
 
     @AfterEach
     void reset() {
-        Mockito.reset(journalDAO, tokenMatch);
+        Mockito.reset(journalDAO, tokenMatch, orderTemplate);
     }
 
     @Test
@@ -191,6 +195,75 @@ class JournalMakerTest {
         verifyNoMoreInteractions(journalDAO);
     }
 
+
+    @Test
+    void testCreateJournalWithNewTxAndSpecializedTx() throws AccountingMakerException {
+        // given
+        int currencyId = 1;
+        long journalId = 50L;
+        long mainTxId = 10L;
+
+        long debitQuantity = 10000L;
+        long creditQuantity = 10000L;
+
+        JournalLine debitLine = JournalLine.builder()
+                .journalId(journalId)
+                .batchId(1L)
+                .debit(Amount.of(debitQuantity, currencyId))
+                .build();
+
+        JournalLine creditLine = JournalLine.builder()
+                .journalId(journalId)
+                .batchId(2L)
+                .credit(Amount.of(creditQuantity, currencyId))
+                .build();
+
+        List<JournalLine> expectedJournalLines = List.of(debitLine, creditLine);
+
+        JournalType journalType = new JournalType(2, Constants.JournalType.Received.name());
+        Tx tx = Tx.builder().txTypeId(1).accountId(100L).build();
+
+        OrderDTO orderDTO = OrderDTO.builder()
+                .txId(mainTxId)
+                .platformId(1L)
+                .orderNumber(12345L)
+                .build();
+
+        when(orderTemplate.getJournalType()).thenReturn(journalType);
+        when(orderTemplate.buildJournalLines(1L)).thenReturn(expectedJournalLines);
+        when(orderTemplate.addNewTx()).thenReturn(true);
+        when(orderTemplate.addSpecializedTx()).thenReturn(true);
+        when(orderTemplate.buildTx()).thenReturn(tx);
+        when(orderTemplate.buildSpecializedTxs(mainTxId)).thenReturn(List.of(orderDTO));
+
+        when(journalDAO.createJournalWithInfoAt(anyInt(), any(), any())).thenReturn(journalId);
+        when(journalDAO.createTx(tx)).thenReturn(mainTxId);
+
+        // when
+        JournalDb actualJournalDb = journalMaker.createJournal(orderTemplate);
+
+        // then
+        JournalDb expectedJournalDb = JournalDb.builder()
+                .journalId(journalId)
+                .txId(mainTxId)
+                .build();
+        assertEquals(expectedJournalDb, actualJournalDb);
+
+        verify(orderTemplate).getJournalType();
+        verify(orderTemplate).buildJournalLines(1L);
+        verify(orderTemplate).addNewTx();
+        verify(orderTemplate).addSpecializedTx();
+        verify(orderTemplate).buildTx();
+        verify(orderTemplate).buildSpecializedTxs(mainTxId);
+
+        verify(journalDAO).createJournalWithInfoAt(eq(journalType.getJournalTypeId()), any(), any());
+        verify(journalDAO).createTx(tx);
+        verify(journalDAO).createOrder(orderDTO);
+        verify(journalDAO).createJournalTxBulk(journalId, List.of(mainTxId));
+        verify(journalDAO).createJournalLinesBulk(expectedJournalLines);
+
+        verifyNoMoreInteractions(journalDAO);
+    }
 
     @Test
     void testCreateJournalLinesNotBalanced() {
