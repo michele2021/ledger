@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:latest
+FROM adoptopenjdk/openjdk21:latest
 VOLUME /tmp
 ADD server.yaml server.yaml
 ADD swagger.yaml swagger.yaml

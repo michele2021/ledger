@@ -327,22 +327,17 @@ public class AccountAddFundsCorrectionTest {
         final long journalId = 8921738921L;
         final long accountId = account.getAccountId();
         final long bankAccountId = bankAccount.getAccountId();
-        final long ccAccountId = ccAccount.getAccountId();
         final int currencyId = 342;
 
         final int registerTypeBankBalanceId = 5471;
         final int registerTypeBankReceivedId = 5234;
         final int registerTypeOpenBalanceId = 7332;
         final int registerTypePrefundGLId = 5345;
-        final int registerTypeClientDiscountId = 5347;
-        final int registerTypeClientDiscountPayableId = 5348;
 
         final long registerTypeBankBalanceBatchId = registerTypeBankBalanceId * 100;
         final long registerTypeBankReceivedBatchId = registerTypeBankReceivedId * 100;
         final long registerTypeOpenBalanceBatchId = registerTypeOpenBalanceId * 100;
         final long registerTypePrefundGLBatchId = registerTypePrefundGLId * 100;
-        final long registerTypeClientDiscountBatchId = registerTypeClientDiscountId * 100;
-        final long registerTypeClientDiscountPayableBatchId = registerTypeClientDiscountPayableId * 100;
 
         final long qty = 100000L;
         final long discount = 10000L;
@@ -371,20 +366,15 @@ public class AccountAddFundsCorrectionTest {
                 .thenReturn(registerTypeBankBalanceBatchId);
         when(journalMaker.getOrCreateAvailableBatch(registerTypeBankReceivedId, bankAccountId))
                 .thenReturn(registerTypeBankReceivedBatchId);
-        when(journalMaker.getOrCreateAvailableBatch(registerTypeClientDiscountId, ccAccountId))
-                .thenReturn(registerTypeClientDiscountBatchId);
-        when(journalMaker.getOrCreateAvailableBatch(registerTypeClientDiscountPayableId, ccAccountId))
-                .thenReturn(registerTypeClientDiscountPayableBatchId);
         when(journalMaker.getOrCreateAvailableBatch(registerTypeOpenBalanceId, accountId))
                 .thenReturn(registerTypeOpenBalanceBatchId);
         when(journalMaker.getOrCreateAvailableBatch(registerTypePrefundGLId, accountId)).
                 thenReturn(registerTypePrefundGLBatchId);
 
+        // Discount adjusts txAmount (qty-discount) but discount journal lines are disabled
         List<JournalLine> expectedJournalLines = asList(
                 JournalLine.builder().batchId(registerTypeBankBalanceBatchId).quantity(-(qty-discount)).journalId(journalId).currencyId(currencyId).build(),
                 JournalLine.builder().batchId(registerTypeBankReceivedBatchId).quantity(qty-discount).journalId(journalId).currencyId(currencyId).build(),
-                JournalLine.builder().batchId(registerTypeClientDiscountBatchId).quantity(-discount).journalId(journalId).currencyId(currencyId).build(),
-                JournalLine.builder().batchId(registerTypeClientDiscountPayableBatchId).quantity(discount).journalId(journalId).currencyId(currencyId).build(),
                 JournalLine.builder().batchId(registerTypeOpenBalanceBatchId).quantity(-qty).journalId(journalId).currencyId(currencyId).build(),
                 JournalLine.builder().batchId(registerTypePrefundGLBatchId).quantity(qty).journalId(journalId).currencyId(currencyId).build());
 
@@ -397,7 +387,6 @@ public class AccountAddFundsCorrectionTest {
         //then
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeBankBalanceId, bankAccountId);
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeBankReceivedId, bankAccountId);
-        verify(journalMaker).getOrCreateAvailableBatch(registerTypeClientDiscountId, ccAccountId);
         verify(journalMaker).getOrCreateAvailableBatch(registerTypeOpenBalanceId, accountId);
         verify(journalMaker).getOrCreateAvailableBatch(registerTypePrefundGLId, accountId);
 

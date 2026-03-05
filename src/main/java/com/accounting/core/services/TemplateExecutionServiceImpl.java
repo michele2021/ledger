@@ -85,6 +85,9 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
 
     @Override
     public void executeTemplate(String accountCode, QueueMessageDTO qm) {
+        if (qm == null) {
+            throw validationError(null, "No message");
+        }
         var message = qm.toBuilder()
                 .accountCode(accountCode)
                 .build();

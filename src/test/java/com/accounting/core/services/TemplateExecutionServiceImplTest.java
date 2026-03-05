@@ -1,11 +1,12 @@
 package com.accounting.core.services;
 
 import com.accounting.commons.Constants;
-import com.accounting.commons.conf.AWSConfig;
 import com.accounting.commons.conf.KafkaConfig;
 import com.accounting.commons.entities.Account;
 import com.accounting.commons.entities.Currency;
 import com.accounting.commons.exceptions.WebValidationException;
+import com.accounting.commons.kafka.KafkaMessageProducer;
+import com.accounting.commons.objectstorage.ObjectStorage;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.entities.JournalTemplate;
@@ -15,15 +16,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
-import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -32,10 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.accounting.commons.Constants.SQS_LEDGER_MESSAGE_GROUP_ID;
 import static com.accounting.commons.Message.EventType.PAYMENT_RECEIVED;
 import static com.accounting.commons.utils.MappingUtils.OBJECT_MAPPER;
-import static com.accounting.core.testUtils.TestUtils.assertArg;
 import static com.accounting.core.testUtils.TestUtils.setUpMockRepositoryHelper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,24 +56,19 @@ class TemplateExecutionServiceImplTest {
 
     RepositoryHelper repositoryHelper = setUpMockRepositoryHelper();
 
-    AWSConfig awsConfig;
-    SqsClient sqsClient;
-    KafkaConfig kafkaConfig;
-    final String queueUrl = "queueUrl";
-
-    {
-        awsConfig = mock(AWSConfig.class);
-        sqsClient = mock(SqsClient.class);
-        kafkaConfig = mock(KafkaConfig.class);
-        when(awsConfig.createSqsClient()).thenReturn(sqsClient);
-        when(awsConfig.getQueueAccountingName()).thenReturn("QueueAccounting");
-        when(awsConfig.getQueueUrl(same(sqsClient), eq("QueueAccounting"))).thenReturn(queueUrl);
-    }
-
     @Mock
     TemplateCache templateCache;
 
-    @InjectMocks
+    @Mock
+    KafkaConfig kafkaConfig;
+
+    @Mock
+    ObjectStorage objectStorage;
+
+    @Mock
+    @SuppressWarnings("rawtypes")
+    KafkaMessageProducer kafkaMessageProducer;
+
     TemplateExecutionServiceImpl subject;
 
     ObjectMapper objectMapper = OBJECT_MAPPER;
@@ -91,13 +82,21 @@ class TemplateExecutionServiceImplTest {
     @Mock
     JsonSchema jsonSchema;
 
-    @Mock
-    SendMessageResponse sendMessageResponse;
+    @SuppressWarnings("unchecked")
+    @BeforeEach
+    void setUp() {
+        subject = new TemplateExecutionServiceImpl(kafkaConfig, templateCache, objectStorage, kafkaMessageProducer, repositoryHelper);
+    }
 
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldExecuteTemplate() throws Exception {
         //given
+        when(kafkaConfig.isQueueWriteEnabled()).thenReturn(true);
+        when(kafkaConfig.getDefaultQueueTopic()).thenReturn("test-topic");
+        subject = new TemplateExecutionServiceImpl(kafkaConfig, templateCache, objectStorage, kafkaMessageProducer, repositoryHelper);
+
         QueueMessageDTO message = QueueMessageDTO.builder()
                 .type("PAYMENT_RECEIVED")
                 .accountCode("accountCode")
@@ -110,7 +109,6 @@ class TemplateExecutionServiceImplTest {
                 .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
                 .source("FRONT_END_APP")
                 .build();
-        String expectedMessageBody = objectMapper.writeValueAsString(message);
 
         when(templateCache.get(any())).thenReturn(journalTemplate);
         when(journalTemplate.getAccountTypes()).thenReturn(List.of(Constants.AccountType.Company));
@@ -133,15 +131,12 @@ class TemplateExecutionServiceImplTest {
         Account bankAccount = Account.builder().build();
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BankAccount"))).thenReturn(bankAccount);
 
-        when(sqsClient.sendMessage(any(SendMessageRequest.class))).thenReturn(sendMessageResponse);
-
 
         //when
-        subject.executeTemplate(null, message);
+        subject.executeTemplate("accountCode", message);
 
 
         //then
-
         verify(templateCache).get(eq(PAYMENT_RECEIVED));
         verify(journalTemplate).getAccountTypes();
         verify(journalTemplate).getAdditionalDataSchema();
@@ -149,15 +144,7 @@ class TemplateExecutionServiceImplTest {
         verify(repositoryHelper.getCurrencyRepo()).get(eq("ABC"));
         verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("bankAccountCode"), eq("BankAccount"));
 
-        verify(sqsClient).sendMessage(assertArg((SendMessageRequest sendMessageRequest) -> {
-            assertThat(sendMessageRequest.queueUrl()).isEqualTo(queueUrl);
-            assertThat(sendMessageRequest.messageGroupId()).isEqualTo(SQS_LEDGER_MESSAGE_GROUP_ID);
-            String messageBody = sendMessageRequest.messageBody();
-            //Note: we can't control the timestamp addded by service, so we just remove if before we compare JSON
-            messageBody = messageBody.replaceAll(",\"timestamp\":.*}", "}");
-            assertThat(messageBody).isEqualTo(expectedMessageBody);
-        }));
-
+        verify(kafkaMessageProducer).send(eq("test-topic"), eq("MAIN"), any(String.class));
     }
 
     static WebValidationException assertValidation(Executable executable) {
@@ -169,7 +156,7 @@ class TemplateExecutionServiceImplTest {
         //given
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, null));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", null));
 
         //then
         assertThat(validationError.getMessage()).contains("No message");
@@ -195,7 +182,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -225,7 +212,7 @@ class TemplateExecutionServiceImplTest {
         when(templateCache.get(any())).thenReturn(journalTemplate);
 
 
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -282,7 +269,7 @@ class TemplateExecutionServiceImplTest {
         when(templateCache.get(any())).thenReturn(journalTemplate);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("", message));
 
 
         //then
@@ -314,7 +301,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -345,7 +332,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -376,7 +363,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -409,7 +396,7 @@ class TemplateExecutionServiceImplTest {
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("Company"))).thenReturn(cardAccount);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -442,7 +429,7 @@ class TemplateExecutionServiceImplTest {
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("Company"))).thenReturn(cardAccount);
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -478,7 +465,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -515,7 +502,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -552,7 +539,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -591,7 +578,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -629,7 +616,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -667,7 +654,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -720,7 +707,7 @@ class TemplateExecutionServiceImplTest {
 
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -768,11 +755,9 @@ class TemplateExecutionServiceImplTest {
         Account bankAccount = Account.builder().build();
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BankAccount"))).thenReturn(bankAccount);
 
-        when(sqsClient.sendMessage(any(SendMessageRequest.class))).thenReturn(sendMessageResponse);
-
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then
@@ -818,11 +803,9 @@ class TemplateExecutionServiceImplTest {
 
         when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BankAccount"))).thenReturn(null);
 
-        when(sqsClient.sendMessage(any(SendMessageRequest.class))).thenReturn(sendMessageResponse);
-
 
         //when
-        WebValidationException validationError = assertValidation(() -> subject.executeTemplate(null, message));
+        WebValidationException validationError = assertValidation(() -> subject.executeTemplate("accountCode", message));
 
 
         //then

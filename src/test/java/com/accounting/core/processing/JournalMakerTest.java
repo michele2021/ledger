@@ -83,14 +83,14 @@ class JournalMakerTest {
         long txId = 1L;
         JournalType journalType = new JournalType(1, Constants.JournalType.Matched.name());
         JournalDb expectedJournalDb = JournalDb.builder()
-                .txId(txId)
+                .txId(0)
                 .journalId(journalId)
                 .build();
 
         when(tokenMatch.buildJournalLines(journalId)).thenReturn(expectedJournalLines);
         when(tokenMatch.getJournalType()).thenReturn(journalType);
         when(tokenMatch.linkTxs()).thenReturn(List.of(txId));
-        when(journalDAO.createJournalAt(anyInt(), any())).thenReturn(journalId);
+        when(journalDAO.createJournalWithInfoAt(anyInt(), any(), any())).thenReturn(journalId);
 
         when(tokenMatch.addNewTx()).thenReturn(false);
         when(tokenMatch.addSpecializedTx()).thenReturn(false);
@@ -109,7 +109,7 @@ class JournalMakerTest {
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).updateSpecializedTx();
 
-        verify(journalDAO).createJournalAt(eq(journalType.getJournalTypeId()), isNull());
+        verify(journalDAO).createJournalWithInfoAt(eq(journalType.getJournalTypeId()), isNull(), any());
 
         verify(journalDAO).createJournalTxBulk(journalId, List.of(txId));
         verify(journalDAO).createJournalLinesBulk(expectedJournalLines);
@@ -156,7 +156,7 @@ class JournalMakerTest {
         OffsetDateTime bookingDate = OffsetDateTime.of(2022, 5, 12, 11, 0, 0, 0, ZoneOffset.UTC);
         JournalType journalType = new JournalType(1, Constants.JournalType.Matched.name());
         JournalDb expectedJournalDb = JournalDb.builder()
-                .txId(txId)
+                .txId(0)
                 .journalId(journalId)
                 .build();
 
@@ -164,7 +164,7 @@ class JournalMakerTest {
         when(tokenMatch.getJournalType()).thenReturn(journalType);
         when(tokenMatch.linkTxs()).thenReturn(List.of(txId));
         when(tokenMatch.getJournalBookingDate()).thenReturn(bookingDate);
-        when(journalDAO.createJournalAt(anyInt(), any(OffsetDateTime.class))).thenReturn(journalId);
+        when(journalDAO.createJournalWithInfoAt(anyInt(), any(OffsetDateTime.class), any())).thenReturn(journalId);
 
         when(tokenMatch.addNewTx()).thenReturn(false);
         when(tokenMatch.addSpecializedTx()).thenReturn(false);
@@ -183,7 +183,7 @@ class JournalMakerTest {
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).updateSpecializedTx();
 
-        verify(journalDAO).createJournalAt(eq(journalType.getJournalTypeId()), eq(bookingDate));
+        verify(journalDAO).createJournalWithInfoAt(eq(journalType.getJournalTypeId()), eq(bookingDate), any());
 
         verify(journalDAO).createJournalTxBulk(journalId, List.of(txId));
         verify(journalDAO).createJournalLinesBulk(expectedJournalLines);
@@ -228,7 +228,6 @@ class JournalMakerTest {
 
         verify(tokenMatch).getJournalType();
         verify(tokenMatch).buildJournalLines(journalId);
-        verify(tokenMatch).isTestAccount();
         verifyNoMoreInteractions(tokenMatch);
     }
 

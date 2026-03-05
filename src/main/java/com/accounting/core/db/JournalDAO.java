@@ -215,7 +215,7 @@ public interface JournalDAO {
             "              JOIN config.account a USING (accountId) " +
             "              JOIN config.accountType at USING (accountTypeId) " +
             "             WHERE jl.journalId = j.journalId " +
-            "               AND rt.registerTypeCode = 'CardsPayablePending' " +
+            "               AND rt.registerTypeCode = 'Fee' " +
             "               AND at.accountTypeCode = 'Issuer') as issuerAccountId " +
             "      FROM tx t " +
             "      JOIN journalTx jtx USING (txId) " +
@@ -301,7 +301,7 @@ public interface JournalDAO {
             "       JOIN batch b USING (batchId)" +
             "       JOIN config.registerType rt USING (registerTypeId)" +
             "  WHERE t.txId = :txId " +
-            "    AND registerTypeCode = 'FeeReceivable'" +
+            "    AND registerTypeCode = 'Fee'" +
             "    AND jt.journalTypeCode = :journalType")
     @RegisterBeanMapper(Amount.class)
     Amount getReceivedFee(long txId, Constants.JournalType journalType);

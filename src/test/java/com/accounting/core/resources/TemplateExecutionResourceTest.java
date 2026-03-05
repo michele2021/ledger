@@ -1,34 +1,32 @@
 package com.accounting.core.resources;
 
+import com.accounting.commons.SystemConstants;
+import com.accounting.commons.resources.security.entities.AuthUser;
 import com.accounting.core.dto.QueueMessageAmountDTO;
 import com.accounting.core.dto.QueueMessageDTO;
 import com.accounting.core.services.TemplateExecutionService;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import io.dropwizard.testing.junit5.ResourceExtension;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Set;
 
 import static com.accounting.commons.utils.MappingUtils.OBJECT_MAPPER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
-@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(MockitoExtension.class)
 class TemplateExecutionResourceTest {
 
-    TemplateExecutionService templateExecutionService = mock(TemplateExecutionService.class);
-
-    ResourceExtension EXT = ResourceExtension.builder()
-            .addResource(new TemplateExecutionResource(templateExecutionService))
-            .build();
-
+    @Mock
+    TemplateExecutionService templateExecutionService;
 
     /**
-     * POST /accounting/template/execute
+     * POST /accounting/journals/from-template
      */
     @Test
     void executeTemplate() throws Exception {
@@ -46,13 +44,16 @@ class TemplateExecutionResourceTest {
                 .source("source")
                 .build();
 
+        AuthUser authUser = new AuthUser(1L, "testUser", 100L, "testAccountCode",
+                Set.of(SystemConstants.UserRole.SUPER_USER), Instant.now());
+
+        TemplateExecutionResource resource = new TemplateExecutionResource(templateExecutionService);
+
         //when
-        final Response response = EXT.target("/accounting/template/execute")
-                .request()
-                .post(Entity.entity(message, MediaType.APPLICATION_JSON_TYPE));
+        final Response response = resource.execute(null, authUser, message);
 
         //then
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        verify(templateExecutionService).executeTemplate(null, eq(message));
+        verify(templateExecutionService).executeTemplate("testAccountCode", message);
     }
 }

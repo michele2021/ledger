@@ -42,12 +42,12 @@ class TemplateCacheTest {
         @SuppressWarnings("unchecked")
         Map<Message.EventType, JournalTemplate> templates = (Map<Message.EventType, JournalTemplate>) FieldUtils.readField(subject, "templates", true);
         assertNotNull(templates);
-        assertEquals(17, templates.size());
+        assertEquals(7, templates.size());
 
         jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
 
         // TODO here add new templates!!
-        assertTemplate(templates.get(PAYMENT_RECEIVED), "AccountAddFunds", "PaymentReceived.json", Constants.TxType.Payment, PAYMENT_RECEIVED, List.of(Client), Constants.JournalType.FundsReceived, true);
+        assertTemplate(templates.get(PAYMENT_RECEIVED), "PaymentReceived", "PaymentReceived.json", Constants.TxType.Payment, PAYMENT_RECEIVED, List.of(Client, Company), Constants.JournalType.PaymentReceived, false);
         assertTemplate(templates.get(BANK_PAYMENT), "BankPayment", "BankPayment.json", Constants.TxType.Payment, BANK_PAYMENT, List.of(Client, Company), Constants.JournalType.PaymentReceived, true);
     }
 

@@ -26,8 +26,9 @@ public class LedgerJdbiLiquibaseMigration implements JdbiExtensionInitializer {
             if (recreateSchema) {
                 prepareSchema(handle);
             }
-            //Note: use the "integration", as it initializes some example data.
+            // Keep integration schema/data migrations, then add test accounts when absent.
             DatabaseChangesExecutor.doMigration(handle, log, "test", "integration");
+            seedAccountsIfMissing(handle);
         } catch (LiquibaseException e) {
             String msg = "LiquibaseException: Unable to execute some migration scripts";
             log.error(msg, e);
@@ -46,6 +47,42 @@ public class LedgerJdbiLiquibaseMigration implements JdbiExtensionInitializer {
     private void prepareSingleSchema(Handle handle, String schemaName) {
         handle.createUpdate("DROP SCHEMA IF EXISTS %s CASCADE".formatted(schemaName)).execute();
         handle.createUpdate("CREATE SCHEMA %s".formatted(schemaName)).execute();
+    }
+
+    private void seedAccountsIfMissing(Handle handle) {
+        Integer accountCount = handle.select("SELECT COUNT(*) FROM config.account")
+                .mapTo(Integer.class)
+                .one();
+        if (accountCount != null && accountCount > 0) {
+            return;
+        }
+
+        insertAccount(handle, "CLIENTZERO", "Client");
+        insertAccount(handle, "CLIENTONE", "Client");
+        insertAccount(handle, "COMPANYZERO", "Company");
+        insertAccount(handle, "COMPANYONE", "Company");
+        insertAccount(handle, "ISSUERZERO", "Issuer");
+    }
+
+    private void insertAccount(Handle handle, String accountCode, String accountTypeCode) {
+        String sql = """
+                INSERT INTO config.account (accountCode, parentId, accountTypeId, status, description, test)
+                SELECT :accountCode, NULL, at.accountTypeId, 'ACTIVE', :description, TRUE
+                  FROM config.accountType at
+                 WHERE at.accountTypeCode = :accountTypeCode
+                   AND NOT EXISTS (
+                        SELECT 1
+                          FROM config.account a
+                         WHERE a.accountCode = :accountCode
+                           AND a.accountTypeId = at.accountTypeId
+                   )
+                """;
+
+        handle.createUpdate(sql)
+                .bind("accountCode", accountCode)
+                .bind("accountTypeCode", accountTypeCode)
+                .bind("description", "Auto-seeded account for DAO tests")
+                .execute();
     }
 
 }

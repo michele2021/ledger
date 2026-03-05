@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -49,7 +50,7 @@ import static com.accounting.core.testUtils.LedgerPostgresExtension.Mode.FOR_EAC
 @Slf4j
 public class LedgerPostgresExtension extends JdbiExternalPostgresExtension implements BeforeAllCallback, AfterAllCallback {
 
-    public final static String DOCKER_IMAGE = "postgres:13.5-alpine";
+    public final static String DOCKER_IMAGE = "postgres:18.3-alpine";
 
     public final static String DEFAULT_HOSTNAME = "localhost";
     public final static int DEFAULT_PORT = 5432;
@@ -199,22 +200,35 @@ public class LedgerPostgresExtension extends JdbiExternalPostgresExtension imple
             //assume it is a postgres, and configured as we expect.
             return;
         }
-        String command = """
-                docker run -d --rm \
-                -p %d:5432 \
-                -e POSTGRES_PASSWORD=%s \
-                -e POSTGRES_USER=%s \
-                -e POSTGRES_DB=%s \
-                --name postgres_ledger_test \
-                %s""".formatted(port, password, username, database, DOCKER_IMAGE);
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "docker", "run", "-d", "--rm",
+                "-p", "%d:5432".formatted(port),
+                "-e", "POSTGRES_PASSWORD=%s".formatted(password),
+                "-e", "POSTGRES_USER=%s".formatted(username),
+                "-e", "POSTGRES_DB=%s".formatted(database),
+                "--name", "postgres_ledger_test",
+                DOCKER_IMAGE
+        );
 
         try {
-            Runtime.getRuntime().exec(new String[] {command});
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                String stderr = readStream(process.getErrorStream());
+                throw new RuntimeException("Failed to run postgres in docker container! Exit code: " + exitCode + ". " + stderr);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Failed to run postgres in docker container!", e);
         } catch (IOException e) {
             throw new RuntimeException("Failed to run postgres in docker container!", e);
         }
 
         waitForDatabase();
+    }
+
+    private static String readStream(InputStream inputStream) throws IOException {
+        return new String(inputStream.readAllBytes()).trim();
     }
 
     private void waitForDatabase() {

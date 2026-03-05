@@ -689,7 +689,7 @@ class JournalDAOTest {
         //when
         journalDAO.createJournalLine(expectedJournalLine);
         boolean exist1 = journalDAO.doesJournalExist(txId, journalType);
-        boolean exist2 = journalDAO.doesJournalExist(txId, Constants.JournalType.Received);
+        boolean exist2 = journalDAO.doesJournalExist(txId, Constants.JournalType.PaymentReceived);
 
         // then
         assertThat(exist1).isTrue();
@@ -884,7 +884,7 @@ class JournalDAOTest {
         journalDAO.createJournalLine(expectedJournalLine);
 
         Journal journalActivated = journalDAO.getJournalByTxIdAndType(txId, journalType);
-        Journal journalCancelled = journalDAO.getJournalByTxIdAndType(txId, Constants.JournalType.Received);
+        Journal journalCancelled = journalDAO.getJournalByTxIdAndType(txId, Constants.JournalType.PaymentReceived);
 
         // then
         assertThat(journalActivated).isNotNull();
@@ -946,4 +946,3 @@ class JournalDAOTest {
     }
 
 }
-
