@@ -112,7 +112,7 @@ kafka:
   producerSendTimeoutMs: ${SEND_TIMEOUT_MS:-100}
   producerBatchSize: ${PRODUCER_BATCH_SIZE:-100}
   producerLingerMs: ${PRODUCER_LINGER_MS:-50}
-  consumerPollTimeoutMs: ${POLL_TIMEOUT_MS:-100}
+  consumerPollTimeoutMs: ${POLL_TIMEOUT_MS:-4000}
   queueEnabled: true
   queueReadEnabled: true
   queueWriteEnabled: true
