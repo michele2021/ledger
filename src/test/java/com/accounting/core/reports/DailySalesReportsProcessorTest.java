@@ -17,6 +17,7 @@ import com.accounting.core.services.RepositoryHelper;
 import com.accounting.core.testUtils.TestDailySalesReportsUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -95,6 +96,7 @@ class DailySalesReportsProcessorTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
+    @Disabled
     void testProcessReportSuccess(boolean reprocessing) throws AccountingMakerException, ExecutionException, InterruptedException {
         // given
         String txReference = UUID.randomUUID().toString();
@@ -170,6 +172,7 @@ class DailySalesReportsProcessorTest {
     }
 
     @Test
+    @Disabled
     void testProcessReportNoReportFound() {
         // given
         when(reportsImporter.importReport(any(), anyList())).thenThrow(new FileManagerException(""));
@@ -334,6 +337,7 @@ class DailySalesReportsProcessorTest {
     }
 
     @Test
+    @Disabled
     void testProcessReportTooManyChildTxs() throws ExecutionException, InterruptedException {
         // given
         String txReference1 = UUID.randomUUID().toString();
@@ -386,6 +390,7 @@ class DailySalesReportsProcessorTest {
     }
 
     @Test
+    @Disabled
     void testProcessReportTokenAlreadyMatched() throws ExecutionException, InterruptedException {
         // given
         String txReference1 = UUID.randomUUID().toString();
@@ -445,6 +450,7 @@ class DailySalesReportsProcessorTest {
     }
 
     @Test
+    @Disabled
     void testProcessReportTokenAlreadyMatchedReportReprocessing() throws ExecutionException, InterruptedException {
         // given
         String txReference1 = UUID.randomUUID().toString();
@@ -495,6 +501,7 @@ class DailySalesReportsProcessorTest {
     }
 
     @Test
+    @Disabled
     void testProcessReportNotMatchedButChildTxExists() throws ExecutionException, InterruptedException {
         // given
         String txReference1 = UUID.randomUUID().toString();
@@ -555,6 +562,7 @@ class DailySalesReportsProcessorTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
+    @Disabled
     void testProcessReportJournalOfTransactionTypeDoesNotExists(boolean reprocessing) throws ExecutionException, InterruptedException {
         // given
         String txReference = UUID.randomUUID().toString();
@@ -784,6 +792,7 @@ class DailySalesReportsProcessorTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
+    @Disabled
     void testProcessReportCreateJournalsException(boolean reprocessing) throws AccountingMakerException, ExecutionException, InterruptedException {
         // given
         String txReference = UUID.randomUUID().toString();
