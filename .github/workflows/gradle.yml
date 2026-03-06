@@ -22,8 +22,8 @@ jobs:
       packages: read
     env:
       SERVICE_COMMONS_PACKAGES_REPOSITORY: michele2021/service-commons
-      GITHUB_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER != '' && secrets.GH_PACKAGES_USER || github.actor }}
-      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN != '' && secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+      GITHUB_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
     steps:
     - uses: actions/checkout@v4
@@ -37,6 +37,11 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+    - name: Validate GitHub Packages credentials
+      run: |
+        test -n "${GITHUB_PACKAGES_USER}" || (echo "Missing secret: GH_PACKAGES_USER" && exit 1)
+        test -n "${GITHUB_PACKAGES_TOKEN}" || (echo "Missing secret: GH_PACKAGES_TOKEN" && exit 1)
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test
@@ -60,8 +65,8 @@ jobs:
       packages: read
     env:
       SERVICE_COMMONS_PACKAGES_REPOSITORY: michele2021/service-commons
-      GITHUB_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER != '' && secrets.GH_PACKAGES_USER || github.actor }}
-      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN != '' && secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+      GITHUB_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
     steps:
     - uses: actions/checkout@v4
@@ -70,6 +75,11 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
+
+    - name: Validate GitHub Packages credentials
+      run: |
+        test -n "${GITHUB_PACKAGES_USER}" || (echo "Missing secret: GH_PACKAGES_USER" && exit 1)
+        test -n "${GITHUB_PACKAGES_TOKEN}" || (echo "Missing secret: GH_PACKAGES_TOKEN" && exit 1)
 
     # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
