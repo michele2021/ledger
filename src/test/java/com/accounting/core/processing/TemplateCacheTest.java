@@ -47,7 +47,7 @@ class TemplateCacheTest {
         jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
 
         // TODO here add new templates!!
-        assertTemplate(templates.get(PAYMENT_RECEIVED), "PaymentReceived", "PaymentReceived.json", Constants.TxType.Payment, PAYMENT_RECEIVED, List.of(Client, Company), Constants.JournalType.PaymentReceived, false);
+        assertTemplate(templates.get(PAYMENT_RECEIVED), "PaymentReceived", "PaymentReceived.json", Constants.TxType.Payment, PAYMENT_RECEIVED, List.of(Client, Company), Constants.JournalType.PaymentReceived, true);
         assertTemplate(templates.get(BANK_PAYMENT), "BankPayment", "BankPayment.json", Constants.TxType.Payment, BANK_PAYMENT, List.of(Client, Company), Constants.JournalType.PaymentReceived, true);
     }
 

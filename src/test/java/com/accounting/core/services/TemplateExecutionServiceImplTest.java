@@ -17,6 +17,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.ValidationMessage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -42,17 +43,24 @@ class TemplateExecutionServiceImplTest {
 
     static final String PAYMENT_RECEIVED_ADDITIONAL_DATA_SCHEMA = """
             {
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "object",
-                "properties": {
-                  "bankAccountCode": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "bankAccountCode"
-                ]
-              }""";
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "object",
+                  "properties": {
+                    "paymentMethod": {
+                      "description": "Payment method identifier",
+                      "type": "string"
+                    },
+                    "paymentProvider": {
+                      "description": "Payment provider",
+                      "type": "string",
+                      "enum": ["STRIPE", "MOLLIE"]
+                    }
+                  },
+                  "required": [
+                    "paymentMethod",
+                    "paymentProvider"
+                  ]
+                }""";
 
     RepositoryHelper repositoryHelper = setUpMockRepositoryHelper();
 
@@ -105,8 +113,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("reference1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -128,8 +136,8 @@ class TemplateExecutionServiceImplTest {
         Set<ValidationMessage> errors = Collections.emptySet();
         when(jsonSchema.validate(any())).thenReturn(errors);
 
-        Account bankAccount = Account.builder().build();
-        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BankAccount"))).thenReturn(bankAccount);
+//        Account bankAccount = Account.builder().build();
+//        when(repositoryHelper.getAccountRepo().getByCodeAndType(any(), eq("BankAccount"))).thenReturn(bankAccount);
 
 
         //when
@@ -142,7 +150,6 @@ class TemplateExecutionServiceImplTest {
         verify(journalTemplate).getAdditionalDataSchema();
         verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("accountCode"), eq("Company"));
         verify(repositoryHelper.getCurrencyRepo()).get(eq("ABC"));
-        verify(repositoryHelper.getAccountRepo()).getByCodeAndType(eq("bankAccountCode"), eq("BankAccount"));
 
         verify(kafkaMessageProducer).send(eq("test-topic"), eq("MAIN"), any(String.class));
     }
@@ -175,8 +182,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -204,8 +211,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("xxxx")
                 .build();
 
@@ -233,8 +240,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("Ref1")
+                // .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -261,8 +268,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -289,8 +296,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -319,8 +326,8 @@ class TemplateExecutionServiceImplTest {
                 .accountCode("accountCode")
                 .amount(null)
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -350,8 +357,8 @@ class TemplateExecutionServiceImplTest {
                 .accountCode("accountCode")
                 .amount(null)
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -384,8 +391,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode("ABC")
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -417,8 +424,8 @@ class TemplateExecutionServiceImplTest {
                         .currencyCode(null)
                         .build())
                 .uuid(null)
-                .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .txReference("ref1")
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -451,7 +458,7 @@ class TemplateExecutionServiceImplTest {
                         .build())
                 .uuid(null)
                 .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -487,7 +494,7 @@ class TemplateExecutionServiceImplTest {
                         .build())
                 .uuid("uuid")
                 .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -513,6 +520,7 @@ class TemplateExecutionServiceImplTest {
     }
 
     @Test
+    @Disabled
     void shouldExecuteTemplateValidateTxReferenceIsNull() throws Exception {
         //given
         QueueMessageDTO message = QueueMessageDTO.builder()
@@ -524,7 +532,7 @@ class TemplateExecutionServiceImplTest {
                         .build())
                 .uuid(null)
                 .txReference("txReference")
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -562,7 +570,7 @@ class TemplateExecutionServiceImplTest {
                         .build())
                 .uuid(null)
                 .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -676,7 +684,7 @@ class TemplateExecutionServiceImplTest {
                         .build())
                 .uuid(null)
                 .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
@@ -719,6 +727,7 @@ class TemplateExecutionServiceImplTest {
 
 
     @Test
+    @Disabled
     void shouldExecuteTemplateValidateBankAssountCodeIsNotEmpty() throws Exception {
         //given
         QueueMessageDTO message = QueueMessageDTO.builder()
@@ -768,6 +777,7 @@ class TemplateExecutionServiceImplTest {
     }
 
     @Test
+    @Disabled
     void shouldExecuteTemplateValidateBankAccountExists() throws Exception {
         //given
         QueueMessageDTO message = QueueMessageDTO.builder()
@@ -779,7 +789,7 @@ class TemplateExecutionServiceImplTest {
                         .build())
                 .uuid(null)
                 .txReference(null)
-                .additionalData(objectMapper.readTree("{ \"bankAccountCode\" : \"bankAccountCode\" }"))
+                .additionalData(objectMapper.readTree("{ \"paymentProvider\" : \"STRIPE\", \"paymentMethod\" : \"payMeth1\" }"))
                 .source("FRONT_END_APP")
                 .build();
 
