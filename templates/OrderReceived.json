@@ -27,7 +27,6 @@
             }
           },
           "required": [
-            "sku",
             "price",
             "quantity"
           ]
