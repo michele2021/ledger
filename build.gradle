@@ -136,6 +136,9 @@ compileJava {
 
 shadowJar {
     mergeServiceFiles()
+    filesMatching('META-INF/services/**') {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
     enabled = project.hasProperty('buildShadowJar') && project.buildShadowJar == 'true'
 }
 
