@@ -34,8 +34,12 @@ public class JournalPost extends AbstractTemplate {
                        RepositoryHelper repositoryHelper) {
         super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         journal = gson.fromJson(additionalData, JournalPostingDTO.class);
-        var array = gson.fromJson(message.journalInfo(), JournalInfoDTO[].class);
-        this.journalInfo = List.of(array);
+        if(message.journalInfo() == null) {
+            this.journalInfo = new ArrayList<>();
+        } else {
+            var array = gson.fromJson(message.journalInfo(), JournalInfoDTO[].class);
+            this.journalInfo = List.of(array);
+        }
         this.currencyRepo = repositoryHelper.getCurrencyRepo();
     }
 
