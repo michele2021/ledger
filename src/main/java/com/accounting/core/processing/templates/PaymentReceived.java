@@ -35,7 +35,7 @@ public class PaymentReceived extends AbstractTemplate {
                            TxType txType,
                            QueueMessage message,
                            RepositoryHelper repositoryHelper) throws AccountingTemplateException {
-        super(txType, account, message.uuid(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
+        super(txType, account, message.txReference(), journalType, journalMaker, amount, message.additionalData(), repositoryHelper);
         this.oriTxReference = message.txReference();
         this.payment = gson.fromJson(additionalData, Payment.class);
         this.paymentProviderRepo = repositoryHelper.getPaymentProviderRepo();

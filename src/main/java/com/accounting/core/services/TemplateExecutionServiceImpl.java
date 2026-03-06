@@ -287,8 +287,8 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
     }
 
     private void validateTxReference(QueueMessageDTO message) {
-        if (Message.EventType.PAYMENT_RECEIVED.toString().equals(message.getType()) ||
-                Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString().equals(message.getType()) ||
+        //Message.EventType.PAYMENT_RECEIVED.toString().equals(message.getType())
+        if (Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString().equals(message.getType()) ||
                 Message.EventType.CLIENT_FEE_PAYOUT.toString().equals(message.getType())) {
             validateIsNull("txReference", message.getTxReference());
         }
@@ -320,16 +320,17 @@ public class TemplateExecutionServiceImpl implements TemplateExecutionService {
             throw validationError("additionalData", "Failed to parse JSON");
         }
 
-        if (Message.EventType.PAYMENT_RECEIVED.toString().equals(message.getType()) ||
-                Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString().equals(message.getType())) {
-            //expect to have valid bank account
-            String bankAccountCode = getAdditionalData(message, Message.AdditionalData.bankAccountCode, JsonNode::asText);
-            validateIsNotEmpty("additionalData.bankAccountCode", bankAccountCode);
-            if (Objects.isNull(accountRepo.getByCodeAndType(bankAccountCode, Constants.AccountType.BankAccount.toString()))) {
-                throw validationError("additionalData.bankAccountCode", format("Bank account code not recognized: %s", bankAccountCode));
-            }
-        }
+//        if (Message.EventType.PAYMENT_RECEIVED.toString().equals(message.getType()) ||
+//                Message.EventType.PAYMENT_RECEIVED_CORRECTION.toString().equals(message.getType())) {
+//            //expect to have valid bank account
+//            String bankAccountCode = getAdditionalData(message, Message.AdditionalData.bankAccountCode, JsonNode::asText);
+//            validateIsNotEmpty("additionalData.bankAccountCode", bankAccountCode);
+//            if (Objects.isNull(accountRepo.getByCodeAndType(bankAccountCode, Constants.AccountType.BankAccount.toString()))) {
+//                throw validationError("additionalData.bankAccountCode", format("Bank account code not recognized: %s", bankAccountCode));
+//            }
+//        }
     }
+
     @SuppressWarnings("SameParameterValue")
     private <T> T getAdditionalData(QueueMessageDTO message,
                                     Message.AdditionalData additionalDataType,

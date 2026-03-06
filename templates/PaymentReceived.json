@@ -3,5 +3,24 @@
   "eventType": "PAYMENT_RECEIVED",
   "accountTypes": ["Client","Company"],
   "journalType": "PaymentReceived",
-  "txType": "Payment"
+  "txType": "Payment",
+  "additionalDataSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "paymentMethod": {
+        "description": "Payment method identifier",
+        "type": "string"
+      },
+      "paymentProvider": {
+        "description": "Payment provider",
+        "type": "string",
+        "enum": ["STRIPE", "MOLLIE"]
+      }
+    },
+    "required": [
+      "paymentMethod",
+      "paymentProvider"
+    ]
+  }
 }
