@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: read
+    env:
+      SERVICE_COMMONS_PACKAGES_REPOSITORY: michele2021/service-commons
+      GITHUB_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER != '' && secrets.GH_PACKAGES_USER || github.actor }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN != '' && secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
 
     steps:
     - uses: actions/checkout@v4
@@ -52,6 +57,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: read
+    env:
+      SERVICE_COMMONS_PACKAGES_REPOSITORY: michele2021/service-commons
+      GITHUB_PACKAGES_USER: ${{ secrets.GH_PACKAGES_USER != '' && secrets.GH_PACKAGES_USER || github.actor }}
+      GITHUB_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN != '' && secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
 
     steps:
     - uses: actions/checkout@v4

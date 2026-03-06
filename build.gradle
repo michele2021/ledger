@@ -37,8 +37,25 @@ def getMavenSettingsCredentials = {
     }
 }*/
 
+def serviceCommonsPackagesRepository = findProperty('serviceCommonsPackagesRepository')
+        ?: System.getenv('SERVICE_COMMONS_PACKAGES_REPOSITORY')
+        ?: 'michele2021/service-commons'
+def githubPackagesUser = findProperty('githubPackagesUser')
+        ?: System.getenv('GITHUB_PACKAGES_USER')
+        ?: System.getenv('GITHUB_ACTOR')
+def githubPackagesToken = findProperty('githubPackagesToken')
+        ?: System.getenv('GITHUB_PACKAGES_TOKEN')
+        ?: System.getenv('GITHUB_TOKEN')
+
 repositories {
     mavenLocal()
+    maven {
+        url = uri("https://maven.pkg.github.com/${serviceCommonsPackagesRepository}")
+        credentials {
+            username = githubPackagesUser
+            password = githubPackagesToken
+        }
+    }
     mavenCentral()
     /*maven {
         url s3_release_repository

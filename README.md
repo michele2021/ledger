@@ -2,7 +2,7 @@
 
 ### Requirements:
 + Java 21
-+ Gradle 8.12.1
++ Gradle 9.4.0
 + Postgres 17.2
 + Docker and Docker-Compose
 + Terraform 1.1.8
