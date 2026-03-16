@@ -1,0 +1,4 @@
+Rule ID,Section,Business Description,Technical Condition,True Outcome,False Outcome
+[ROOT_1],1. Root Evaluation,Is the transaction from DE (Germany)?,warehouseCountry == "DE",revenueImportGermanyZeroRateNetNode,revenueExNotTaxableNetResultNode
+[D_OSS_35],2. Core German (DE) Routing,Is standard rate temporarily reduced to 16%?,isSpecialReducedRate AND taxDate is before Jan 1 2021,REVENUE_VAT_DE_16,REVENUE_VAT_DE_19
+[D_8],2. Core German (DE) Routing,Check rate type (Domestic DE),Switch based on taxRateType,ZERO_RATE -> REVENUE_DOMESTIC_DE_ZERO_RATE; STANDARD_RATE -> standardVatRateNode; REDUCED_RATE_1 -> reducedVatRate1Node,

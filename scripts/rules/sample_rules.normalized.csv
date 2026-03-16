@@ -1,0 +1,4 @@
+rule_id,section,description,rule_type,expression,true_outcome,false_outcome,outcome_map
+[ROOT_1],1. Root Evaluation,Is the transaction from DE (Germany)?,BOOLEAN,"warehouseCountry == ""DE""",revenueImportGermanyZeroRateNetNode,revenueExNotTaxableNetResultNode,
+[D_OSS_35],2. Core German (DE) Routing,Is standard rate temporarily reduced to 16%?,BOOLEAN,"isSpecialReducedRate AND dateBefore(taxDate, ""2021-01-01"")",REVENUE_VAT_DE_16,REVENUE_VAT_DE_19,
+[D_8],2. Core German (DE) Routing,Check rate type (Domestic DE),SWITCH,taxRateType,,,"{""ZERO_RATE"": ""REVENUE_DOMESTIC_DE_ZERO_RATE"", ""STANDARD_RATE"": ""standardVatRateNode"", ""REDUCED_RATE_1"": ""reducedVatRate1Node""}"
