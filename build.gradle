@@ -184,6 +184,10 @@ tasks.withType(JavaExec) {
 
 test {
     useJUnitPlatform()
+    if (!project.hasProperty('includeDbTests')) {
+        exclude '**/BatchDAOTest.*'
+        exclude '**/JournalDAOTest.*'
+    }
     filter {
         excludeTestsMatching "com.accounting.core.testUtils.*"
     }
